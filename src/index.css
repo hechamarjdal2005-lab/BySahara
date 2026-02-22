@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Inter", "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", "Amiri", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+  --color-sahara-sand: #F4F1DE;
+  --color-sahara-terracotta: #E07A5F;
+  --color-sahara-blue: #3D405B;
+  --color-sahara-green: #81B29A;
+  --color-sahara-gold: #F2CC8F;
+
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+body {
+  background-color: var(--color-sahara-sand);
+  color: var(--color-sahara-blue);
+}

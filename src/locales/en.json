@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "cooperatives": "Our Cooperatives",
+    "about": "About Us",
+    "contact": "Contact",
+    "cart": "Cart"
+  },
+  "hero": {
+    "title": "Authentic Treasures from the Sahara",
+    "subtitle": "Discover handcrafted goods from Moroccan cooperatives, delivered to your door.",
+    "cta": "Shop Now"
+  },
+  "features": {
+    "quality": {
+      "title": "Premium Quality",
+      "desc": "Hand-picked, authentic products directly from the source."
+    },
+    "cooperatives": {
+      "title": "Supporting Locals",
+      "desc": "Empowering women and artisans in rural communities."
+    },
+    "delivery": {
+      "title": "Global Delivery",
+      "desc": "Fast and secure shipping to anywhere in the world."
+    }
+  },
+  "sections": {
+    "bestSellers": "Best Sellers",
+    "categories": "Shop by Category",
+    "featuredCooperatives": "Featured Cooperatives"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "description": "Description",
+    "ingredients": "Ingredients",
+    "reviews": "Reviews",
+    "cooperative": "Cooperative"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty.",
+    "total": "Total",
+    "checkout": "Proceed to Checkout"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shipping": "Shipping Address",
+    "payment": "Payment Details",
+    "placeOrder": "Place Order"
+  },
+  "footer": {
+    "about": "About BySahara",
+    "links": "Quick Links",
+    "legal": "Legal",
+    "delivery": "Delivery Policy",
+    "returns": "Return & Refund Policy",
+    "terms": "Terms & Conditions",
+    "copyright": "© 2024 BySahara. All rights reserved."
+  }
+}
