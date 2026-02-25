@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, Truck, ShieldCheck, Users } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import CooperativeCard from '../components/CooperativeCard';
+import CategoriesSection from '../components/CategoriesSection'; // ← ZID HAD IMPORT
 import { products, cooperatives } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -70,6 +71,9 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* ↓↓↓ CATEGORIES SECTION — MZADA HENA ↓↓↓ */}
+      <CategoriesSection />
 
       {/* Best Sellers */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
