@@ -1,91 +1,215 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Truck, ShieldCheck, Users } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Truck, ShieldCheck, Users, Star } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import CooperativeCard from '../components/CooperativeCard';
-import CategoriesSection from '../components/CategoriesSection'; // ← ZID HAD IMPORT
-import { products, cooperatives } from '../data';
+import CategoriesSection from '../components/CategoriesSection';
+import { products, cooperatives, getFeaturedProducts } from '../data';
 import { useLanguage } from '../context/LanguageContext';
+
+// ── Hero slides data ───────────────────────────────────────────
+const heroSlides = [
+  {
+    image: 'https://i.ibb.co/vxhZ3Fwm/1.png',
+    titleAr: 'منتجات أصيلة\nمن قلب الصحراء',
+    titleEn: 'Authentic Products\nfrom the Heart of the Sahara',
+    subtitleAr: 'مباشرة من تعاونيات كلميم-واد نون إلى بيتك',
+    subtitleEn: 'Directly from Guelmim-Oued Noun cooperatives to your door',
+  },
+  {
+    image: 'https://i.ibb.co/wZJtVwqY/2.png',
+    titleAr: 'دعم المرأة\nالحرفية المغربية',
+    titleEn: 'Supporting Moroccan\nWomen Artisans',
+    subtitleAr: 'كل منتج يحكي قصة امرأة صانعة',
+    subtitleEn: 'Every product tells the story of a woman artisan',
+  },
+];
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
+  const isRtl = language === 'ar';
+  const [slide, setSlide] = React.useState(0);
+  const tr = (ar: string, en: string) => (isRtl ? ar : en);
 
-  const featuredProducts = products.slice(0, 4);
+  const featuredProducts    = getFeaturedProducts().slice(0, 4);
   const featuredCooperatives = cooperatives.slice(0, 3);
 
+  // auto-slide
+  React.useEffect(() => {
+    const timer = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const current = heroSlides[slide];
+
   return (
-    <div className="space-y-16 pb-16">
-      {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&q=80&w=2000"
-            alt="Sahara Desert"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in-up">
-            {t('hero.title')}
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 font-light opacity-90 animate-fade-in-up delay-100">
-            {t('hero.subtitle')}
-          </p>
-          <Link
-            to="/shop"
-            className="inline-flex items-center bg-sahara-terracotta text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-sahara-terracotta transition-all duration-300 transform hover:scale-105 shadow-lg animate-fade-in-up delay-200"
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="pb-20">
+
+      {/* ── HERO ──────────────────────────────────────────────── */}
+      <section className="relative h-[88vh] overflow-hidden">
+        {/* background image with fade transition */}
+        {heroSlides.map((s, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 transition-opacity duration-1000"
+            style={{ opacity: i === slide ? 1 : 0 }}
           >
-            <span className="ltr:mr-2 rtl:ml-2">{t('hero.cta')}</span>
-            <ArrowRight className="w-5 h-5 rtl:rotate-180" />
-          </Link>
+            <img
+              src={s.image}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+
+        {/* overlay */}
+        <div className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, rgba(69,83,36,0.82) 0%, rgba(69,83,36,0.45) 60%, rgba(0,0,0,0.1) 100%)' }} />
+
+        {/* decorative pattern top-right */}
+        <div className="absolute top-0 end-0 w-64 h-64 opacity-10 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #F8D197 0%, transparent 70%)' }} />
+
+        {/* content */}
+        <div className="relative h-full flex flex-col justify-center max-w-7xl mx-auto px-6 sm:px-10">
+          <div className="max-w-2xl">
+            {/* eyebrow */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-px w-8 rounded" style={{ background: '#F8D197' }} />
+              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#F8D197' }}>
+                {tr('بيصحراء', 'By Sahara')}
+              </span>
+            </div>
+
+            {/* logo */}
+            <img
+              src="https://i.ibb.co/TqY5ZpYR/logo-by-sahara.png"
+              alt="By Sahara"
+              className="h-16 object-contain mb-6"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+
+            {/* title */}
+            <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight"
+              style={{ whiteSpace: 'pre-line' }}>
+              {isRtl ? current.titleAr : current.titleEn}
+            </h1>
+
+            <p className="text-lg mb-8 font-light" style={{ color: '#F7E5CD' }}>
+              {isRtl ? current.subtitleAr : current.subtitleEn}
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/shop"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-base transition-all duration-300 hover:scale-105 shadow-lg"
+                style={{ background: '#CC8F57', color: '#fff', boxShadow: '0 6px 24px #CC8F5750' }}
+              >
+                {t('hero.cta', tr('تسوق الآن', 'Shop Now'))}
+                {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+              </Link>
+              <Link
+                to="/cooperatives"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-base transition-all duration-300 hover:bg-white/20"
+                style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.35)', backdropFilter: 'blur(8px)' }}
+              >
+                {tr('اكتشف التعاونيات', 'Our Cooperatives')}
+              </Link>
+            </div>
+          </div>
+
+          {/* slide dots */}
+          <div className="absolute bottom-8 start-1/2 -translate-x-1/2 flex gap-2">
+            {heroSlides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setSlide(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: i === slide ? '24px' : '8px',
+                  height: '8px',
+                  background: i === slide ? '#F8D197' : 'rgba(255,255,255,0.4)',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* slide arrows */}
+        {[
+          { dir: -1, pos: 'start-4', icon: <ArrowLeft className="w-5 h-5" /> },
+          { dir:  1, pos: 'end-4',   icon: <ArrowRight className="w-5 h-5" /> },
+        ].map((btn) => (
+          <button
+            key={btn.pos}
+            onClick={() => setSlide((s) => (s + btn.dir + heroSlides.length) % heroSlides.length)}
+            className={`absolute top-1/2 -translate-y-1/2 ${btn.pos} w-10 h-10 rounded-full flex items-center justify-center transition-colors`}
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)' }}
+          >
+            {btn.icon}
+          </button>
+        ))}
+      </section>
+
+      {/* ── FEATURES ──────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 -mt-10 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            { icon: <ShieldCheck className="w-7 h-7" />, titleKey: 'features.quality.title',       descKey: 'features.quality.desc',       ar: ['جودة مضمونة', 'منتجات معتمدة ومفحوصة بعناية'] },
+            { icon: <Users className="w-7 h-7" />,       titleKey: 'features.cooperatives.title',  descKey: 'features.cooperatives.desc',  ar: ['دعم التعاونيات', 'كل شراء يدعم الحرفيين المحليين'] },
+            { icon: <Truck className="w-7 h-7" />,       titleKey: 'features.delivery.title',      descKey: 'features.delivery.desc',      ar: ['توصيل سريع', 'شحن آمن لجميع أنحاء المغرب'] },
+          ].map((f, i) => (
+            <div key={i}
+              className="flex items-start gap-4 p-6 rounded-2xl shadow-md transition-shadow hover:shadow-lg"
+              style={{ background: '#fff', border: '1px solid #F8D197' }}
+            >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: '#F8D197', color: '#455324' }}>
+                {f.icon}
+              </div>
+              <div>
+                <h3 className="font-bold text-base mb-1" style={{ color: '#455324' }}>
+                  {isRtl ? f.ar[0] : t(f.titleKey)}
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#763C19' }}>
+                  {isRtl ? f.ar[1] : t(f.descKey)}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-sahara-terracotta/10 text-center hover:shadow-md transition-shadow">
-            <div className="bg-sahara-sand w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-sahara-terracotta">
-              <ShieldCheck className="w-8 h-8" />
-            </div>
-            <h3 className="font-serif text-xl font-bold mb-2 text-sahara-blue">{t('features.quality.title')}</h3>
-            <p className="text-sahara-blue/70">{t('features.quality.desc')}</p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-sahara-terracotta/10 text-center hover:shadow-md transition-shadow">
-            <div className="bg-sahara-sand w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-sahara-terracotta">
-              <Users className="w-8 h-8" />
-            </div>
-            <h3 className="font-serif text-xl font-bold mb-2 text-sahara-blue">{t('features.cooperatives.title')}</h3>
-            <p className="text-sahara-blue/70">{t('features.cooperatives.desc')}</p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-sahara-terracotta/10 text-center hover:shadow-md transition-shadow">
-            <div className="bg-sahara-sand w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-sahara-terracotta">
-              <Truck className="w-8 h-8" />
-            </div>
-            <h3 className="font-serif text-xl font-bold mb-2 text-sahara-blue">{t('features.delivery.title')}</h3>
-            <p className="text-sahara-blue/70">{t('features.delivery.desc')}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ↓↓↓ CATEGORIES SECTION — MZADA HENA ↓↓↓ */}
+      {/* ── CATEGORIES ────────────────────────────────────────── */}
       <CategoriesSection />
 
-      {/* Best Sellers */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-end mb-8">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-sahara-blue">
-            {t('sections.bestSellers')}
-          </h2>
-          <Link to="/shop" className="text-sahara-terracotta hover:text-sahara-blue font-medium flex items-center transition-colors">
-            <span className="ltr:mr-1 rtl:ml-1">{language === 'ar' ? 'عرض الكل' : 'View All'}</span>
-            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+      {/* ── BEST SELLERS ──────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-4">
+        {/* section header */}
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#9FA93D' }}>
+              {tr('الأكثر مبيعاً', 'Best Sellers')}
+            </p>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold" style={{ color: '#455324' }}>
+              {t('sections.bestSellers', tr('منتجات مميزة', 'Featured Products'))}
+            </h2>
+          </div>
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors"
+            style={{ color: '#CC8F57' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#455324')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#CC8F57')}
+          >
+            {tr('عرض الكل', 'View All')}
+            {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </Link>
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
@@ -93,24 +217,101 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Cooperatives */}
-      <section className="bg-sahara-sand py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-sahara-blue mb-4">
-              {t('sections.featuredCooperatives')}
+      {/* ── PROMO BANNER ──────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-16">
+        <Link to="/shop">
+          <div
+            className="relative rounded-3xl overflow-hidden cursor-pointer group"
+            style={{ background: 'linear-gradient(135deg, #455324 0%, #617131 60%, #9FA93D 100%)', minHeight: '200px' }}
+          >
+            <div className="absolute -top-10 -end-10 w-48 h-48 rounded-full opacity-10 pointer-events-none"
+              style={{ background: '#F8D197' }} />
+            <div className="absolute -bottom-8 -start-8 w-36 h-36 rounded-full opacity-10 pointer-events-none"
+              style={{ background: '#F8D197' }} />
+
+            <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 p-10">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#9FA93D' }}>
+                  {tr('عرض خاص', 'Special Offer')}
+                </p>
+                <h3 className="font-serif text-3xl md:text-4xl font-bold text-white mb-2">
+                  {tr('شحن مجاني على كل الطلبات', 'Free Shipping on All Orders')}
+                </h3>
+                <p style={{ color: '#F7E5CD' }}>
+                  {tr('اطلب الآن واستمتع بتوصيل مجاني', 'Order now and enjoy free delivery')}
+                </p>
+              </div>
+              <div
+                className="flex-shrink-0 flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-base transition-all duration-300 group-hover:scale-105"
+                style={{ background: '#F8D197', color: '#455324' }}
+              >
+                {tr('تسوق الآن', 'Shop Now')}
+                {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+              </div>
+            </div>
+          </div>
+        </Link>
+      </section>
+
+      {/* ── COOPERATIVES ──────────────────────────────────────── */}
+      <section className="mt-16 py-16" style={{ background: '#F7E5CD40' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="text-center mb-10">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#9FA93D' }}>
+              {tr('شركاؤنا', 'Our Partners')}
+            </p>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-3" style={{ color: '#455324' }}>
+              {t('sections.featuredCooperatives', tr('التعاونيات المميزة', 'Featured Cooperatives'))}
             </h2>
-            <p className="text-sahara-blue/70 max-w-2xl mx-auto">
-              {t('features.cooperatives.desc')}
+            <p className="max-w-xl mx-auto text-sm" style={{ color: '#763C19' }}>
+              {t('features.cooperatives.desc', tr(
+                'تعاونيات تجمع نساء وحرفيين من كلميم-واد نون لإنتاج أجود المنتجات الطبيعية',
+                'Cooperatives uniting women and artisans from Guelmim-Oued Noun to produce the finest natural products'
+              ))}
             </p>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {featuredCooperatives.map((coop) => (
               <CooperativeCard key={coop.id} cooperative={coop} />
             ))}
           </div>
+
+          <div className="text-center mt-10">
+            <Link
+              to="/cooperatives"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold text-sm transition-opacity hover:opacity-90"
+              style={{ background: '#455324', color: '#fff' }}
+            >
+              {tr('كل التعاونيات', 'All Cooperatives')}
+              {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+            </Link>
+          </div>
         </div>
       </section>
+
+      {/* ── STATS ─────────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {[
+            { val: '4',    label: tr('تعاونية', 'Cooperatives') },
+            { val: '16+',  label: tr('منتج', 'Products')        },
+            { val: '100+', label: tr('حرفية', 'Artisans')       },
+            { val: '3',    label: tr('أقاليم', 'Provinces')     },
+          ].map((s) => (
+            <div key={s.label}
+              className="p-6 rounded-2xl"
+              style={{ background: '#fff', border: '1px solid #F8D197' }}
+            >
+              <p className="font-serif text-4xl font-bold mb-1" style={{ color: '#455324' }}>
+                {s.val}
+              </p>
+              <p className="text-sm font-medium" style={{ color: '#CC8F57' }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 };

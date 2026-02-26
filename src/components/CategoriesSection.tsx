@@ -2,214 +2,235 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 
+// ── Brand Colors ──────────────────────────────────────────────
+// #455324 dark green  | #617131 mid green  | #9FA93D light green
+// #CC8F57 gold        | #BA8944 dark gold  | #F8D197 cream gold
+// #F7E5CD light cream | #763C19 dark brown | #442413 deep brown
+
 interface Category {
   id: string;
   nameAr: string;
-  nameFr: string;
   nameEn: string;
   slug: string;
   icon: React.ReactNode;
 }
 
+// ── Custom SVG Icons — clean, minimal, single-stroke ─────────
+const IconDriedFruits = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <ellipse cx="22" cy="26" rx="8" ry="10" />
+    <ellipse cx="34" cy="26" rx="8" ry="10" />
+    <path d="M26 18 Q28 14 30 18" />
+    <path d="M20 38 Q28 44 36 38" />
+    <circle cx="22" cy="24" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="34" cy="24" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="28" cy="30" r="1.5" fill="currentColor" stroke="none"/>
+  </svg>
+);
+
+const IconSpices = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <path d="M18 46 L22 20 Q28 12 34 20 L38 46 Z" />
+    <path d="M20 30 L36 30" />
+    <path d="M19 38 L37 38" />
+    <path d="M28 12 Q30 7 35 9" />
+    <circle cx="28" cy="20" r="2" fill="currentColor" stroke="none"/>
+  </svg>
+);
+
+const IconTea = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <path d="M14 26 Q14 46 28 46 Q42 46 42 26 Z" />
+    <path d="M42 32 Q50 32 50 38 Q50 44 42 42" />
+    <path d="M14 26 L42 26" />
+    <path d="M22 16 Q24 10 28 12 Q32 10 34 16" />
+    <path d="M28 12 L28 26" />
+  </svg>
+);
+
+const IconEssentialOils = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <rect x="20" y="22" width="16" height="24" rx="3" />
+    <path d="M23 22 L23 17 L33 17 L33 22" />
+    <path d="M26 13 L30 13" />
+    <path d="M23 31 Q28 28 33 31" />
+    <path d="M23 38 Q28 35 33 38" />
+    <circle cx="28" cy="17" r="1.5" fill="currentColor" stroke="none"/>
+  </svg>
+);
+
+const IconHoney = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <path d="M22 18 Q18 26 18 34 Q18 46 28 46 Q38 46 38 34 Q38 26 34 18 Z" />
+    <path d="M28 10 L28 18" />
+    <path d="M23 12 L33 12" />
+    <path d="M24 32 Q28 37 32 32" />
+    <circle cx="28" cy="25" r="2" fill="currentColor" stroke="none"/>
+  </svg>
+);
+
+const IconOils = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <path d="M26 10 Q26 7 28 7 Q30 7 30 10 L32 18 Q37 20 37 28 L37 44 Q37 48 28 48 Q19 48 19 44 L19 28 Q19 20 24 18 Z" />
+    <path d="M23 33 Q28 30 33 33" />
+    <ellipse cx="28" cy="43" rx="5" ry="1.5" />
+    <circle cx="28" cy="24" r="2" fill="currentColor" stroke="none"/>
+  </svg>
+);
+
+const IconFlour = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <path d="M16 26 Q18 16 28 14 Q38 16 40 26 L38 48 Q38 50 28 50 Q18 50 18 48 Z" />
+    <path d="M23 14 L23 9 Q28 7 33 9 L33 14" />
+    <path d="M21 32 L35 32" />
+    <path d="M21 40 L35 40" />
+    <circle cx="28" cy="22" r="2.5" fill="currentColor" stroke="none"/>
+  </svg>
+);
+
+const IconBeauty = () => (
+  <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+    <circle cx="28" cy="22" r="10" />
+    <path d="M21 17 Q25 13 28 15 Q31 13 35 17" />
+    <path d="M24 25 Q28 29 32 25" />
+    <path d="M19 32 Q13 38 17 46 Q24 51 28 48 Q32 51 39 46 Q43 38 37 32" />
+  </svg>
+);
+
 const categories: Category[] = [
-  {
-    id: "1",
-    nameAr: "فواكه جافة",
-    nameFr: "Fruits secs",
-    nameEn: "Dried Fruits",
-    slug: "dried-fruits",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <circle cx="32" cy="28" r="14" />
-        <path d="M20 44 Q32 56 44 44" />
-        <circle cx="26" cy="24" r="3" />
-        <circle cx="38" cy="24" r="3" />
-        <circle cx="32" cy="34" r="3" />
-      </svg>
-    ),
-  },
-  {
-    id: "2",
-    nameAr: "توابل و بهارات",
-    nameFr: "Épices & Aromates",
-    nameEn: "Spices & Herbs",
-    slug: "spices",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <path d="M20 48 L24 20 Q32 12 40 20 L44 48 Z" />
-        <path d="M22 32 L42 32" />
-        <path d="M21 40 L43 40" />
-        <path d="M32 12 Q36 6 40 8" />
-      </svg>
-    ),
-  },
-  {
-    id: "3",
-    nameAr: "شاي و أعشاب",
-    nameFr: "Thés & Herbes",
-    nameEn: "Teas & Herbs",
-    slug: "teas",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <path d="M16 28 Q16 48 32 48 Q48 48 48 28 Z" />
-        <path d="M48 34 Q56 34 56 40 Q56 46 48 44" />
-        <path d="M20 28 L44 28" />
-        <path d="M24 16 Q26 10 32 12 Q38 10 40 16" />
-        <path d="M32 12 L32 28" />
-      </svg>
-    ),
-  },
-  {
-    id: "4",
-    nameAr: "مستخلصات و زيوت أساسية",
-    nameFr: "Huiles Essentielles",
-    nameEn: "Essential Oils",
-    slug: "essential-oils",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <rect x="22" y="24" width="20" height="28" rx="4" />
-        <path d="M26 24 L26 18 L38 18 L38 24" />
-        <path d="M29 14 L35 14" />
-        <path d="M26 34 Q32 30 38 34" />
-        <path d="M26 42 Q32 38 38 42" />
-      </svg>
-    ),
-  },
-  {
-    id: "5",
-    nameAr: "عسل وأملو ومربى",
-    nameFr: "Miel, Amlou & Confitures",
-    nameEn: "Honey, Amlou & Jams",
-    slug: "honey",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <path d="M24 20 Q20 28 20 36 Q20 48 32 48 Q44 48 44 36 Q44 28 40 20 Z" />
-        <path d="M32 12 L32 20" />
-        <path d="M26 14 L38 14" />
-        <path d="M26 34 Q32 40 38 34" />
-      </svg>
-    ),
-  },
-  {
-    id: "6",
-    nameAr: "زيوت غذائية",
-    nameFr: "Huiles Alimentaires",
-    nameEn: "Cooking Oils",
-    slug: "cooking-oils",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <path d="M28 12 Q28 8 32 8 Q36 8 36 12 L38 20 Q44 22 44 30 L44 48 Q44 52 32 52 Q20 52 20 48 L20 30 Q20 22 26 20 Z" />
-        <path d="M26 36 Q32 32 38 36" />
-        <ellipse cx="32" cy="46" rx="6" ry="2" />
-      </svg>
-    ),
-  },
-  {
-    id: "7",
-    nameAr: "دقيق و سميد",
-    nameFr: "Farine & Semoule",
-    nameEn: "Flour & Semolina",
-    slug: "flour",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <path d="M18 28 Q20 18 32 16 Q44 18 46 28 L44 52 Q44 54 32 54 Q20 54 20 52 Z" />
-        <path d="M26 16 L26 10 Q32 8 38 10 L38 16" />
-        <path d="M24 34 L40 34" />
-        <path d="M24 42 L40 42" />
-        <circle cx="32" cy="24" r="3" />
-      </svg>
-    ),
-  },
-  {
-    id: "8",
-    nameAr: "صحة و جمال",
-    nameFr: "Santé & Beauté",
-    nameEn: "Health & Beauty",
-    slug: "health-beauty",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-14 h-14">
-        <circle cx="32" cy="24" r="12" />
-        <path d="M24 18 Q28 14 32 16 Q36 14 40 18" />
-        <path d="M28 28 Q32 32 36 28" />
-        <path d="M22 36 Q16 42 20 50 Q28 56 32 52 Q36 56 44 50 Q48 42 42 36" />
-      </svg>
-    ),
-  },
+  { id: "1", nameAr: "فواكه جافة",          nameEn: "Dried Fruits",      slug: "dried-fruits",   icon: <IconDriedFruits /> },
+  { id: "2", nameAr: "توابل و بهارات",       nameEn: "Spices & Herbs",    slug: "spices",          icon: <IconSpices /> },
+  { id: "3", nameAr: "شاي و أعشاب",          nameEn: "Teas & Herbs",      slug: "tea",             icon: <IconTea /> },
+  { id: "4", nameAr: "مستخلصات وزيوت عطرية", nameEn: "Essential Oils",    slug: "distilled-water", icon: <IconEssentialOils /> },
+  { id: "5", nameAr: "عسل وأملو ومربى",      nameEn: "Honey, Amlou & Jams", slug: "honey",        icon: <IconHoney /> },
+  { id: "6", nameAr: "زيوت غذائية",          nameEn: "Cooking Oils",      slug: "oils",            icon: <IconOils /> },
+  { id: "7", nameAr: "دقيق و سميد",          nameEn: "Flour & Semolina",  slug: "flour",           icon: <IconFlour /> },
+  { id: "8", nameAr: "صحة و جمال",           nameEn: "Health & Beauty",   slug: "beauty",          icon: <IconBeauty /> },
 ];
 
+// ── Single Category Card ──────────────────────────────────────
 const CategoryCard: React.FC<{ category: Category; language: string }> = ({ category, language }) => {
-  const name =
-    language === "ar"
-      ? category.nameAr
-      : language === "fr"
-      ? category.nameFr
-      : category.nameEn;
+  const name = language === "ar" ? category.nameAr : category.nameEn;
 
   return (
     <Link
       to={`/shop?category=${category.slug}`}
-      className="flex flex-col items-center justify-center p-4 border border-gray-100 rounded-xl hover:border-amber-300 hover:shadow-md transition-all duration-200 group cursor-pointer bg-white min-h-[130px]"
+      className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all duration-300 group cursor-pointer"
+      style={{
+        background: '#fff',
+        border: '1.5px solid #F8D197',
+        minHeight: '120px',
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.background = '#F8D197';
+        (e.currentTarget as HTMLElement).style.borderColor = '#CC8F57';
+        (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)';
+        (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px #CC8F5730';
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.background = '#fff';
+        (e.currentTarget as HTMLElement).style.borderColor = '#F8D197';
+        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+      }}
     >
-      <div className="text-gray-700 group-hover:text-amber-600 transition-colors duration-200 mb-3">
+      {/* icon circle */}
+      <div
+        className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-300"
+        style={{ background: '#F7E5CD', color: '#455324' }}
+      >
         {category.icon}
       </div>
-      <span className="text-sm text-center text-gray-700 font-medium leading-snug">
+
+      {/* name */}
+      <span
+        className="text-xs text-center font-semibold leading-snug"
+        style={{ color: '#455324' }}
+      >
         {name}
       </span>
     </Link>
   );
 };
 
+// ── Section ───────────────────────────────────────────────────
 const CategoriesSection: React.FC = () => {
   const { language } = useLanguage();
+  const isRtl = language === "ar";
 
-  const title =
-    language === "ar"
-      ? "ابحث عن منتوجك حسب الفئات"
-      : language === "fr"
-      ? "Cherchez par Catégorie"
-      : "Browse by Category";
-
-  const description =
-    language === "ar"
-      ? "إبحث عن المنتوجات المحلية المعتمدة والمُصنَّفة ذات الجودة الاستثنائية"
-      : language === "fr"
-      ? "Découvrez nos produits locaux certifiés et classifiés d'une qualité exceptionnelle"
-      : "Explore our certified local products of exceptional quality";
-
-  const viewAll =
-    language === "ar" ? "← عرض الكل" : language === "fr" ? "Voir tout →" : "View all →";
+  const title       = isRtl ? "تصفح حسب الفئة" : "Browse by Category";
+  const description = isRtl
+    ? "اكتشف منتجاتنا المحلية الأصيلة المعتمدة من تعاونيات كلميم-واد نون"
+    : "Discover authentic certified local products from Guelmim-Oued Noun cooperatives";
+  const viewAll     = isRtl ? "عرض الكل" : "View all";
 
   return (
-    <section className="py-16 bg-white" dir={language === "ar" ? "rtl" : "ltr"}>
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+    <section
+      className="py-20"
+      dir={isRtl ? "rtl" : "ltr"}
+      style={{ background: '#fff' }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
-          {/* Side 1 */}
-          <div className="lg:col-span-3 grid grid-cols-2 gap-4">
+          {/* ── Left 4 cards ──────────────────────────────── */}
+          <div className="lg:col-span-4 grid grid-cols-2 gap-3">
             {categories.slice(0, 4).map((cat) => (
               <CategoryCard key={cat.id} category={cat} language={language} />
             ))}
           </div>
 
-          {/* Center */}
-          <div className="lg:col-span-6 text-center px-4 lg:px-8 order-first lg:order-none">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4">
+          {/* ── Center text ───────────────────────────────── */}
+          <div className="lg:col-span-4 text-center px-2 order-first lg:order-none">
+            {/* decorative top line */}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="h-px w-10 rounded" style={{ background: '#F8D197' }} />
+              <div className="w-2 h-2 rounded-full" style={{ background: '#CC8F57' }} />
+              <div className="h-px w-10 rounded" style={{ background: '#F8D197' }} />
+            </div>
+
+            {/* logo image */}
+            <div className="flex justify-center mb-5">
+              <img
+                src="https://i.ibb.co/TqY5ZpYR/logo-by-sahara.png"
+                alt="By Sahara"
+                className="h-16 object-contain"
+              />
+            </div>
+
+            <h2
+              className="text-2xl lg:text-3xl font-bold leading-tight mb-3"
+              style={{ color: '#455324' }}
+            >
               {title}
             </h2>
-            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+            <p
+              className="text-sm leading-relaxed mb-6"
+              style={{ color: '#763C19' }}
+            >
               {description}
             </p>
+
+            {/* View all CTA */}
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 text-amber-600 font-medium hover:text-amber-700 transition-colors border-b border-amber-600 pb-0.5"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm text-white transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #455324, #617131)' }}
             >
               {viewAll}
+              <span style={{ color: '#F8D197' }}>{isRtl ? '←' : '→'}</span>
             </Link>
+
+            {/* bottom decoration */}
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <div className="h-px w-10 rounded" style={{ background: '#F8D197' }} />
+              <div className="w-2 h-2 rounded-full" style={{ background: '#CC8F57' }} />
+              <div className="h-px w-10 rounded" style={{ background: '#F8D197' }} />
+            </div>
           </div>
 
-          {/* Side 2 */}
-          <div className="lg:col-span-3 grid grid-cols-2 gap-4">
+          {/* ── Right 4 cards ─────────────────────────────── */}
+          <div className="lg:col-span-4 grid grid-cols-2 gap-3">
             {categories.slice(4, 8).map((cat) => (
               <CategoryCard key={cat.id} category={cat} language={language} />
             ))}

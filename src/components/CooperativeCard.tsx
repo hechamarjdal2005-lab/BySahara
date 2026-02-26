@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, ArrowRight } from 'lucide-react';
+import { MapPin, ArrowRight, ArrowLeft, Users, Award } from 'lucide-react';
 import { Cooperative } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -10,40 +10,101 @@ interface CooperativeCardProps {
 
 const CooperativeCard: React.FC<CooperativeCardProps> = ({ cooperative }) => {
   const { language } = useLanguage();
+  const isRtl = language === 'ar';
+  const lang = (field: { en: string; ar: string }) => (isRtl ? field.ar : field.en);
+  const t = (ar: string, en: string) => (isRtl ? ar : en);
 
-  const name = language === 'ar' ? cooperative.name.ar : cooperative.name.en;
-  const location = language === 'ar' ? cooperative.location.ar : cooperative.location.en;
-  const description = language === 'ar' ? cooperative.description.ar : cooperative.description.en;
+  const name        = lang(cooperative.name);
+  const city        = lang(cooperative.city);
+  const province    = lang(cooperative.province);
+  const description = lang(cooperative.shortDescription ?? cooperative.description);
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-sahara-terracotta/10 flex flex-col h-full">
-      <div className="relative h-48 overflow-hidden">
+    <div
+      className="rounded-2xl overflow-hidden flex flex-col h-full group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      style={{ background: '#fff', border: '1px solid #F8D197', boxShadow: '0 2px 12px #F8D19730' }}
+    >
+      {/* ── Image ─────────────────────────────────────────── */}
+      <div className="relative h-48 overflow-hidden flex-shrink-0">
         <img
           src={cooperative.image}
           alt={name}
-          className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-          <h3 className="text-white font-serif text-xl font-bold truncate">{name}</h3>
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+        {/* certifications */}
+        {cooperative.certifications && cooperative.certifications.length > 0 && (
+          <div className="absolute top-3 start-3 flex gap-1.5">
+            {cooperative.certifications.map((cert) => (
+              <span
+                key={cert}
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ background: '#9FA93D', color: '#fff' }}
+              >
+                {cert}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* name overlay */}
+        <h3 className="absolute bottom-3 start-3 end-3 text-white font-serif text-lg font-bold leading-tight truncate">
+          {name}
+        </h3>
       </div>
-      
-      <div className="p-5 flex-grow flex flex-col">
-        <div className="flex items-center text-sahara-terracotta text-sm mb-3">
-          <MapPin className="w-4 h-4 ltr:mr-1 rtl:ml-1" />
-          <span>{location}</span>
+
+      {/* ── Content ───────────────────────────────────────── */}
+      <div className="p-5 flex flex-col flex-grow">
+
+        {/* location */}
+        <div className="flex items-center gap-1.5 text-sm font-medium mb-2"
+          style={{ color: '#CC8F57' }}>
+          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>{city}</span>
+          <span style={{ color: '#F8D197' }}>·</span>
+          <span className="text-xs truncate" style={{ color: '#BA8944' }}>{province}</span>
         </div>
-        
-        <p className="text-sahara-blue/70 text-sm line-clamp-3 mb-4 flex-grow">
+
+        {/* meta row */}
+        {(cooperative.memberCount || cooperative.foundedYear) && (
+          <div className="flex items-center gap-3 mb-3">
+            {cooperative.memberCount && (
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#9FA93D' }}>
+                <Users className="w-3 h-3" />
+                <span>{cooperative.memberCount} {t('عضو', 'members')}</span>
+              </div>
+            )}
+            {cooperative.foundedYear && (
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#9FA93D' }}>
+                <Award className="w-3 h-3" />
+                <span>{t('منذ', 'est.')} {cooperative.foundedYear}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* description */}
+        <p className="text-sm leading-relaxed line-clamp-2 flex-grow mb-4"
+          style={{ color: '#763C19' }}>
           {description}
         </p>
-        
+
+        {/* divider */}
+        <div className="border-t mb-4" style={{ borderColor: '#F8D197' }} />
+
+        {/* CTA */}
         <Link
           to={`/cooperatives/${cooperative.id}`}
-          className="inline-flex items-center text-sahara-blue font-medium hover:text-sahara-terracotta transition-colors mt-auto group"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors mt-auto"
+          style={{ color: '#455324' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#CC8F57')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#455324')}
         >
-          <span className="ltr:mr-2 rtl:ml-2">{language === 'ar' ? 'اقرأ المزيد' : 'Read More'}</span>
-          <ArrowRight className="w-4 h-4 transform ltr:group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:rotate-180" />
+          {t('اكتشف التعاونية', 'Explore Cooperative')}
+          {isRtl
+            ? <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            : <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
         </Link>
       </div>
     </div>

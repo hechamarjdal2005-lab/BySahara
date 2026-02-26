@@ -1,120 +1,347 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { MapPin, ArrowLeft, ArrowRight } from 'lucide-react';
+import { MapPin, ArrowLeft, ArrowRight, Users, Leaf, Award, Phone, Mail, Package } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { cooperatives, products } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 
 const CooperativeDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
   const { language } = useLanguage();
+  const isRtl = language === 'ar';
+
+  const t = (ar: string, en: string) => (isRtl ? ar : en);
+  const lang = (field: { en: string; ar: string }) => (isRtl ? field.ar : field.en);
 
   const cooperative = cooperatives.find((c) => c.id === id);
-  
+
+  // ── Not Found ────────────────────────────────────────────────
   if (!cooperative) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-sahara-blue mb-4">Cooperative not found</h2>
-        <Link to="/cooperatives" className="text-sahara-terracotta hover:underline">
-          Back to Cooperatives
+      <div
+        className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6"
+        dir={isRtl ? 'rtl' : 'ltr'}
+      >
+        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+          style={{ background: '#F8D197' }}>
+          <MapPin className="w-9 h-9" style={{ color: '#455324' }} />
+        </div>
+        <h2 className="font-serif text-2xl font-bold mb-3" style={{ color: '#455324' }}>
+          {t('التعاونية غير موجودة', 'Cooperative not found')}
+        </h2>
+        <Link to="/cooperatives"
+          className="inline-flex items-center gap-2 px-6 py-2 rounded-full font-semibold text-white transition-opacity hover:opacity-90"
+          style={{ background: '#455324' }}>
+          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+          {t('العودة للتعاونيات', 'Back to Cooperatives')}
         </Link>
       </div>
     );
   }
 
   const coopProducts = products.filter((p) => p.cooperativeId === cooperative.id);
-  const name = language === 'ar' ? cooperative.name.ar : cooperative.name.en;
-  const location = language === 'ar' ? cooperative.location.ar : cooperative.location.en;
-  const description = language === 'ar' ? cooperative.description.ar : cooperative.description.en;
+  const name        = lang(cooperative.name);
+  const city        = lang(cooperative.city);
+  const province    = lang(cooperative.province);
+  const description = lang(cooperative.description);
+
+  const impactItems = [
+    {
+      icon: <Users className="w-5 h-5" />,
+      title: t('التمكين', 'Empowerment'),
+      desc:  t('أجور عادلة واستقلالية للحرفيين المحليين', 'Fair wages and independence for local artisans.'),
+    },
+    {
+      icon: <Leaf className="w-5 h-5" />,
+      title: t('الاستدامة', 'Sustainability'),
+      desc:  t('مواد صديقة للبيئة وطرق تقليدية', 'Eco-friendly materials and traditional methods.'),
+    },
+    {
+      icon: <Award className="w-5 h-5" />,
+      title: t('الجودة', 'Quality'),
+      desc:  t('رقابة صارمة لضمان أعلى المعايير', 'Rigorous quality control ensuring the highest standards.'),
+    },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link 
-        to="/cooperatives" 
-        className="inline-flex items-center text-sahara-blue/60 hover:text-sahara-terracotta mb-8 transition-colors"
-      >
-        {language === 'ar' ? <ArrowRight className="w-4 h-4 ml-2" /> : <ArrowLeft className="w-4 h-4 mr-2" />}
-        {language === 'ar' ? 'العودة للتعاونيات' : 'Back to Cooperatives'}
-      </Link>
+    <div className="min-h-screen pb-20" dir={isRtl ? 'rtl' : 'ltr'}
+      style={{ background: '#F7E5CD20' }}>
 
-      {/* Hero / Header */}
-      <div className="relative rounded-3xl overflow-hidden mb-12 h-[400px]">
-        <img
-          src={cooperative.image}
-          alt={name}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-8 md:p-12">
-          <h1 className="text-white font-serif text-4xl md:text-5xl font-bold mb-4">{name}</h1>
-          <div className="flex items-center text-white/90 text-lg">
-            <MapPin className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
-            <span>{location}</span>
+      {/* ── Back link ─────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-8">
+        <Link
+          to="/cooperatives"
+          className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
+          style={{ color: '#BA8944' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#455324')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#BA8944')}
+        >
+          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+          {t('العودة للتعاونيات', 'Back to Cooperatives')}
+        </Link>
+      </div>
+
+      {/* ── Hero Image ────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
+        <div className="relative rounded-3xl overflow-hidden h-80 md:h-[440px] shadow-xl">
+          <img
+            src={cooperative.image}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+          {/* certifications */}
+          {cooperative.certifications && cooperative.certifications.length > 0 && (
+            <div className="absolute top-5 start-5 flex gap-2">
+              {cooperative.certifications.map((cert) => (
+                <span key={cert}
+                  className="text-xs font-bold px-3 py-1 rounded-full"
+                  style={{ background: '#9FA93D', color: '#fff' }}>
+                  {cert}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* title overlay */}
+          <div className="absolute bottom-0 start-0 end-0 p-8 md:p-12">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2"
+              style={{ color: '#F8D197' }}>
+              {t('تعاونية', 'Cooperative')}
+            </p>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">
+              {name}
+            </h1>
+            <div className="flex items-center gap-2 text-white/90">
+              <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: '#F8D197' }} />
+              <span className="font-medium">{city}</span>
+              <span style={{ color: '#F8D197' }}>·</span>
+              <span className="text-sm opacity-80">{province}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Description */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
-        <div className="lg:col-span-2">
-          <h2 className="font-serif text-3xl font-bold text-sahara-blue mb-6">About the Cooperative</h2>
-          <div className="prose prose-lg text-sahara-blue/80">
-            <p>{description}</p>
-            <p className="mt-4">
-              Founded with a mission to preserve traditional craftsmanship, {name} brings together skilled artisans from the {location} region. By supporting this cooperative, you are helping to sustain local economies and keep ancient traditions alive.
+      {/* ── Main Content ──────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        {/* Left: description ──────────────────────────────────── */}
+        <div className="lg:col-span-2 space-y-8">
+
+          {/* about card */}
+          <div className="rounded-2xl p-8 shadow-sm"
+            style={{ background: '#fff', border: '1px solid #F8D197' }}>
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-1 h-6 rounded-full" style={{ background: '#CC8F57' }} />
+              <h2 className="font-serif text-2xl font-bold" style={{ color: '#455324' }}>
+                {t('عن التعاونية', 'About the Cooperative')}
+              </h2>
+            </div>
+            <p className="leading-relaxed mb-4" style={{ color: '#442413' }}>
+              {description}
+            </p>
+            <p className="leading-relaxed text-sm" style={{ color: '#763C19' }}>
+              {t(
+                `تأسست ${name} بهدف الحفاظ على الحرف التقليدية، وتجمع حرفيين ماهرين من منطقة ${city}. بدعمك لهذه التعاونية، تساهم في استدامة الاقتصاد المحلي والحفاظ على التراث العريق.`,
+                `Founded with a mission to preserve traditional craftsmanship, ${name} brings together skilled artisans from the ${city} region. By supporting this cooperative, you help sustain local economies and keep ancient traditions alive.`
+              )}
             </p>
           </div>
+
+          {/* impact cards */}
+          <div>
+            <h2 className="font-serif text-xl font-bold mb-4" style={{ color: '#455324' }}>
+              {t('الأثر الاجتماعي', 'Social Impact')}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {impactItems.map((item) => (
+                <div key={item.title}
+                  className="rounded-2xl p-5 text-center"
+                  style={{ background: '#455324' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
+                    style={{ background: '#F8D197', color: '#455324' }}>
+                    {item.icon}
+                  </div>
+                  <h4 className="font-bold text-sm mb-1" style={{ color: '#F8D197' }}>
+                    {item.title}
+                  </h4>
+                  <p className="text-xs leading-relaxed" style={{ color: '#F7E5CD' }}>
+                    {item.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="bg-sahara-sand p-8 rounded-2xl h-fit">
-          <h3 className="font-serif text-xl font-bold text-sahara-blue mb-4">Impact</h3>
-          <ul className="space-y-4">
-            <li className="flex items-start gap-3">
-              <div className="bg-sahara-terracotta/10 p-2 rounded-full text-sahara-terracotta">
-                <UsersIcon className="w-5 h-5" />
+
+        {/* Right: info card ────────────────────────────────────── */}
+        <div className="lg:col-span-1">
+          <div className="rounded-2xl overflow-hidden shadow-sm sticky top-8"
+            style={{ border: '1px solid #F8D197' }}>
+
+            {/* card header */}
+            <div className="px-6 py-4" style={{ background: '#F8D197' }}>
+              <h3 className="font-serif text-lg font-bold" style={{ color: '#455324' }}>
+                {t('معلومات التعاونية', 'Cooperative Info')}
+              </h3>
+            </div>
+
+            <div className="p-6 space-y-4" style={{ background: '#fff' }}>
+              {/* location */}
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: '#F8D197' }}>
+                  <MapPin className="w-4 h-4" style={{ color: '#CC8F57' }} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide mb-0.5"
+                    style={{ color: '#9FA93D' }}>
+                    {t('الموقع', 'Location')}
+                  </p>
+                  <p className="text-sm font-medium" style={{ color: '#442413' }}>
+                    {city}
+                  </p>
+                  <p className="text-xs" style={{ color: '#BA8944' }}>{province}</p>
+                  <p className="text-xs" style={{ color: '#BA8944' }}>
+                    {lang(cooperative.region)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <span className="font-bold block text-sahara-blue">Empowerment</span>
-                <span className="text-sm text-sahara-blue/70">Providing fair wages and independence to local artisans.</span>
+
+              {/* members */}
+              {cooperative.memberCount && (
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: '#F8D197' }}>
+                    <Users className="w-4 h-4" style={{ color: '#CC8F57' }} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-0.5"
+                      style={{ color: '#9FA93D' }}>
+                      {t('الأعضاء', 'Members')}
+                    </p>
+                    <p className="text-sm font-medium" style={{ color: '#442413' }}>
+                      {cooperative.memberCount} {t('عضو', 'members')}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* founded */}
+              {cooperative.foundedYear && (
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: '#F8D197' }}>
+                    <Award className="w-4 h-4" style={{ color: '#CC8F57' }} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-0.5"
+                      style={{ color: '#9FA93D' }}>
+                      {t('تأسست', 'Founded')}
+                    </p>
+                    <p className="text-sm font-medium" style={{ color: '#442413' }}>
+                      {cooperative.foundedYear}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* phone */}
+              {cooperative.phone && (
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: '#F8D197' }}>
+                    <Phone className="w-4 h-4" style={{ color: '#CC8F57' }} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-0.5"
+                      style={{ color: '#9FA93D' }}>
+                      {t('الهاتف', 'Phone')}
+                    </p>
+                    <p className="text-sm font-medium" style={{ color: '#442413' }}>
+                      {cooperative.phone}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* products count */}
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: '#F8D197' }}>
+                  <Package className="w-4 h-4" style={{ color: '#CC8F57' }} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide mb-0.5"
+                    style={{ color: '#9FA93D' }}>
+                    {t('المنتجات', 'Products')}
+                  </p>
+                  <p className="text-sm font-medium" style={{ color: '#442413' }}>
+                    {coopProducts.length} {t('منتج', 'products')}
+                  </p>
+                </div>
               </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="bg-sahara-terracotta/10 p-2 rounded-full text-sahara-terracotta">
-                <LeafIcon className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="font-bold block text-sahara-blue">Sustainability</span>
-                <span className="text-sm text-sahara-blue/70">Using eco-friendly materials and traditional methods.</span>
-              </div>
-            </li>
-          </ul>
+
+              {/* certifications */}
+              {cooperative.certifications && cooperative.certifications.length > 0 && (
+                <div className="pt-2 border-t" style={{ borderColor: '#F8D197' }}>
+                  <p className="text-xs font-semibold uppercase tracking-wide mb-2"
+                    style={{ color: '#9FA93D' }}>
+                    {t('الشهادات', 'Certifications')}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {cooperative.certifications.map((cert) => (
+                      <span key={cert}
+                        className="text-xs font-bold px-3 py-1 rounded-full"
+                        style={{ background: '#9FA93D20', color: '#617131' }}>
+                        ✓ {cert}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Products */}
-      <div>
-        <h2 className="font-serif text-3xl font-bold text-sahara-blue mb-8">Products by {name}</h2>
+      {/* ── Products Section ──────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-16">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-8 rounded-full" style={{ background: '#CC8F57' }} />
+            <h2 className="font-serif text-3xl font-bold" style={{ color: '#455324' }}>
+              {t(`منتجات ${name}`, `Products by ${name}`)}
+            </h2>
+          </div>
+          {coopProducts.length > 0 && (
+            <span className="text-xs font-semibold px-3 py-1.5 rounded-full"
+              style={{ background: '#F8D197', color: '#763C19' }}>
+              {coopProducts.length} {t('منتج', 'products')}
+            </span>
+          )}
+        </div>
+
         {coopProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {coopProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <p className="text-sahara-blue/60">No products currently available from this cooperative.</p>
+          <div className="text-center py-16 rounded-2xl"
+            style={{ background: '#fff', border: '1px solid #F8D197' }}>
+            <Package className="w-10 h-10 mx-auto mb-3 opacity-30"
+              style={{ color: '#CC8F57' }} />
+            <p style={{ color: '#BA8944' }}>
+              {t('لا توجد منتجات متاحة حالياً من هذه التعاونية', 'No products currently available from this cooperative.')}
+            </p>
+          </div>
         )}
       </div>
     </div>
   );
 };
-
-// Simple icons for this component
-const UsersIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-);
-
-const LeafIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-);
 
 export default CooperativeDetails;

@@ -14,46 +14,128 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
   const { language } = useLanguage();
+  const isRtl = language === 'ar';
 
-  const name = language === 'ar' ? product.name.ar : product.name.en;
-  const price = product.price.toFixed(2);
+  const name = isRtl ? product.name.ar : product.name.en;
+  const unit = product.unit ? (isRtl ? product.unit.ar : product.unit.en) : '';
+  const origin = product.origin ? (isRtl ? product.origin.ar : product.origin.en) : null;
 
   return (
-    <div className="group relative bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-sahara-terracotta/10">
-      <Link to={`/product/${product.id}`} className="block relative aspect-[4/5] overflow-hidden">
+    <div
+      className="group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      style={{
+        background: '#fff',
+        border: '1.5px solid #F8D197',
+        boxShadow: '0 2px 12px #F8D19730',
+      }}
+    >
+      {/* ── Image ─────────────────────────────────────────── */}
+      <Link to={`/product/${product.id}`} className="block relative overflow-hidden"
+        style={{ aspectRatio: '4/5' }}>
         <img
           src={product.image}
           alt={name}
-          className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-500"
+          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-bold text-sahara-terracotta shadow-sm flex items-center gap-1">
+
+        {/* dark gradient bottom */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* rating badge */}
+        <div
+          className="absolute top-3 end-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-sm"
+          style={{ background: 'rgba(255,255,255,0.92)', color: '#BA8944' }}
+        >
           <Star className="w-3 h-3 fill-current" />
           {product.rating}
         </div>
+
+        {/* NEW badge */}
+        {product.isNew && (
+          <div
+            className="absolute top-3 start-3 px-2 py-1 rounded-full text-xs font-bold"
+            style={{ background: '#9FA93D', color: '#fff' }}
+          >
+            {isRtl ? 'جديد' : 'New'}
+          </div>
+        )}
+
+        {/* Featured badge */}
+        {product.isFeatured && !product.isNew && (
+          <div
+            className="absolute top-3 start-3 px-2 py-1 rounded-full text-xs font-bold"
+            style={{ background: '#CC8F57', color: '#fff' }}
+          >
+            {isRtl ? 'مميز' : 'Featured'}
+          </div>
+        )}
       </Link>
-      
-      <div className="p-4">
-        <div className="mb-2">
-          <span className="text-xs text-sahara-terracotta uppercase tracking-wider font-medium">
+
+      {/* ── Content ───────────────────────────────────────── */}
+      <div className="p-4 flex flex-col flex-grow">
+
+        {/* category + origin */}
+        <div className="flex items-center justify-between mb-1.5">
+          <span
+            className="text-xs font-semibold uppercase tracking-wider"
+            style={{ color: '#9FA93D' }}
+          >
             {product.category}
           </span>
-          <Link to={`/product/${product.id}`}>
-            <h3 className="text-lg font-serif font-bold text-sahara-blue mt-1 group-hover:text-sahara-terracotta transition-colors line-clamp-1">
-              {name}
-            </h3>
-          </Link>
+          {origin && (
+            <span className="text-xs" style={{ color: '#BA8944' }}>
+              📍 {origin}
+            </span>
+          )}
         </div>
-        
-        <div className="flex items-center justify-between mt-4">
-          <span className="text-xl font-bold text-sahara-blue">${price}</span>
-          <button
-            onClick={() => addToCart(product)}
-            className="bg-sahara-blue text-white p-2 rounded-full hover:bg-sahara-terracotta transition-colors shadow-sm active:scale-95 transform"
-            aria-label={t('product.addToCart')}
+
+        {/* name */}
+        <Link to={`/product/${product.id}`}>
+          <h3
+            className="font-serif font-bold leading-snug line-clamp-1 mb-1 transition-colors"
+            style={{ color: '#455324', fontSize: '1rem' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#CC8F57')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#455324')}
           >
-            <ShoppingBag className="w-5 h-5" />
-          </button>
+            {name}
+          </h3>
+        </Link>
+
+        {/* unit */}
+        {unit && (
+          <p className="text-xs mb-3" style={{ color: '#BA894480' }}>
+            {unit}
+          </p>
+        )}
+
+        {/* divider */}
+        <div className="mt-auto pt-3" style={{ borderTop: '1px solid #F8D197' }}>
+          <div className="flex items-center justify-between">
+            {/* price */}
+            <div>
+              <span className="text-xl font-bold" style={{ color: '#455324' }}>
+                {product.price.toFixed(2)}
+              </span>
+              <span className="text-xs ms-1 font-medium" style={{ color: '#CC8F57' }}>MAD</span>
+            </div>
+
+            {/* add to cart */}
+            <button
+              onClick={() => addToCart(product)}
+              className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 active:scale-95"
+              style={{ background: '#455324', color: '#fff' }}
+              aria-label={t('product.addToCart', 'Add to cart')}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background = '#CC8F57';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background = '#455324';
+              }}
+            >
+              <ShoppingBag className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
