@@ -1,34 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
-@theme {
-  --font-sans: "Inter", "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", "Amiri", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+/* ===== FUTURA FONT (via Jost) ===== */
+*, *::before, *::after {
+  font-family: 'Jost', 'Futura', 'Century Gothic', sans-serif;
+}
 
-  --color-sahara-sand: #F4F1DE;
-  --color-sahara-terracotta: #E07A5F;
-  --color-sahara-blue: #3D405B;
-  --color-sahara-green: #81B29A;
-  --color-sahara-gold: #F2CC8F;
+[lang="ar"],
+[dir="rtl"],
+.arabic-text {
+  font-family: 'Noto Sans Arabic', sans-serif;
+}
 
-  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
-
-  @keyframes fade-in-up {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
+/* ===== ANIMATIONS ===== */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 body {
   background-color: var(--color-sahara-sand);
   color: var(--color-sahara-blue);
+  font-family: 'Jost', 'Futura', 'Century Gothic', sans-serif;
 }
 
 .map-container {
@@ -75,7 +74,7 @@ body {
 
 .province-label {
   pointer-events: none;
-  font-family: 'Tajawal', sans-serif;
+  font-family: 'Noto Sans Arabic', sans-serif;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
@@ -119,6 +118,7 @@ body {
   text-align: center;
   border-bottom: 2px solid #3d8b6e;
   padding-bottom: 0.5rem;
+  font-family: 'Jost', 'Futura', 'Century Gothic', sans-serif;
 }
 
 .cooperatives-list,
@@ -181,7 +181,6 @@ body {
   border: 2px solid #1a5f4a;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .map-container {
     padding: 1rem;
@@ -204,7 +203,7 @@ body {
     font-size: 12px;
   }
 }
-/* Ensure the map section is centered */
+
 .map-layout {
   display: flex;
   align-items: center;
@@ -213,10 +212,9 @@ body {
   padding: 3rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
-  min-height: 600px;  /* Ensure enough height */
+  min-height: 600px;
 }
 
-/* Make sure SVG is properly centered */
 .map-container svg {
   max-width: 100%;
   height: auto;
@@ -225,7 +223,6 @@ body {
   filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.15));
 }
 
-/* Improve visibility of white provinces */
 .province-path {
   transition: all 0.3s ease;
 }

@@ -12,13 +12,31 @@ const provinceNames: Record<string, { en: string; ar: string }> = {
   'assa-zag':  { en: 'Assa-Zag',  ar: 'أسا الزاك' },
 };
 
+// ✅ FIX: أضفنا "إقليم ..." و "... Province" باش يتطابق مع data/index.ts
 const provinceNameToId: Record<string, string> = {
-  'كلميم': 'guelmim', 'طانطان': 'tan-tan',
-  'سيدي إفني': 'sidi-ifni', 'أسا الزاك': 'assa-zag',
-  'Guelmim': 'guelmim', 'Tan-Tan': 'tan-tan',
-  'Sidi Ifni': 'sidi-ifni', 'Assa-Zag': 'assa-zag',
-  'guelmim': 'guelmim', 'tan-tan': 'tan-tan',
-  'sidi-ifni': 'sidi-ifni', 'assa-zag': 'assa-zag',
+  // عربي
+  'كلميم': 'guelmim',
+  'إقليم كلميم': 'guelmim',
+  'طانطان': 'tan-tan',
+  'إقليم طانطان': 'tan-tan',
+  'سيدي إفني': 'sidi-ifni',
+  'إقليم سيدي إفني': 'sidi-ifni',
+  'أسا الزاك': 'assa-zag',
+  'إقليم أسا الزاك': 'assa-zag',
+  // إنجليزي
+  'Guelmim': 'guelmim',
+  'Guelmim Province': 'guelmim',
+  'Tan-Tan': 'tan-tan',
+  'Tan-Tan Province': 'tan-tan',
+  'Sidi Ifni': 'sidi-ifni',
+  'Sidi Ifni Province': 'sidi-ifni',
+  'Assa-Zag': 'assa-zag',
+  'Assa-Zag Province': 'assa-zag',
+  // ids مباشرة
+  'guelmim': 'guelmim',
+  'tan-tan': 'tan-tan',
+  'sidi-ifni': 'sidi-ifni',
+  'assa-zag': 'assa-zag',
 };
 
 const Cooperatives: React.FC = () => {
@@ -36,11 +54,15 @@ const Cooperatives: React.FC = () => {
 
   const getProvinceId = (c: typeof cooperatives[0]): string => {
     if (typeof c.province === 'object') {
-      return provinceNameToId[(c.province as any).ar]
-        || provinceNameToId[(c.province as any).en]
-        || '';
+      const p = c.province as { en: string; ar: string };
+      return (
+        provinceNameToId[p.ar] ||
+        provinceNameToId[p.en] ||
+        ''
+      );
     }
-    return provinceNameToId[c.province as string] || (c.province as string);
+    const s = c.province as string;
+    return provinceNameToId[s] || '';
   };
 
   const activeProvinces = [...new Set(
@@ -221,7 +243,7 @@ const Cooperatives: React.FC = () => {
 
                   {/* Content */}
                   <div className="p-5">
-                    {/* Location — city + province badge clickable */}
+                    {/* Location */}
                     <div className="flex items-center gap-1.5 text-sm font-medium mb-1"
                       style={{ color: '#CC8F57' }}>
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
