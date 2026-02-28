@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Truck, ShoppingBag, ArrowLeft, ArrowRight, MessageCircle, Banknote } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { cooperatives } from '../data';
 
-const WHATSAPP_NUMBER = '212649026589'; // 0649026589 format international
+const WHATSAPP_NUMBER = '212649026589';
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -70,13 +71,32 @@ const Checkout: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Build WhatsApp message
-    const itemLines = cart
-      .map(
-        (item) =>
-          `• ${isRtl ? item.name.ar : item.name.en} x${item.quantity} — ${(item.price * item.quantity).toFixed(2)} MAD`
-      )
-      .join('\n');
+    // Group items by cooperative
+    const byCooperative: Record<string, typeof cart> = {};
+    cart.forEach((item) => {
+      const coopId = item.cooperativeId ?? 'unknown';
+      if (!byCooperative[coopId]) byCooperative[coopId] = [];
+      byCooperative[coopId].push(item);
+    });
+
+    // Build grouped item lines
+    const itemLines = Object.entries(byCooperative)
+      .map(([coopId, items]) => {
+        const coop = cooperatives.find((c) => c.id === coopId);
+        const coopName = coop
+          ? (isRtl ? coop.name.ar : coop.name.en)
+          : tr('تعاونية غير محددة', 'Unknown Cooperative');
+
+        const productLines = items
+          .map(
+            (item) =>
+              `   • ${isRtl ? item.name.ar : item.name.en} x${item.quantity} — ${(item.price * item.quantity).toFixed(2)} MAD`
+          )
+          .join('\n');
+
+        return `🏪 *${coopName}*\n${productLines}`;
+      })
+      .join('\n\n');
 
     const message = [
       '🛍️ *طلب جديد / New Order — BY SAHARA*',
@@ -84,14 +104,14 @@ const Checkout: React.FC = () => {
       `👤 ${form.firstName} ${form.lastName}`,
       `📞 ${form.phone}`,
       form.email ? `📧 ${form.email}` : '',
-      `📍 ${form.address}, ${form.city} ${form.postalCode}`,
+      `📍 ${form.address}, ${form.city}${form.postalCode ? ' ' + form.postalCode : ''}`,
       '',
       '─────────────────',
       itemLines,
       '─────────────────',
       `💰 *Total: ${total.toFixed(2)} MAD*`,
-      `🚚 Livraison gratuite`,
-      `💵 *Paiement à la livraison*`,
+      `🚚 ${tr('توصيل مجاني', 'Livraison gratuite')}`,
+      `💵 *${tr('الدفع عند الاستلام', 'Paiement à la livraison')}*`,
     ]
       .filter(Boolean)
       .join('\n');
@@ -196,7 +216,7 @@ const Checkout: React.FC = () => {
                 </div>
               </div>
 
-              {/* STEP 2 — Paiement à la livraison (badge only, no card form) */}
+              {/* STEP 2 — Paiement à la livraison */}
               <div
                 className="rounded-2xl overflow-hidden shadow-sm"
                 style={{ background: '#fff', border: '1.5px solid #F8D197' }}
@@ -235,7 +255,6 @@ const Checkout: React.FC = () => {
                         )}
                       </p>
                     </div>
-                    {/* selected indicator */}
                     <div
                       className="ms-auto w-5 h-5 rounded-full flex items-center justify-center"
                       style={{ background: '#455324' }}
@@ -253,7 +272,6 @@ const Checkout: React.FC = () => {
                 className="rounded-2xl overflow-hidden shadow-sm sticky top-24"
                 style={{ background: '#fff', border: '1.5px solid #F8D197' }}
               >
-                {/* header */}
                 <div className="flex items-center gap-2 px-5 py-4" style={{ background: '#F8D197' }}>
                   <ShoppingBag className="w-4 h-4" style={{ color: '#455324' }} />
                   <h3 className="font-serif font-bold text-base" style={{ color: '#455324' }}>
@@ -261,34 +279,57 @@ const Checkout: React.FC = () => {
                   </h3>
                 </div>
 
-                {/* items */}
-                <div className="divide-y px-5" style={{ borderColor: '#F8D19750' }}>
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 py-3">
-                      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-                        <img
-                          src={item.image}
-                          alt={isRtl ? item.name.ar : item.name.en}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <p className="text-xs font-semibold truncate" style={{ color: '#455324' }}>
-                          {isRtl ? item.name.ar : item.name.en}
-                        </p>
-                        <p className="text-xs" style={{ color: '#BA8944' }}>
-                          ×{item.quantity}
-                        </p>
-                      </div>
-                      <span className="text-xs font-bold flex-shrink-0" style={{ color: '#455324' }}>
-                        {(item.price * item.quantity).toFixed(2)} MAD
-                      </span>
-                    </div>
-                  ))}
+                {/* items grouped by cooperative */}
+                <div className="px-5 py-3 space-y-4">
+                  {(() => {
+                    const byCoopUI: Record<string, typeof cart> = {};
+                    cart.forEach((item) => {
+                      const id = item.cooperativeId ?? 'unknown';
+                      if (!byCoopUI[id]) byCoopUI[id] = [];
+                      byCoopUI[id].push(item);
+                    });
+                    return Object.entries(byCoopUI).map(([coopId, items]) => {
+                      const coop = cooperatives.find((c) => c.id === coopId);
+                      const coopName = coop
+                        ? (isRtl ? coop.name.ar : coop.name.en)
+                        : tr('تعاونية', 'Cooperative');
+                      return (
+                        <div key={coopId}>
+                          {/* cooperative label */}
+                          <p
+                            className="text-xs font-bold uppercase tracking-wide mb-2 pb-1"
+                            style={{ color: '#9FA93D', borderBottom: '1px dashed #F8D197' }}
+                          >
+                            🏪 {coopName}
+                          </p>
+                          {items.map((item) => (
+                            <div key={item.id} className="flex items-center gap-3 py-2">
+                              <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0">
+                                <img
+                                  src={item.image}
+                                  alt={isRtl ? item.name.ar : item.name.en}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-grow min-w-0">
+                                <p className="text-xs font-semibold truncate" style={{ color: '#455324' }}>
+                                  {isRtl ? item.name.ar : item.name.en}
+                                </p>
+                                <p className="text-xs" style={{ color: '#BA8944' }}>×{item.quantity}</p>
+                              </div>
+                              <span className="text-xs font-bold flex-shrink-0" style={{ color: '#455324' }}>
+                                {(item.price * item.quantity).toFixed(2)} MAD
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
 
                 {/* totals */}
-                <div className="px-5 py-4 space-y-2">
+                <div className="px-5 py-4 space-y-2" style={{ borderTop: '1px solid #F8D197' }}>
                   <div className="flex justify-between text-sm" style={{ color: '#763C19' }}>
                     <span>{tr('المجموع الفرعي', 'Subtotal')}</span>
                     <span>{total.toFixed(2)} MAD</span>
@@ -311,7 +352,7 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* WhatsApp submit button */}
+                {/* WhatsApp submit */}
                 <div className="px-5 pb-5">
                   <button
                     type="submit"
