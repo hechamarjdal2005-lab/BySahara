@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 const values = [
   {
     titleKey: 'about.values.authenticity.title',
-    titleFallback: 'Authenticity',
+    titleFallback: 'الأصالة',
     descKey: 'about.values.authenticity.desc',
     descFallback:
-      'Every product is handcrafted using ancestral techniques passed down through generations of Berber artisans in the Guelmim region.',
+      'كل منتج مصنوع يدوياً باستخدام تقنيات أجدادية توارثتها أجيال من الحرفيين الأمازيغ في منطقة كلميم.',
     svg: (
       <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <path d="M20 4 L24 14 L35 14 L26 21 L29 32 L20 26 L11 32 L14 21 L5 14 L16 14 Z" />
@@ -20,10 +20,10 @@ const values = [
   },
   {
     titleKey: 'about.values.quality.title',
-    titleFallback: 'Artisan Quality',
+    titleFallback: 'جودة حرفية',
     descKey: 'about.values.quality.desc',
     descFallback:
-      'We select only the finest goods — cold-pressed oils, stone-ground flours, wild-harvested herbs — directly from cooperative producers.',
+      'نختار فقط أجود المنتجات — زيوت معصورة على البارد، دقيق مطحون على الحجر، أعشاب برية — مباشرة من التعاونيات المنتجة.',
     svg: (
       <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <circle cx="20" cy="20" r="14" />
@@ -35,10 +35,10 @@ const values = [
   },
   {
     titleKey: 'about.values.impact.title',
-    titleFallback: 'Community Impact',
+    titleFallback: 'أثر مجتمعي',
     descKey: 'about.values.impact.desc',
     descFallback:
-      'Every purchase directly supports women-led cooperatives, sustaining livelihoods and preserving the Guelmim-Oued Noun cultural heritage.',
+      'كل عملية شراء تدعم مباشرة التعاونيات التي تقودها المرأة، وتُعيل الأسر وتحافظ على التراث الثقافي لكلميم-واد نون.',
     svg: (
       <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <path d="M20 34 C20 34 6 26 6 16 A8 8 0 0 1 20 12 A8 8 0 0 1 34 16 C34 26 20 34 20 34 Z" />
@@ -92,7 +92,7 @@ const About: React.FC = () => {
               className="inline-block text-xs font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-6"
               style={{ background: 'rgba(248,209,151,0.15)', color: '#F8D197', border: '1px solid rgba(248,209,151,0.3)' }}
             >
-              {t('about.eyebrow', 'Our Story')}
+              {t('about.eyebrow', tr('قصتنا', 'Our Story'))}
             </span>
 
             <h1
@@ -112,7 +112,10 @@ const About: React.FC = () => {
             <p className="text-base leading-relaxed" style={{ color: '#F7E5CD', maxWidth: '38ch' }}>
               {t(
                 'about.hero.subtitle',
-                "BySahara is more than a marketplace — it's a bridge connecting the living heritage of southern Morocco with the world."
+                tr(
+                  'BySahara أكثر من مجرد سوق — إنها جسر يربط التراث الحي لجنوب المغرب بالعالم.',
+                  "BySahara is more than a marketplace — it's a bridge connecting the living heritage of southern Morocco with the world."
+                )
               )}
             </p>
           </div>
@@ -145,8 +148,8 @@ const About: React.FC = () => {
             >
               <span className="text-2xl">🏆</span>
               <div>
-                <p className="text-xs font-bold" style={{ color: '#455324' }}>100% Authentic</p>
-                <p className="text-xs" style={{ color: '#763C19' }}>Est. 2020</p>
+                <p className="text-xs font-bold" style={{ color: '#455324' }}>{tr('أصالة 100%', '100% Authentic')}</p>
+                <p className="text-xs" style={{ color: '#763C19' }}>{tr('تأسست 2020', 'Est. 2020')}</p>
               </div>
             </div>
           </div>
@@ -213,13 +216,13 @@ const About: React.FC = () => {
           {/* Text side */}
           <div className="order-1 md:order-2">
             <p className="text-xs font-bold uppercase tracking-[0.2em] mb-4" style={{ color: '#9FA93D' }}>
-              {t('about.mission.eyebrow', 'Who We Are')}
+              {t('about.mission.eyebrow', tr('من نحن', 'Who We Are'))}
             </p>
             <h2
               className="font-serif font-bold leading-tight mb-5"
               style={{ color: '#2d3a14', fontSize: 'clamp(1.9rem, 3.5vw, 2.8rem)' }}
             >
-              {t('about.mission.title', 'Our Mission')}
+              {t('about.mission.title', tr('مهمتنا', 'Our Mission'))}
             </h2>
 
             <div className="flex items-center gap-2 mb-8">
@@ -230,13 +233,19 @@ const About: React.FC = () => {
             <p className="leading-relaxed mb-5 text-base" style={{ color: '#442413' }}>
               {t(
                 'about.mission.p1',
-                'We empower local cooperatives — especially those led by women — by giving them a global stage to share their authentic products. Every purchase sustains a livelihood and preserves centuries-old traditions.'
+                tr(
+                  'نحن ندعم التعاونيات المحلية — خاصة التي تقودها المرأة — بإعطائها منصة عالمية لمشاركة منتجاتها الأصيلة. كل عملية شراء تُعيل أسرة وتحافظ على تقاليد عريقة.',
+                  'We empower local cooperatives — especially those led by women — by giving them a global stage to share their authentic products. Every purchase sustains a livelihood and preserves centuries-old traditions.'
+                )
               )}
             </p>
             <p className="leading-relaxed text-base" style={{ color: '#763C19' }}>
               {t(
                 'about.mission.p2',
-                'From the oases of Assa-Zag to the argan forests of Guelmim, we curate only the finest goods straight from the cooperatives of the Guelmim-Oued Noun region.'
+                tr(
+                  'من واحات أسا-الزاك إلى غابات أركان كلميم، نختار أجود المنتجات مباشرة من تعاونيات منطقة كلميم-واد نون.',
+                  'From the oases of Assa-Zag to the argan forests of Guelmim, we curate only the finest goods straight from the cooperatives of the Guelmim-Oued Noun region.'
+                )
               )}
             </p>
 
@@ -315,13 +324,13 @@ const About: React.FC = () => {
         <div className="relative max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: '#9FA93D' }}>
-              {t('about.values.eyebrow', 'What Drives Us')}
+              {t('about.values.eyebrow', tr('ما يحركنا', 'What Drives Us'))}
             </p>
             <h2
               className="font-serif font-bold"
               style={{ color: '#fff', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)' }}
             >
-              {t('about.values.title', 'Why Choose BySahara?')}
+              {t('about.values.title', tr('لماذا تختار BySahara؟', 'Why Choose BySahara?'))}
             </h2>
           </div>
 
@@ -383,13 +392,13 @@ const About: React.FC = () => {
           <div className="relative px-10 py-16 md:py-20 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.2em] mb-4"
               style={{ color: 'rgba(255,255,255,0.7)' }}>
-              {t('about.region.eyebrow', 'Our Roots')}
+              {t('about.region.eyebrow', tr('جذورنا', 'Our Roots'))}
             </p>
             <h2
               className="font-serif font-bold mb-5"
               style={{ color: '#fff', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)' }}
             >
-              {t('about.region.title', 'Guelmim-Oued Noun')}
+              {t('about.region.title', 'كلميم-واد نون')}
             </h2>
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="h-px w-12 rounded-full" style={{ background: 'rgba(255,255,255,0.4)' }} />
@@ -400,7 +409,10 @@ const About: React.FC = () => {
               style={{ color: 'rgba(255,255,255,0.88)' }}>
               {t(
                 'about.region.desc',
-                'All our cooperatives are rooted in the Guelmim-Oued Noun region — a land where Saharan, Berber, and Sahrawi cultures have blended for millennia to create unique artisanal traditions.'
+                tr(
+                  'جميع تعاونياتنا متجذرة في منطقة كلميم-واد نون — أرض تمازجت فيها الثقافات الصحراوية والأمازيغية والصحراوية لآلاف السنين لتخلق تقاليد حرفية فريدة.',
+                  'All our cooperatives are rooted in the Guelmim-Oued Noun region — a land where Saharan, Berber, and Sahrawi cultures have blended for millennia to create unique artisanal traditions.'
+                )
               )}
             </p>
           </div>
