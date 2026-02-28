@@ -14,6 +14,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
+    localStorage.setItem('i18nextLng', lang); // ← hada li kan naqes
   };
 
   const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';

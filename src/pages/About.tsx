@@ -393,6 +393,7 @@ const About: React.FC = () => {
             <p className="text-xs font-bold uppercase tracking-[0.2em] mb-4"
               style={{ color: 'rgba(255,255,255,0.7)' }}>
               {t('about.region.eyebrow', tr('جذورنا', 'Our Roots'))}
+
             </p>
             <h2
               className="font-serif font-bold mb-5"
