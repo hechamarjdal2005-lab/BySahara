@@ -243,7 +243,7 @@ const Cooperatives: React.FC = () => {
 
                   {/* Content */}
                   <div className="p-5">
-                    {/* Location */}
+                    {/*location  */}
                     <div className="flex items-center gap-1.5 text-sm font-medium mb-1"
                       style={{ color: '#CC8F57' }}>
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" />

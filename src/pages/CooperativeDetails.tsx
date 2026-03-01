@@ -197,7 +197,7 @@ const CooperativeDetails: React.FC = () => {
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide mb-0.5"
                     style={{ color: '#9FA93D' }}>
-                    {t('الموقع', 'Location')}
+                    {t('الموقع', 'Localisation')}
                   </p>
                   <p className="text-sm font-medium" style={{ color: '#442413' }}>
                     {city}
