@@ -11,14 +11,14 @@ import { useLanguage } from '../context/LanguageContext';
 // ── Hero slides data ───────────────────────────────────────────
 const heroSlides = [
   {
-    image: 'https://i.ibb.co/vxhZ3Fwm/1.png',
+    image: 'https://i.ibb.co/YYm6q7q/1.jpg',
     titleAr: 'منتجات أصيلة\nمن قلب الصحراء',
     titleEn: 'Authentic Products\nfrom the Heart of the Sahara',
     subtitleAr: 'مباشرة من تعاونيات كلميم-واد نون إلى بيتك',
     subtitleEn: 'Directly from Guelmim-Oued Noun cooperatives to your door',
   },
   {
-    image: 'https://i.ibb.co/wZJtVwqY/2.png',
+    image: 'https://i.ibb.co/1GySNNWG/24.jpg',
     titleAr: 'دعم المرأة\nالحرفية المغربية',
     titleEn: 'Supporting Moroccan\nWomen Artisans',
     subtitleAr: 'كل منتج يحكي قصة امرأة صانعة',
@@ -575,4 +575,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Home; 

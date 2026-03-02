@@ -12,14 +12,15 @@ import Checkout from './pages/Checkout';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import './i18n';
-
 import CooperativeDetails from './pages/CooperativeDetails';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <LanguageProvider>
       <CartProvider>
         <Router>
+          <ScrollToTop />
           <Layout>
             <Routes>
               <Route path="/" element={<Home />} />
