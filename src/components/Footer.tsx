@@ -15,13 +15,13 @@ const Footer: React.FC = () => {
 
       {/* ── Top band ────────────────────────────────────────── */}
       <div style={{ background: '#455324' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-10 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-center">
           {/* left: logo + tagline */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4">
             <img
               src="https://i.ibb.co/TqY5ZpYR/logo-by-sahara.png"
               alt="By Sahara"
-              className="h-14 object-contain"
+              className="h-9 sm:h-11 md:h-14 object-contain"
               style={{ filter: 'brightness(0) invert(1)' }}
             />
             <div>
@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
                 style={{ color: '#9FA93D' }}>
                 {tr('منطقة كلميم-واد نون', 'Guelmim-Oued Noun')}
               </p>
-              <p className="text-sm" style={{ color: '#F7E5CD' }}>
+              <p className="text-xs sm:text-sm" style={{ color: '#F7E5CD' }}>
                 {t('hero.subtitle', tr(
                   'منتجات أصيلة من تعاونيات الجنوب المغربي',
                   'Authentic products from southern Moroccan cooperatives'
@@ -39,15 +39,15 @@ const Footer: React.FC = () => {
           </div>
 
           {/* right: newsletter hint */}
-          <div className={`flex flex-col sm:flex-row gap-2 ${isRtl ? 'md:justify-start' : 'md:justify-end'}`}>
+          <div className={`flex flex-col sm:flex-row gap-1.5 sm:gap-2 ${isRtl ? 'md:justify-start' : 'md:justify-end'}`}>
             <input
               type="email"
               placeholder={tr('بريدك الإلكتروني...', 'Your email...')}
-              className="flex-1 max-w-xs px-4 py-2.5 rounded-xl text-sm outline-none"
+              className="flex-1 max-w-xs px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm outline-none"
               style={{ background: '#617131', color: '#F7E5CD', border: '1px solid #9FA93D40' }}
             />
             <button
-              className="px-5 py-2.5 rounded-xl text-sm font-bold transition-opacity hover:opacity-90 whitespace-nowrap"
+              className="px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-opacity hover:opacity-90 whitespace-nowrap"
               style={{ background: '#F8D197', color: '#442413' }}
             >
               {tr('اشترك', 'Subscribe')}
@@ -57,22 +57,22 @@ const Footer: React.FC = () => {
       </div>
 
       {/* ── Main grid ───────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 py-8 sm:py-10 md:py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-10">
 
           {/* Col 1 — Contact ──────────────────────────────── */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-widest mb-5"
+            <h4 className="font-bold text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4 md:mb-5"
               style={{ color: '#F8D197' }}>
               {tr('تواصل معنا', 'Contact Us')}
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2 sm:space-y-2.5 md:space-y-3">
               {[
-                { icon: <MapPin className="w-4 h-4 flex-shrink-0" />, text: tr('كلميم، المغرب', 'Guelmim, Morocco') },
-                { icon: <Phone className="w-4 h-4 flex-shrink-0" />,  text: '+212 528 870 000' },
-                { icon: <Mail className="w-4 h-4 flex-shrink-0" />,   text: 'hello@bysahara.ma' },
+                { icon: <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />, text: tr('كلميم، المغرب', 'Guelmim, Morocco') },
+                { icon: <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />,  text: '+212 528 870 000' },
+                { icon: <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />,   text: 'hello@bysahara.ma' },
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm"
+                <li key={i} className="flex items-center gap-2 text-xs sm:text-sm"
                   style={{ color: '#F7E5CD99' }}>
                   <span style={{ color: '#CC8F57' }}>{item.icon}</span>
                   {item.text}
@@ -83,11 +83,11 @@ const Footer: React.FC = () => {
 
           {/* Col 2 — Navigation ───────────────────────────── */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-widest mb-5"
+            <h4 className="font-bold text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4 md:mb-5"
               style={{ color: '#F8D197' }}>
               {t('footer.links', tr('روابط سريعة', 'Quick Links'))}
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1.5 sm:space-y-2 md:space-y-2.5">
               {[
                 { to: '/',             label: t('nav.home',         tr('الرئيسية',  'Home'))         },
                 { to: '/shop',         label: t('nav.shop',         tr('المتجر',    'Shop'))         },
@@ -98,7 +98,7 @@ const Footer: React.FC = () => {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="text-sm transition-colors"
+                    className="text-xs sm:text-sm transition-colors"
                     style={{ color: '#F7E5CDaa' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = '#F8D197')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = '#F7E5CDaa')}
@@ -112,11 +112,11 @@ const Footer: React.FC = () => {
 
           {/* Col 3 — Legal ────────────────────────────────── */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-widest mb-5"
+            <h4 className="font-bold text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4 md:mb-5"
               style={{ color: '#F8D197' }}>
               {t('footer.legal', tr('قانوني', 'Legal'))}
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1.5 sm:space-y-2 md:space-y-2.5">
               {[
                 t('footer.delivery', tr('الشحن والتوصيل', 'Delivery')),
                 t('footer.returns',  tr('سياسة الإرجاع',  'Returns')),
@@ -126,7 +126,7 @@ const Footer: React.FC = () => {
                 <li key={item}>
                   <a
                     href="#"
-                    className="text-sm transition-colors"
+                    className="text-xs sm:text-sm transition-colors"
                     style={{ color: '#F7E5CDaa' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = '#F8D197')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = '#F7E5CDaa')}
@@ -140,20 +140,20 @@ const Footer: React.FC = () => {
 
           {/* Col 4 — Social ────────────────────────────────── */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-widest mb-5"
+            <h4 className="font-bold text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4 md:mb-5"
               style={{ color: '#F8D197' }}>
               {tr('تابعنا', 'Follow Us')}
             </h4>
-            <div className="flex gap-3 mb-6">
+            <div className="flex gap-2 sm:gap-2.5 md:gap-3 mb-4 md:mb-6">
               {[
-                { icon: <Facebook className="w-4 h-4" />,  href: '#' },
-                { icon: <Instagram className="w-4 h-4" />, href: '#' },
-                { icon: <Twitter className="w-4 h-4" />,   href: '#' },
+                { icon: <Facebook className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,  href: '#' },
+                { icon: <Instagram className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, href: '#' },
+                { icon: <Twitter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,   href: '#' },
               ].map((s, i) => (
                 <a
                   key={i}
                   href={s.href}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
+                  className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl flex items-center justify-center transition-colors"
                   style={{ background: '#617131', color: '#F8D197' }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLElement).style.background = '#CC8F57';
@@ -170,10 +170,10 @@ const Footer: React.FC = () => {
             </div>
 
             {/* certifications */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {['Bio', 'Fair Trade'].map((cert) => (
                 <span key={cert}
-                  className="text-xs font-bold px-3 py-1 rounded-full"
+                  className="text-xs font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full"
                   style={{ background: '#9FA93D20', color: '#9FA93D', border: '1px solid #9FA93D40' }}>
                   ✓ {cert}
                 </span>
@@ -185,11 +185,11 @@ const Footer: React.FC = () => {
 
       {/* ── Bottom bar ──────────────────────────────────────── */}
       <div style={{ borderTop: '1px solid #ffffff15' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 py-3 sm:py-4 md:py-5 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
           <p className="text-xs" style={{ color: '#F7E5CD60' }}>
             {t('footer.copyright', `© ${new Date().getFullYear()} By Sahara. ${tr('جميع الحقوق محفوظة', 'All rights reserved.')}`)}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <span className="text-xs" style={{ color: '#F7E5CD40' }}>
               {tr('صُنع بـ', 'Made with')}
             </span>

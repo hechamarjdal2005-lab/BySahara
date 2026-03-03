@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { products, categories as allCategories } from '../data';
@@ -35,12 +36,34 @@ type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating';
 const Shop: React.FC = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
+  const [searchParams] = useSearchParams();
   const isRtl = language === 'ar';
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
 
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId | 'all'>('all');
+  // Get category from URL parameter
+  const categoryFromUrl = searchParams.get('category');
+  
+  // Find the category ID that matches the slug from URL
+  const initialCategory = categoryFromUrl
+    ? allCategories.find((cat) => cat.id === categoryFromUrl)?.id || 'all'
+    : 'all';
+
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId | 'all'>(initialCategory);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortOption>('default');
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
+  // Update selected category when URL parameter changes
+  useEffect(() => {
+    if (categoryFromUrl) {
+      const found = allCategories.find((cat) => cat.id === categoryFromUrl);
+      if (found) {
+        setSelectedCategory(found.id as CategoryId);
+      }
+    }
+  }, [categoryFromUrl]);
+
+  const categoriesToShow = showAllCategories ? allCategories : allCategories.slice(0, 4);
 
   const filtered = products
     .filter((p) => selectedCategory === 'all' || p.category === selectedCategory)
@@ -61,17 +84,17 @@ const Shop: React.FC = () => {
 
       {/* ── Header ─────────────────────────────────────────── */}
       <div style={{ background: 'linear-gradient(135deg, #455324 0%, #617131 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-10">
           <p className="uppercase tracking-widest text-xs font-semibold mb-1" style={{ color: '#9FA93D' }}>
             {tr('تعاونيات كلميم-واد نون', 'Guelmim-Oued Noun Cooperatives')}
           </p>
-          <h1 className="font-serif text-4xl font-bold text-white mb-5">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-5">
             {tr('تسوق المنتجات', 'Shop Products')}
           </h1>
           {/* Search */}
-          <div className="relative max-w-md">
+          <div className="relative max-w-md w-full max-w-none sm:max-w-md">
             <Search
-              className="absolute top-1/2 -translate-y-1/2 start-4 w-4 h-4 pointer-events-none"
+              className="absolute top-1/2 -translate-y-1/2 start-4 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none"
               style={{ color: '#BA8944' }}
             />
             <input
@@ -79,7 +102,7 @@ const Shop: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={tr('ابحث عن منتج...', 'Search products...')}
-              className="w-full ps-10 pe-10 py-3 rounded-xl text-sm outline-none"
+              className="w-full ps-9 sm:ps-10 pe-9 sm:pe-10 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm outline-none"
               style={{
                 background: 'rgba(255,255,255,0.15)',
                 color: '#fff',
@@ -87,8 +110,8 @@ const Shop: React.FC = () => {
               }}
             />
             {search && (
-              <button onClick={() => setSearch('')} className="absolute top-1/2 -translate-y-1/2 end-3">
-                <X className="w-4 h-4" style={{ color: '#F8D197' }} />
+              <button onClick={() => setSearch('')} className="absolute top-1/2 -translate-y-1/2 end-3 p-1">
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#F8D197' }} />
               </button>
             )}
           </div>
@@ -106,32 +129,32 @@ const Shop: React.FC = () => {
           boxShadow: '0 4px 16px rgba(69,83,36,0.07)',
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 py-3">
           <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            <div className="flex items-center gap-3 min-w-max">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-max">
 
               {/* ALL card */}
               <button
                 onClick={() => setSelectedCategory('all')}
-                className="flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-200 flex-shrink-0 group"
+                className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl transition-all duration-200 flex-shrink-0 group"
                 style={{
                   background: selectedCategory === 'all'
                     ? 'linear-gradient(135deg, #455324 0%, #617131 100%)'
                     : '#F7F1E8',
                   border: selectedCategory === 'all' ? '1.5px solid #455324' : '1.5px solid #EDD9AA',
                   boxShadow: selectedCategory === 'all' ? '0 4px 14px rgba(69,83,36,0.25)' : 'none',
-                  minWidth: '120px',
+                  minWidth: '100px',
                 }}
               >
                 <span
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-lg sm:text-xl flex-shrink-0"
                   style={{
                     background: selectedCategory === 'all' ? 'rgba(255,255,255,0.18)' : '#EDD9AA',
                   }}
                 >
                   🌿
                 </span>
-                <div className="text-start">
+                <div className="text-start hidden sm:block">
                   <p
                     className="text-xs font-bold leading-tight"
                     style={{ color: selectedCategory === 'all' ? '#fff' : '#455324' }}
@@ -148,10 +171,10 @@ const Shop: React.FC = () => {
               </button>
 
               {/* Divider */}
-              <div className="w-px h-14 flex-shrink-0" style={{ background: '#EDD9AA' }} />
+              <div className="w-px h-12 sm:h-14 flex-shrink-0" style={{ background: '#EDD9AA' }} />
 
               {/* Category cards */}
-              {allCategories.map((cat) => {
+              {categoriesToShow.map((cat) => {
                 const active = selectedCategory === cat.id;
                 const name = isRtl ? cat.name.ar : cat.name.en;
                 const count = products.filter((p) => p.category === cat.id).length;
@@ -160,14 +183,14 @@ const Shop: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id as CategoryId)}
-                    className="flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-200 flex-shrink-0"
+                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl transition-all duration-200 flex-shrink-0"
                     style={{
                       background: active
                         ? 'linear-gradient(135deg, #CC8F57 0%, #BA8944 100%)'
                         : '#F7F1E8',
                       border: active ? '1.5px solid #CC8F57' : '1.5px solid #EDD9AA',
                       boxShadow: active ? '0 4px 14px rgba(204,143,87,0.30)' : 'none',
-                      minWidth: '140px',
+                      minWidth: '110px',
                     }}
                     onMouseEnter={(e) => {
                       if (!active) {
@@ -184,14 +207,14 @@ const Shop: React.FC = () => {
                   >
                     {/* Icon circle */}
                     <span
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200"
                       style={{
                         background: active ? 'rgba(255,255,255,0.22)' : '#fff',
                         color: active ? '#fff' : '#617131',
                         boxShadow: active ? 'none' : '0 1px 4px rgba(0,0,0,0.06)',
                       }}
                     >
-                      <CategoryIcon id={cat.id} className="w-7 h-7" />
+                      <CategoryIcon id={cat.id} className="w-6 h-6 sm:w-7 sm:h-7" />
                     </span>
 
                     {/* Text */}
@@ -219,18 +242,41 @@ const Shop: React.FC = () => {
                   </button>
                 );
               })}
+
+              {/* View All / Show Less button */}
+              {allCategories.length > 4 && (
+                <button
+                  onClick={() => setShowAllCategories(!showAllCategories)}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl transition-all duration-200 flex-shrink-0 text-xs sm:text-sm font-semibold"
+                  style={{
+                    background: '#F7F1E8',
+                    border: '1.5px solid #EDD9AA',
+                    color: '#455324',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = '#F0E4CC';
+                    (e.currentTarget as HTMLElement).style.borderColor = '#CC8F57';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = '#F7F1E8';
+                    (e.currentTarget as HTMLElement).style.borderColor = '#EDD9AA';
+                  }}
+                >
+                  {showAllCategories ? tr('عرض أقل', 'Show Less') : tr('عرض الكل', 'View All')}
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* ── PRODUCTS ────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8">
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-          <p className="text-sm font-medium" style={{ color: '#455324' }}>
-            <span className="font-bold text-xl">{filtered.length}</span>{' '}
+        <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-4 flex-wrap">
+          <p className="text-xs sm:text-sm font-medium" style={{ color: '#455324' }}>
+            <span className="font-bold text-lg sm:text-xl">{filtered.length}</span>{' '}
             {tr('منتج', 'products')}
             {selectedCategory !== 'all' && (
               <button
@@ -249,7 +295,7 @@ const Shop: React.FC = () => {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="px-4 py-2 rounded-xl text-xs font-semibold outline-none cursor-pointer"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-semibold outline-none cursor-pointer"
             style={{ background: '#fff', color: '#455324', border: '1.5px solid #F8D197' }}
           >
             <option value="default">{tr('الافتراضي', 'Default')}</option>
@@ -260,26 +306,26 @@ const Shop: React.FC = () => {
         </div>
 
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
             {filtered.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
           <div
-            className="text-center py-20 rounded-2xl"
+            className="text-center py-12 sm:py-20 rounded-2xl"
             style={{ background: '#fff', border: '1.5px dashed #F8D197' }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"
               style={{ background: '#F8D197' }}
             >
-              <Search className="w-7 h-7" style={{ color: '#CC8F57' }} />
+              <Search className="w-5 h-5 sm:w-7 sm:h-7" style={{ color: '#CC8F57' }} />
             </div>
-            <p className="font-semibold mb-1" style={{ color: '#455324' }}>
+            <p className="font-semibold mb-1 text-sm sm:text-base" style={{ color: '#455324' }}>
               {tr('لا توجد منتجات', 'No products found')}
             </p>
-            <p className="text-sm" style={{ color: '#BA8944' }}>
+            <p className="text-xs sm:text-sm" style={{ color: '#BA8944' }}>
               {tr('جرب تصنيفاً آخر أو كلمة بحث مختلفة', 'Try a different category or search term')}
             </p>
           </div>

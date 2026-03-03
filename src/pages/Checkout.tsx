@@ -176,12 +176,7 @@ const Checkout: React.FC = () => {
                     value={form.firstName}
                     onChange={handleChange('firstName')}
                   />
-                  <InputField
-                    label={tr('الاسم الأخير', 'Last Name')}
-                    required
-                    value={form.lastName}
-                    onChange={handleChange('lastName')}
-                  />
+              
                   <InputField
                     label={tr('رقم الهاتف', 'Phone')}
                     type="tel"
@@ -189,12 +184,7 @@ const Checkout: React.FC = () => {
                     value={form.phone}
                     onChange={handleChange('phone')}
                   />
-                  <InputField
-                    label={tr('البريد الإلكتروني', 'Email')}
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange('email')}
-                  />
+                
                   <InputField
                     label={tr('العنوان', 'Address')}
                     required
@@ -202,17 +192,7 @@ const Checkout: React.FC = () => {
                     value={form.address}
                     onChange={handleChange('address')}
                   />
-                  <InputField
-                    label={tr('المدينة', 'City')}
-                    required
-                    value={form.city}
-                    onChange={handleChange('city')}
-                  />
-                  <InputField
-                    label={tr('الرمز البريدي', 'Postal Code')}
-                    value={form.postalCode}
-                    onChange={handleChange('postalCode')}
-                  />
+                  
                 </div>
               </div>
 

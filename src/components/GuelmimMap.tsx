@@ -105,6 +105,19 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
   variant = "sidebar",
 }) => {
   const [hovered, setHovered] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 768 : false
+  );
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const isRtl = language === "ar";
   const isFull = variant === "full";
 
@@ -158,6 +171,9 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
     const isSelected = selectedProvince === province.id;
     const isHov = hovered === province.id;
 
+    const labelSize = isFull ? "13px" : isMobile ? "10px" : "11px";
+    const descSize = isFull ? "10px" : isMobile ? "8px" : "9px";
+
     return (
       <div
         onClick={() => handleClick(province.id)}
@@ -167,7 +183,7 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
           display: "flex",
           alignItems: "center",
           gap: "10px",
-          padding: isFull ? "10px 14px" : "8px 11px",
+          padding: isMobile ? "6px 8px" : isFull ? "10px 14px" : "8px 11px",
           borderRadius: "14px",
           cursor: isActive ? "pointer" : "default",
           opacity: isActive ? 1 : 0.3,
@@ -210,7 +226,7 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
           <div
             style={{
               fontWeight: 700,
-              fontSize: isFull ? "13px" : "11px",
+              fontSize: labelSize,
               color: isSelected ? province.color : isActive ? "#4A3728" : "#9A8870",
               marginBottom: "2px",
               fontFamily:
@@ -225,7 +241,7 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
           </div>
           <div
             style={{
-              fontSize: isFull ? "10px" : "9px",
+              fontSize: descSize,
               color: isSelected ? `${province.color}cc` : "#A89880",
               fontFamily:
                 language === "ar"
@@ -234,7 +250,7 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              maxWidth: isFull ? "140px" : "105px",
+              maxWidth: isMobile ? "120px" : isFull ? "140px" : "105px",
             }}
           >
             {getProducts(province)}
@@ -283,20 +299,62 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
         />
         {isActive && (
           <>
-            {/* Province name */}
-            <text
-              x={province.lx}
-              y={province.ly}
-              textAnchor="middle"
-              fill={isSelected ? "#a28888" : isHov ? province.color : `${province.color}55`}
-              fontSize={isFull ? 7.5 : 6.5}
-              fontWeight={isSelected || isHov ? "700" : "400"}
-              fontFamily="system-ui, sans-serif"
-              pointerEvents="none"
-              style={{ userSelect: "none", letterSpacing: "0.02em" }}
-            >
-              {getName(province)}
-            </text>
+            {/* Province name - using foreignObject for proper Arabic rendering */}
+            {language === "ar" ? (
+              <foreignObject
+                x={province.lx - 25}
+                y={province.ly - 12}
+                width="50"
+                height="24"
+                pointerEvents="none"
+              >
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    direction: "rtl",
+                    textAlign: "center",
+                    padding: "2px 4px",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: isFull ? "8px" : "7px",
+                      fontWeight: isSelected || isHov ? "700" : "600",
+                      color: isSelected ? "#a28888" : isHov ? province.color : `${province.color}`,
+                      fontFamily: "'Noto Sans Arabic', 'Arial', sans-serif",
+                      lineHeight: "1.2",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {getName(province)}
+                  </div>
+                </div>
+              </foreignObject>
+            ) : (
+              <text
+                x={province.lx}
+                y={province.ly}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill={isSelected ? "#a28888" : isHov ? province.color : `${province.color}88`}
+                fontSize={isFull ? 8 : 6.5}
+                fontWeight={isSelected || isHov ? "700" : "600"}
+                fontFamily="system-ui, sans-serif"
+                pointerEvents="none"
+                style={{
+                  userSelect: "none",
+                  letterSpacing: "0.01em",
+                  textRendering: "optimizeLegibility",
+                }}
+              >
+                {getName(province)}
+              </text>
+            )}
             {/* Dot indicator when selected */}
             {isSelected && (
               <circle
@@ -322,42 +380,61 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
   );
   const sideWidth = isFull ? "175px" : "140px";
 
+  // Media query styles for mobile responsiveness
+  const containerStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: isFull ? "16px" : "10px",
+    width: "100%",
+    maxWidth: isFull ? "960px" : "720px",
+    margin: "0 auto",
+    direction: isRtl ? "rtl" : "ltr",
+    background: "linear-gradient(135deg, #FBF6EC 0%, #F5EDD8 100%)",
+    borderRadius: "20px",
+    padding: isFull ? "24px 20px" : "16px 14px",
+    border: "1px solid #eddebb",
+    boxShadow: "0 4px 24px rgba(160,120,60,0.08)",
+    ...(isMobile && {
+      flexDirection: "column",
+      gap: "12px",
+      padding: "12px",
+      maxWidth: "100%",
+    }),
+  };
+
+  const sideStyle: React.CSSProperties = {
+    display: isMobile ? "grid" : "flex",
+    flexDirection: isMobile ? undefined : "column",
+    gridTemplateColumns: isMobile ? "1fr 1fr" : undefined,
+    gap: "8px",
+    flex: isMobile ? "1" : `0 0 ${sideWidth}`,
+    width: isMobile ? "100%" : "auto",
+  };
+
+  const svgContainerStyle: React.CSSProperties = {
+    flex: 1,
+    minWidth: 0,
+    ...(isMobile && {
+      width: "100%",
+      minHeight: "250px",
+    }),
+  };
+
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: isFull ? "16px" : "10px",
-        width: "100%",
-        maxWidth: isFull ? "960px" : "720px",
-        margin: "0 auto",
-        direction: isRtl ? "rtl" : "ltr",
-        // Desert sand background
-        background: "linear-gradient(135deg, #FBF6EC 0%, #F5EDD8 100%)",
-        borderRadius: "20px",
-        padding: isFull ? "24px 20px" : "16px 14px",
-        border: "1px solid #eddebb",
-        boxShadow: "0 4px 24px rgba(160,120,60,0.08)",
-      }}
-    >
+    <div style={containerStyle}>
       {/* Left labels */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          flex: `0 0 ${sideWidth}`,
-        }}
-      >
-        {leftProvinces.map((p) => (
-          <div key={p.id}>
-            <LabelItem province={p} side="left" />
-          </div>
-        ))}
-      </div>
+      {!isMobile && (
+        <div style={sideStyle}>
+          {leftProvinces.map((p) => (
+            <div key={p.id}>
+              <LabelItem province={p} side="left" />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* SVG Map */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={svgContainerStyle}>
         <svg
           viewBox="60 60 160 160"
           xmlns="http://www.w3.org/2000/svg"
@@ -375,21 +452,24 @@ const GuelmimMap: React.FC<GuelmimMapProps> = ({
         </svg>
       </div>
 
-      {/* Right labels */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          flex: `0 0 ${sideWidth}`,
-        }}
-      >
-        {rightProvinces.map((p) => (
-          <div key={p.id}>
-            <LabelItem province={p} side="right" />
-          </div>
-        ))}
-      </div>
+      {/* Labels - mobile: below map, desktop: sides */}
+      {isMobile ? (
+        <div style={sideStyle}>
+          {provinceList.map((p) => (
+            <div key={p.id}>
+              <LabelItem province={p} side="left" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={sideStyle}>
+          {rightProvinces.map((p) => (
+            <div key={p.id}>
+              <LabelItem province={p} side="right" />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -42,6 +42,7 @@ const provinceNameToId: Record<string, string> = {
 const Cooperatives: React.FC = () => {
   const { language } = useLanguage();
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const isRtl = language === 'ar';
 
   const lang = (field: { en: string; ar: string }) =>
@@ -72,6 +73,15 @@ const Cooperatives: React.FC = () => {
   const filteredCoops = selectedProvince
     ? cooperatives.filter((c) => getProvinceId(c) === selectedProvince)
     : cooperatives;
+
+  const finalFilteredCoops = searchQuery.trim()
+    ? filteredCoops.filter((c) => {
+        const query = searchQuery.toLowerCase();
+        const nameEn = lang(c.name).toLowerCase();
+        const nameAr = c.name.ar.toLowerCase();
+        return nameEn.includes(query) || nameAr.includes(query);
+      })
+    : filteredCoops;
 
   const t = (ar: string, en: string) => (language === 'ar' ? ar : en);
 
@@ -169,13 +179,68 @@ const Cooperatives: React.FC = () => {
         </div>
       </section>
 
+      {/* ── Search Section ────────────────────────────────────── */}
+      <section style={{ background: '#FDFAF5' }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="w-1 h-5 rounded-full" style={{ background: '#CC8F57' }} />
+              <h2 className="font-serif text-2xl font-bold" style={{ color: '#455324' }}>
+                {t('البحث عن تعاونية', 'Search for a Cooperative')}
+              </h2>
+              <div className="w-1 h-5 rounded-full" style={{ background: '#CC8F57' }} />
+            </div>
+            <p className="text-sm" style={{ color: '#BA8944' }}>
+              {t('اكتب اسم التعاونية للبحث', 'Type the cooperative name to search')}
+            </p>
+          </div>
+
+          <div className="max-w-md mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('ابحث عن التعاونية...', 'Search cooperative...')}
+                className="w-full px-5 py-3 rounded-full text-sm sm:text-base border-2"
+                style={{
+                  borderColor: '#F8D197',
+                  background: '#fff',
+                  color: '#455324',
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute end-4 top-1/2 -translate-y-1/2 p-1 rounded-full transition-colors hover:bg-gray-100"
+                >
+                  <X className="w-4 h-4" style={{ color: '#BA8944' }} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Cooperatives List ─────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-8 py-12">
+
+        {/* Introduction */}
+        <div className="mb-12 text-center">
+          <p className="text-sm sm:text-base leading-relaxed max-w-3xl mx-auto" style={{ color: '#BA8944' }}>
+            {t(
+              'اكتشف التعاونيات النسويّة والحرفيّة بمنطقة كلميم-واد نون. تجمع هذه التعاونيات بين التقاليد العريقة والابتكار الحديث لإنتاج منتجات طبيعية عالية الجودة. كل تعاونية متخصصة في مجال معيّن وتعمل على تمكين المرأة والحفاظ على الموارد الطبيعية.',
+              'Discover women and artisan cooperatives in the Guelmim-Oued Noun region. These cooperatives combine ancient traditions with modern innovation to produce high-quality natural products. Each cooperative specializes in a specific field and works to empower women and preserve natural resources.'
+            )}
+          </p>
+        </div>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="font-serif text-2xl font-bold" style={{ color: '#455324' }}>
-            {selectedProvince
+            {searchQuery.trim()
+              ? t('نتائج البحث', 'Search Results')
+              : selectedProvince
               ? getProvinceName(selectedProvince)
               : t('كل التعاونيات', 'All Cooperatives')}
           </h2>
@@ -183,24 +248,24 @@ const Cooperatives: React.FC = () => {
             className="text-xs font-semibold px-3 py-1.5 rounded-full"
             style={{ background: '#F8D197', color: '#763C19' }}
           >
-            {filteredCoops.length} {t('تعاونية', 'cooperative(s)')}
+            {finalFilteredCoops.length} {t('تعاونية', 'cooperative(s)')}
           </span>
         </div>
 
         {/* Empty state */}
-        {filteredCoops.length === 0 ? (
+        {finalFilteredCoops.length === 0 ? (
           <div
             className="text-center py-20 rounded-2xl"
             style={{ background: '#fff', border: '1px solid #F8D197' }}
           >
             <MapPin className="w-12 h-12 mx-auto mb-3 opacity-30" style={{ color: '#CC8F57' }} />
             <p style={{ color: '#BA8944' }}>
-              {t('لا توجد تعاونيات في هذا الإقليم', 'No cooperatives in this province')}
+              {t('لا توجد تعاونيات في هذا التصفية', 'No cooperatives found for this filter')}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCoops.map((coop) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
+            {finalFilteredCoops.map((coop) => {
               const name        = lang(coop.name);
               const city        = lang(coop.city);
               const province    = lang(
@@ -214,11 +279,11 @@ const Cooperatives: React.FC = () => {
               return (
                 <div
                   key={coop.id}
-                  className="rounded-2xl overflow-hidden shadow-sm group transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                  className="rounded-xl sm:rounded-2xl overflow-hidden shadow-sm group transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
                   style={{ background: '#fff', border: '1px solid #F8D197' }}
                 >
                   {/* Image */}
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-32 sm:h-48 overflow-hidden">
                     <img
                       src={coop.image}
                       alt={name}
@@ -226,34 +291,34 @@ const Cooperatives: React.FC = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     {coop.certifications && coop.certifications.length > 0 && (
-                      <div className="absolute top-3 start-3 flex gap-1.5 flex-wrap">
+                      <div className="absolute top-2 sm:top-3 start-2 sm:start-3 flex gap-1 sm:gap-1.5 flex-wrap">
                         {coop.certifications.map((cert) => (
                           <span key={cert}
-                            className="text-xs font-bold px-2 py-0.5 rounded-full"
+                            className="text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full"
                             style={{ background: '#9FA93D', color: '#fff' }}>
                             {cert}
                           </span>
                         ))}
                       </div>
                     )}
-                    <h3 className="absolute bottom-3 start-3 end-3 text-white font-bold text-lg leading-tight">
+                    <h3 className="absolute bottom-2 sm:bottom-3 start-2 sm:start-3 end-2 sm:end-3 text-white font-bold text-xs sm:text-lg leading-tight">
                       {name}
                     </h3>
                   </div>
 
                   {/* Content */}
-                  <div className="p-5">
+                  <div className="p-2.5 sm:p-5">
                     {/*location  */}
-                    <div className="flex items-center gap-1.5 text-sm font-medium mb-1"
+                    <div className="flex items-center gap-1 text-xs sm:text-sm font-medium mb-1"
                       style={{ color: '#CC8F57' }}>
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>{city}</span>
+                      <MapPin className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+                      <span className="truncate">{city}</span>
                       <span style={{ color: '#F8D197' }}>·</span>
                       <button
                         onClick={() => setSelectedProvince(
                           selectedProvince === provinceId ? null : provinceId
                         )}
-                        className="text-xs font-semibold px-2 py-0.5 rounded-full transition-all"
+                        className="text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full transition-all"
                         style={{
                           background: selectedProvince === provinceId ? '#455324' : '#F8D197',
                           color: selectedProvince === provinceId ? '#fff' : '#763C19',
@@ -265,36 +330,36 @@ const Cooperatives: React.FC = () => {
 
                     {/* Members + year */}
                     {coop.memberCount && (
-                      <div className="flex items-center gap-1.5 text-xs mb-3"
+                      <div className="flex items-center gap-1 text-xs mb-2 sm:mb-3"
                         style={{ color: '#9FA93D' }}>
-                        <Users className="w-3 h-3" />
+                        <Users className="w-2.5 h-2.5" />
                         <span>{coop.memberCount} {t('عضو', 'members')}</span>
                         {coop.foundedYear && (
                           <>
                             <span>·</span>
-                            <Award className="w-3 h-3" />
-                            <span>{t('منذ', 'since')} {coop.foundedYear}</span>
+                            <Award className="w-2.5 h-2.5" />
+                            <span className="hidden sm:inline">{t('منذ', 'since')} {coop.foundedYear}</span>
                           </>
                         )}
                       </div>
                     )}
 
-                    <p className="text-sm leading-relaxed line-clamp-2 mb-4"
+                    <p className="text-xs sm:text-sm leading-relaxed line-clamp-2 mb-2 sm:mb-4"
                       style={{ color: '#763C19' }}>
                       {description}
                     </p>
 
                     <Link
                       to={`/cooperatives/${coop.id}`}
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors group/link"
+                      className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold transition-colors group/link"
                       style={{ color: '#455324' }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = '#CC8F57')}
                       onMouseLeave={(e) => (e.currentTarget.style.color = '#455324')}
                     >
                       {t('اكتشف التعاونية', 'Explore Cooperative')}
                       {isRtl
-                        ? <ArrowLeft className="w-4 h-4" />
-                        : <ArrowRight className="w-4 h-4" />}
+                        ? <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                        : <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />}
                     </Link>
                   </div>
                 </div>

@@ -85,31 +85,31 @@ const About: React.FC = () => {
         <div className="absolute top-0 start-0 end-0 h-0.5"
           style={{ background: 'linear-gradient(90deg, transparent, #F8D197, transparent)' }} />
 
-        <div className="relative max-w-6xl mx-auto px-6 sm:px-10 py-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-14 sm:py-20 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Text */}
           <div>
             <span
-              className="inline-block text-xs font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-6"
+              className="inline-block text-xs font-bold uppercase tracking-[0.2em] px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full mb-4 sm:mb-6"
               style={{ background: 'rgba(248,209,151,0.15)', color: '#F8D197', border: '1px solid rgba(248,209,151,0.3)' }}
             >
               {t('about.eyebrow', tr('قصتنا', 'Our Story'))}
             </span>
 
             <h1
-              className="font-serif font-bold leading-[1.1] mb-6"
-              style={{ color: '#fff', fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}
+              className="font-serif font-bold leading-[1.1] mb-4 sm:mb-6"
+              style={{ color: '#fff', fontSize: 'clamp(1.875rem, 5vw, 4rem)' }}
             >
               {tr('من نحن', 'About')}{' '}
               <span style={{ color: '#F8D197' }}>BySahara</span>
             </h1>
 
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <div className="h-px flex-1" style={{ background: 'rgba(248,209,151,0.3)' }} />
               <span style={{ color: '#F8D197', opacity: 0.6 }}>✦</span>
               <div className="h-px flex-1" style={{ background: 'rgba(248,209,151,0.3)' }} />
             </div>
 
-            <p className="text-base leading-relaxed" style={{ color: '#F7E5CD', maxWidth: '38ch' }}>
+            <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#F7E5CD', maxWidth: '38ch' }}>
               {t(
                 'about.hero.subtitle',
                 tr(
@@ -161,8 +161,8 @@ const About: React.FC = () => {
       {/* ══════════════════════════════════════════════════════
           MISSION
       ══════════════════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-6 sm:px-10 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr] gap-16 items-center">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-16 sm:py-20 md:py-24">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr] gap-8 md:gap-16 items-center">
 
           {/* Images side */}
           <div className="relative order-2 md:order-1">
@@ -215,22 +215,22 @@ const About: React.FC = () => {
 
           {/* Text side */}
           <div className="order-1 md:order-2">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] mb-4" style={{ color: '#9FA93D' }}>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3 sm:mb-4" style={{ color: '#9FA93D' }}>
               {t('about.mission.eyebrow', tr('من نحن', 'Who We Are'))}
             </p>
             <h2
-              className="font-serif font-bold leading-tight mb-5"
-              style={{ color: '#2d3a14', fontSize: 'clamp(1.9rem, 3.5vw, 2.8rem)' }}
+              className="font-serif font-bold leading-tight mb-4 sm:mb-5"
+              style={{ color: '#2d3a14', fontSize: 'clamp(1.5rem, 3.5vw, 2.8rem)' }}
             >
               {t('about.mission.title', tr('مهمتنا', 'Our Mission'))}
             </h2>
 
-            <div className="flex items-center gap-2 mb-8">
-              <div className="w-10 h-0.5 rounded-full" style={{ background: '#CC8F57' }} />
-              <div className="w-2 h-2 rounded-full" style={{ background: '#F8D197' }} />
+            <div className="flex items-center gap-2 mb-6 md:mb-8">
+              <div className="w-8 sm:w-10 h-0.5 rounded-full" style={{ background: '#CC8F57' }} />
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ background: '#F8D197' }} />
             </div>
 
-            <p className="leading-relaxed mb-5 text-base" style={{ color: '#442413' }}>
+            <p className="leading-relaxed mb-4 sm:mb-5 text-sm sm:text-base" style={{ color: '#442413' }}>
               {t(
                 'about.mission.p1',
                 tr(
@@ -239,7 +239,7 @@ const About: React.FC = () => {
                 )
               )}
             </p>
-            <p className="leading-relaxed text-base" style={{ color: '#763C19' }}>
+            <p className="leading-relaxed text-sm sm:text-base" style={{ color: '#763C19' }}>
               {t(
                 'about.mission.p2',
                 tr(
@@ -249,7 +249,7 @@ const About: React.FC = () => {
               )}
             </p>
 
-            <div className="flex flex-wrap gap-2 mt-8">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-6 md:mt-8">
               {[
                 tr('عضوي 100%', '100% Organic'),
                 tr('تجارة عادلة', 'Fair Trade'),
@@ -258,7 +258,7 @@ const About: React.FC = () => {
               ].map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold"
                   style={{ background: '#F7F1E8', color: '#617131', border: '1px solid #EDD9AA' }}
                 >
                   {tag}
@@ -272,8 +272,8 @@ const About: React.FC = () => {
       {/* ══════════════════════════════════════════════════════
           PHOTO BAND — 3 images
       ══════════════════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-6 sm:px-10 pb-24">
-        <div className="grid grid-cols-3 gap-3">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 pb-16 sm:pb-20 md:pb-24">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {/* Argan oil */}
           <div className="relative overflow-hidden rounded-2xl" style={{ aspectRatio: '3/4' }}>
             <img

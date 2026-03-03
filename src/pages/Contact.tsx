@@ -68,17 +68,17 @@ const Contact: React.FC = () => {
 
       {/* ── Hero ──────────────────────────────────────────────── */}
       <div style={{ background: 'linear-gradient(135deg, #455324 0%, #617131 100%)' }}>
-        <div className="max-w-5xl mx-auto px-6 sm:px-8 py-20 text-center">
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <div className="h-px w-10 rounded" style={{ background: '#F8D197' }} />
-            <div className="w-2 h-2 rounded-full" style={{ background: '#CC8F57' }} />
-            <div className="h-px w-10 rounded" style={{ background: '#F8D197' }} />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16 md:py-20 text-center">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+            <div className="h-px w-8 sm:w-10 rounded" style={{ background: '#F8D197' }} />
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ background: '#CC8F57' }} />
+            <div className="h-px w-8 sm:w-10 rounded" style={{ background: '#F8D197' }} />
           </div>
-          <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 sm:mb-4">
             {t('nav.contact', tr('اتصل بنا', 'Contact Us'))}
           </h1>
-          <div className="w-20 h-1 mx-auto rounded-full mb-6" style={{ background: '#F8D197' }} />
-          <p className="text-lg max-w-xl mx-auto" style={{ color: '#F7E5CD' }}>
+          <div className="w-16 sm:w-20 h-0.5 sm:h-1 mx-auto rounded-full mb-4 sm:mb-6" style={{ background: '#F8D197' }} />
+          <p className="text-sm sm:text-base md:text-lg max-w-xl mx-auto" style={{ color: '#F7E5CD' }}>
             {tr(
               'يسعدنا سماعك. سواء كان لديك سؤال عن منتجاتنا أو تعاونياتنا، فريقنا جاهز للمساعدة.',
               "We'd love to hear from you. Whether you have a question about our products or cooperatives, our team is ready to help."
@@ -88,7 +88,7 @@ const Contact: React.FC = () => {
       </div>
 
       {/* ── Main Grid ─────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-14 grid grid-cols-1 md:grid-cols-5 gap-8">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-14 grid grid-cols-1 md:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
 
         {/* LEFT — Contact info ──────────────────────────────── */}
         <div className="md:col-span-2">
@@ -101,31 +101,31 @@ const Contact: React.FC = () => {
             <div className="absolute -bottom-10 -start-10 w-32 h-32 rounded-full opacity-10 pointer-events-none"
               style={{ background: '#9FA93D' }} />
 
-            <div className="relative z-10 p-8 space-y-8">
+            <div className="relative z-10 p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-8">
               {/* logo */}
               <img
                 src="https://i.ibb.co/TqY5ZpYR/logo-by-sahara.png"
                 alt="By Sahara"
-                className="h-10 object-contain mb-2"
+                className="h-7 sm:h-8 md:h-10 object-contain mb-1 sm:mb-2"
                 style={{ filter: 'brightness(0) invert(1)' }}
               />
 
-              <h2 className="font-serif text-2xl font-bold text-white">
+              <h2 className="font-serif text-lg sm:text-xl md:text-2xl font-bold text-white">
                 {tr('تواصل معنا', 'Get in Touch')}
               </h2>
 
               {contactItems.map((item) => (
-                <div key={item.titleEn} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div key={item.titleEn} className="flex items-start gap-3">
+                  <div className="w-8 sm:w-9 md:w-10 h-8 sm:h-9 md:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: '#F8D197', color: '#455324' }}>
                     {item.icon}
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm mb-1" style={{ color: '#F8D197' }}>
+                    <h3 className="font-bold text-xs sm:text-sm mb-0.5 sm:mb-1" style={{ color: '#F8D197' }}>
                       {isRtl ? item.titleAr : item.titleEn}
                     </h3>
                     {item.lines.map((line) => (
-                      <p key={line} className="text-sm" style={{ color: '#F7E5CDbb' }}>{line}</p>
+                      <p key={line} className="text-xs sm:text-sm" style={{ color: '#F7E5CDbb' }}>{line}</p>
                     ))}
                   </div>
                 </div>
@@ -136,14 +136,14 @@ const Contact: React.FC = () => {
 
               {/* social */}
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest mb-3"
+                <p className="text-xs font-semibold uppercase tracking-widest mb-2"
                   style={{ color: '#9FA93D' }}>
                   {tr('تابعنا', 'Follow Us')}
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   {['f', 'in', 'tw'].map((s) => (
                     <a key={s} href="#"
-                      className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition-colors"
+                      className="w-7 sm:w-8 md:w-9 h-7 sm:h-8 md:h-9 rounded-lg sm:rounded-xl flex items-center justify-center text-xs font-bold transition-colors"
                       style={{ background: 'rgba(255,255,255,0.12)', color: '#F8D197' }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = '#CC8F57')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}>
@@ -158,34 +158,34 @@ const Contact: React.FC = () => {
 
         {/* RIGHT — Form ─────────────────────────────────────── */}
         <div className="md:col-span-3">
-          <div className="rounded-3xl p-8 shadow-sm h-full"
+          <div className="rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm h-full"
             style={{ background: '#fff', border: '1.5px solid #F8D197' }}>
 
             {/* success state */}
             {sent ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-10">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+              <div className="h-full flex flex-col items-center justify-center text-center py-8 sm:py-10">
+                <div className="w-14 sm:w-16 md:w-20 h-14 sm:h-16 md:h-20 rounded-full flex items-center justify-center mb-3 sm:mb-5"
                   style={{ background: '#9FA93D20' }}>
-                  <CheckCircle className="w-10 h-10" style={{ color: '#9FA93D' }} />
+                  <CheckCircle className="w-6 sm:w-8 md:w-10" style={{ color: '#9FA93D' }} />
                 </div>
-                <h3 className="font-serif text-2xl font-bold mb-2" style={{ color: '#455324' }}>
+                <h3 className="font-serif text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2" style={{ color: '#455324' }}>
                   {tr('تم الإرسال!', 'Message Sent!')}
                 </h3>
-                <p className="text-sm" style={{ color: '#763C19' }}>
+                <p className="text-xs sm:text-sm" style={{ color: '#763C19' }}>
                   {tr('سنرد عليك في أقرب وقت ممكن.', "We'll get back to you as soon as possible.")}
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-1 h-6 rounded-full" style={{ background: '#CC8F57' }} />
-                  <h2 className="font-serif text-xl font-bold" style={{ color: '#455324' }}>
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-5">
+                <div className="flex items-center gap-2 mb-4 sm:mb-6">
+                  <div className="w-0.5 sm:w-1 h-5 sm:h-6 rounded-full" style={{ background: '#CC8F57' }} />
+                  <h2 className="font-serif text-base sm:text-lg md:text-xl font-bold" style={{ color: '#455324' }}>
                     {tr('أرسل رسالة', 'Send a Message')}
                   </h2>
                 </div>
 
                 {/* name + email */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                   <div>
                     <label style={labelStyle}>{tr('الاسم', 'Name')}</label>
                     <input
@@ -247,14 +247,14 @@ const Contact: React.FC = () => {
                 {/* submit */}
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-base text-white transition-opacity hover:opacity-90 active:scale-95"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 md:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base text-white transition-opacity hover:opacity-90 active:scale-95"
                   style={{
                     background: 'linear-gradient(135deg, #455324, #617131)',
                     boxShadow: '0 6px 20px #45532435',
                   }}
                 >
                   {tr('إرسال الرسالة', 'Send Message')}
-                  <Send className={`w-5 h-5 ${isRtl ? 'rotate-180' : ''}`} />
+                  <Send className={`w-4 sm:w-5 h-4 sm:h-5 ${isRtl ? 'rotate-180' : ''}`} />
                 </button>
               </form>
             )}
