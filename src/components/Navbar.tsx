@@ -71,7 +71,6 @@ const Navbar: React.FC = () => {
                 }}
               >
                 {link.name}
-                {/* active underline dot */}
                 {isActive(link.path) && (
                   <span
                     className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
@@ -82,10 +81,8 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* ── Right Actions ─────────────────────────────── */}
+          {/* ── Desktop Right Actions ─────────────────────── */}
           <div className="hidden md:flex items-center gap-2">
-
-            {/* Language toggle */}
             <button
               onClick={() => changeLanguage(language === 'en' ? 'ar' : 'en')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-colors"
@@ -103,7 +100,6 @@ const Navbar: React.FC = () => {
               {language === 'en' ? 'عربي' : 'EN'}
             </button>
 
-            {/* Cart */}
             <Link
               to="/cart"
               className="relative flex items-center justify-center w-10 h-10 rounded-xl transition-colors"
@@ -123,8 +119,24 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          {/* ── Mobile: cart + hamburger ──────────────────── */}
+          {/* ── Mobile: lang + cart + hamburger ──────────── */}
           <div className="flex md:hidden items-center gap-2">
+
+            {/* 🌐 Language toggle — visible on mobile */}
+            <button
+              onClick={() => changeLanguage(language === 'en' ? 'ar' : 'en')}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold uppercase transition-colors"
+              style={{
+                color: '#617131',
+                border: '1.5px solid #9FA93D60',
+                background: '#9FA93D10',
+              }}
+            >
+              <Globe className="h-3.5 w-3.5" />
+              {language === 'en' ? 'ع' : 'EN'}
+            </button>
+
+            {/* 🛒 Cart */}
             <Link
               to="/cart"
               className="relative flex items-center justify-center w-9 h-9 rounded-xl"
@@ -141,6 +153,7 @@ const Navbar: React.FC = () => {
               )}
             </Link>
 
+            {/* ☰ Hamburger */}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="flex items-center justify-center w-9 h-9 rounded-xl transition-colors"
@@ -158,8 +171,7 @@ const Navbar: React.FC = () => {
           className="md:hidden px-4 pb-4 pt-2"
           style={{ borderTop: '1px solid #F8D197', background: '#fff' }}
         >
-          {/* nav links */}
-          <div className="space-y-1 mb-4">
+          <div className="space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -178,21 +190,6 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
-          </div>
-
-          {/* language toggle */}
-          <div className="pt-3" style={{ borderTop: '1px solid #F8D197' }}>
-            <button
-              onClick={() => {
-                changeLanguage(language === 'en' ? 'ar' : 'en');
-                setIsOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-colors"
-              style={{ color: '#617131', border: '1.5px solid #9FA93D40', background: '#9FA93D08' }}
-            >
-              <Globe className="h-4 w-4" />
-              {language === 'en' ? 'التبديل إلى العربية' : 'Switch to English'}
-            </button>
           </div>
         </div>
       )}

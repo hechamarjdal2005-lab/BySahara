@@ -23,21 +23,16 @@ const ProductDetails: React.FC = () => {
 
   const product = products.find((p) => p.id === id);
 
-  // ── Not found ──────────────────────────────────────────────
   if (!product) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6"
-        dir={isRtl ? 'rtl' : 'ltr'}>
-        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-          style={{ background: '#F8D197' }}>
-          <Package className="w-9 h-9" style={{ color: '#455324' }} />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: '#F8D197' }}>
+          <Package className="w-7 h-7" style={{ color: '#455324' }} />
         </div>
-        <h2 className="font-serif text-2xl font-bold mb-3" style={{ color: '#455324' }}>
+        <h2 className="font-serif text-xl font-bold mb-3" style={{ color: '#455324' }}>
           {tr('المنتج غير موجود', 'Product not found')}
         </h2>
-        <Link to="/shop"
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ background: '#455324' }}>
+        <Link to="/shop" className="inline-flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white text-sm" style={{ background: '#455324' }}>
           {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           {tr('العودة للمتجر', 'Back to Shop')}
         </Link>
@@ -60,89 +55,76 @@ const ProductDetails: React.FC = () => {
   };
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'description', label: tr('الوصف',       'Description') },
-    { id: 'details',     label: tr('التفاصيل',     'Details')     },
-    { id: 'reviews',     label: tr('التقييمات',    'Reviews')     },
+    { id: 'description', label: tr('الوصف', 'Description') },
+    { id: 'details',     label: tr('التفاصيل', 'Details')  },
+    { id: 'reviews',     label: tr('التقييمات', 'Reviews') },
   ];
 
   return (
-    <div className="min-h-screen pb-20" dir={isRtl ? 'rtl' : 'ltr'}
-      style={{ background: '#F7E5CD20' }}>
+    <div className="min-h-screen pb-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
       {/* ── Breadcrumb ──────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 pb-4">
-        <div className="flex items-center gap-2 text-sm" style={{ color: '#BA8944' }}>
-          <Link to="/" className="hover:underline" style={{ color: '#BA8944' }}>
-            {tr('الرئيسية', 'Home')}
-          </Link>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-2">
+        <div className="flex items-center gap-1.5 text-xs flex-wrap" style={{ color: '#BA8944' }}>
+          <Link to="/" className="hover:underline" style={{ color: '#BA8944' }}>{tr('الرئيسية', 'Home')}</Link>
           <span>/</span>
-          <Link to="/shop" className="hover:underline" style={{ color: '#BA8944' }}>
-            {tr('المتجر', 'Shop')}
-          </Link>
+          <Link to="/shop" className="hover:underline" style={{ color: '#BA8944' }}>{tr('المتجر', 'Shop')}</Link>
           <span>/</span>
-          <span style={{ color: '#455324', fontWeight: 600 }}>{name}</span>
+          <span className="font-semibold truncate max-w-[140px]" style={{ color: '#455324' }}>{name}</span>
         </div>
       </div>
 
       {/* ── Main Grid ───────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 mb-14">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
 
         {/* LEFT — Image ───────────────────────────────────── */}
-        <div className="space-y-4">
-          <div className="relative rounded-3xl overflow-hidden shadow-lg"
-            style={{ aspectRatio: '1/1', border: '2px solid #F8D197' }}>
-            <img
-              src={product.image}
-              alt={name}
-              className="w-full h-full object-cover"
-            />
+        <div className="space-y-3">
+          {/* Image — smaller on mobile */}
+          <div className="relative rounded-2xl overflow-hidden shadow-md"
+            style={{ aspectRatio: '1/1', border: '1.5px solid #F0E4CC', maxHeight: '280px' }}>
+            <img src={product.image} alt={name} className="w-full h-full object-cover" />
+
             {/* badges */}
-            <div className="absolute top-4 start-4 flex flex-col gap-2">
+            <div className="absolute top-3 start-3 flex flex-col gap-1.5">
               {product.isNew && (
-                <span className="text-xs font-bold px-3 py-1 rounded-full"
-                  style={{ background: '#9FA93D', color: '#fff' }}>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: '#9FA93D', color: '#fff' }}>
                   {tr('جديد', 'New')}
                 </span>
               )}
               {product.isFeatured && (
-                <span className="text-xs font-bold px-3 py-1 rounded-full"
-                  style={{ background: '#CC8F57', color: '#fff' }}>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: '#CC8F57', color: '#fff' }}>
                   {tr('مميز', 'Featured')}
                 </span>
               )}
             </div>
+
             {/* rating */}
-            <div className="absolute top-4 end-4 flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold shadow backdrop-blur-sm"
+            <div className="absolute top-3 end-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold shadow"
               style={{ background: 'rgba(255,255,255,0.92)', color: '#BA8944' }}>
-              <Star className="w-4 h-4 fill-current" />
+              <Star className="w-3.5 h-3.5 fill-current" />
               {product.rating}
             </div>
           </div>
 
-          {/* cooperative mini card */}
+          {/* Cooperative mini card */}
           {cooperative && (
             <Link to={`/cooperatives/${cooperative.id}`}
-              className="flex items-center gap-4 p-4 rounded-2xl transition-colors hover:shadow-md"
-              style={{ background: '#fff', border: '1.5px solid #F8D197' }}>
-              <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
-                <img src={cooperative.image} alt={coopName}
-                  className="w-full h-full object-cover" />
+              className="flex items-center gap-3 p-3 rounded-xl transition-colors hover:shadow-md"
+              style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
+              <div className="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0">
+                <img src={cooperative.image} alt={coopName} className="w-full h-full object-cover" />
               </div>
-              <div className="flex-grow">
-                <p className="text-xs font-semibold uppercase tracking-wide mb-0.5"
-                  style={{ color: '#9FA93D' }}>
+              <div className="flex-grow min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wide mb-0.5" style={{ color: '#9FA93D' }}>
                   {tr('التعاونية', 'Cooperative')}
                 </p>
-                <p className="font-bold text-sm" style={{ color: '#455324' }}>{coopName}</p>
+                <p className="font-bold text-sm truncate" style={{ color: '#455324' }}>{coopName}</p>
                 <div className="flex items-center gap-1 text-xs mt-0.5" style={{ color: '#BA8944' }}>
-                  <MapPin className="w-3 h-3" />
-                  {coopCity}
+                  <MapPin className="w-3 h-3" />{coopCity}
                 </div>
               </div>
               <div className="flex-shrink-0">
-                {isRtl
-                  ? <ArrowLeft className="w-4 h-4" style={{ color: '#CC8F57' }} />
-                  : <ArrowRight className="w-4 h-4" style={{ color: '#CC8F57' }} />}
+                {isRtl ? <ArrowLeft className="w-4 h-4" style={{ color: '#CC8F57' }} /> : <ArrowRight className="w-4 h-4" style={{ color: '#CC8F57' }} />}
               </div>
             </Link>
           )}
@@ -152,43 +134,33 @@ const ProductDetails: React.FC = () => {
         <div className="flex flex-col">
 
           {/* category + origin */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
-              style={{ background: '#F8D197', color: '#763C19' }}>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: '#F8D197', color: '#763C19' }}>
               {product.category}
             </span>
             {origin && (
               <span className="text-xs flex items-center gap-1" style={{ color: '#BA8944' }}>
-                <MapPin className="w-3 h-3" /> {origin}
+                <MapPin className="w-3 h-3" />{origin}
               </span>
             )}
           </div>
 
           {/* name */}
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4"
-            style={{ color: '#455324' }}>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold leading-tight mb-2" style={{ color: '#455324' }}>
             {name}
           </h1>
 
-          {/* unit */}
-          {unit && (
-            <p className="text-sm mb-3" style={{ color: '#BA8944' }}>{unit}</p>
-          )}
+          {unit && <p className="text-xs mb-2" style={{ color: '#BA8944' }}>{unit}</p>}
 
           {/* rating row */}
-          <div className="flex items-center gap-3 mb-5">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-0.5">
               {[1,2,3,4,5].map((s) => (
-                <Star key={s} className="w-4 h-4"
-                  style={{
-                    fill: s <= Math.round(product.rating) ? '#CC8F57' : 'transparent',
-                    color: '#CC8F57',
-                  }} />
+                <Star key={s} className="w-3.5 h-3.5"
+                  style={{ fill: s <= Math.round(product.rating) ? '#CC8F57' : 'transparent', color: '#CC8F57' }} />
               ))}
             </div>
-            <span className="font-bold text-sm" style={{ color: '#455324' }}>
-              {product.rating}
-            </span>
+            <span className="font-bold text-sm" style={{ color: '#455324' }}>{product.rating}</span>
             {product.reviewCount && (
               <span className="text-xs" style={{ color: '#BA894480' }}>
                 ({product.reviewCount} {tr('تقييم', 'reviews')})
@@ -197,83 +169,63 @@ const ProductDetails: React.FC = () => {
           </div>
 
           {/* description preview */}
-          <p className="text-sm sm:text-base leading-relaxed mb-6 line-clamp-3" style={{ color: '#763C19' }}>
+          <p className="text-sm leading-relaxed mb-4 line-clamp-3" style={{ color: '#763C19' }}>
             {description}
           </p>
 
-          {/* divider */}
-          <div className="mb-6" style={{ borderTop: '1px solid #F8D197' }} />
+          <div className="mb-4" style={{ borderTop: '1px solid #F0E4CC' }} />
 
-          {/* price + qty + add to cart */}
-          <div className="rounded-2xl p-3 sm:p-4 md:p-5 mb-5"
-            style={{ background: '#fff', border: '1.5px solid #F8D197' }}>
-
+          {/* Price + qty + add to cart */}
+          <div className="rounded-2xl p-4 mb-4" style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
             {/* price */}
-            <div className="flex items-baseline gap-2 mb-5">
-            <span className="text-3xl sm:text-4xl font-bold" style={{ color: '#455324' }}>
-                {product.price.toFixed(2)}
-              </span>
-              <span className="text-lg font-semibold" style={{ color: '#CC8F57' }}>MAD</span>
+            <div className="flex items-baseline gap-1.5 mb-4">
+              <span className="text-3xl font-bold" style={{ color: '#455324' }}>{product.price.toFixed(2)}</span>
+              <span className="text-base font-semibold" style={{ color: '#CC8F57' }}>MAD</span>
             </div>
 
             {/* qty stepper */}
-            <div className="flex items-center gap-2 sm:gap-4 mb-4">
-              <span className="text-xs sm:text-sm font-semibold" style={{ color: '#763C19' }}>
-                {tr('الكمية', 'Quantity')}
-              </span>
-              <div className="flex items-center rounded-xl overflow-hidden"
-                style={{ border: '1.5px solid #F8D197' }}>
+            <div className="flex items-center gap-3 mb-3 flex-wrap">
+              <span className="text-xs font-semibold" style={{ color: '#763C19' }}>{tr('الكمية', 'Qty')}</span>
+              <div className="flex items-center rounded-xl overflow-hidden" style={{ border: '1.5px solid #F0E4CC' }}>
                 <button onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center transition-colors text-lg font-bold"
+                  className="w-8 h-8 flex items-center justify-center font-bold text-base transition-colors"
                   style={{ color: '#455324' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
-                  −
-                </button>
-                <span className="w-9 h-8 sm:h-9 flex items-center justify-center font-bold text-xs sm:text-sm"
-                  style={{ color: '#455324', borderLeft: '1px solid #F8D197', borderRight: '1px solid #F8D197' }}>
-                  {qty}
-                </span>
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>−</button>
+                <span className="w-9 h-8 flex items-center justify-center font-bold text-sm"
+                  style={{ color: '#455324', borderLeft: '1px solid #F0E4CC', borderRight: '1px solid #F0E4CC' }}>{qty}</span>
                 <button onClick={() => setQty((q) => q + 1)}
-                  className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center transition-colors text-lg font-bold"
+                  className="w-8 h-8 flex items-center justify-center font-bold text-base transition-colors"
                   style={{ color: '#455324' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
-                  +
-                </button>
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>+</button>
               </div>
               <span className="text-xs" style={{ color: '#9FA93D' }}>
                 {tr('المجموع:', 'Total:')} {(product.price * qty).toFixed(2)} MAD
               </span>
             </div>
 
-            {/* add to cart btn */}
+            {/* Add to cart */}
             <button onClick={handleAddToCart}
-              className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 md:py-4 rounded-xl font-bold text-sm sm:text-base text-white transition-all duration-300 active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white transition-all duration-300 active:scale-95"
               style={{
-                background: added
-                  ? 'linear-gradient(135deg, #9FA93D, #617131)'
-                  : 'linear-gradient(135deg, #455324, #617131)',
-                boxShadow: '0 6px 20px #45532440',
+                background: added ? 'linear-gradient(135deg, #9FA93D, #617131)' : 'linear-gradient(135deg, #455324, #617131)',
+                boxShadow: '0 4px 14px #45532430',
               }}>
-              <ShoppingBag className="w-5 h-5" />
-              {added
-                ? tr('✓ تمت الإضافة!', '✓ Added!')
-                : t('product.addToCart', tr('أضف للسلة', 'Add to Cart'))}
+              <ShoppingBag className="w-4 h-4" />
+              {added ? tr('✓ تمت الإضافة!', '✓ Added!') : t('product.addToCart', tr('أضف للسلة', 'Add to Cart'))}
             </button>
           </div>
 
-          {/* guarantees */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          {/* Guarantees — 2x2 compact */}
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: <Truck className="w-4 h-4 sm:w-5 sm:h-5" />,        text: tr('شحن مجاني', 'Free Shipping') },
-              { icon: <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />,  text: tr('منتج أصيل مضمون', 'Authenticity Guaranteed') },
-              { icon: <Award className="w-4 h-4 sm:w-5 sm:h-5" />,        text: tr('جودة معتمدة', 'Certified Quality') },
-              { icon: <Users className="w-4 h-4 sm:w-5 sm:h-5" />,        text: tr('دعم التعاونيات', 'Supports Cooperatives') },
+              { icon: <Truck className="w-4 h-4" />,       text: tr('شحن مجاني', 'Free Shipping') },
+              { icon: <ShieldCheck className="w-4 h-4" />, text: tr('منتج أصيل', 'Authentic') },
+              { icon: <Award className="w-4 h-4" />,       text: tr('جودة معتمدة', 'Certified') },
+              { icon: <Users className="w-4 h-4" />,       text: tr('دعم التعاونيات', 'Supports Coops') },
             ].map((g) => (
-              <div key={g.text}
-                className="flex items-center gap-2 p-2.5 sm:p-3 rounded-xl text-xs font-medium"
-                style={{ background: '#F7E5CD', color: '#455324' }}>
+              <div key={g.text} className="flex items-center gap-1.5 p-2.5 rounded-xl text-xs font-medium" style={{ background: '#F7E5CD', color: '#455324' }}>
                 <span style={{ color: '#CC8F57' }}>{g.icon}</span>
                 {g.text}
               </div>
@@ -283,15 +235,14 @@ const ProductDetails: React.FC = () => {
       </div>
 
       {/* ── TABS ────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="rounded-2xl overflow-hidden shadow-sm"
-          style={{ background: '#fff', border: '1.5px solid #F8D197' }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="rounded-2xl overflow-hidden shadow-sm" style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
 
           {/* tab headers */}
-          <div className="flex" style={{ borderBottom: '1.5px solid #F8D197' }}>
+          <div className="flex" style={{ borderBottom: '1.5px solid #F0E4CC' }}>
             {tabs.map((tab) => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className="flex-1 py-4 text-sm font-bold transition-all duration-200"
+                className="flex-1 py-3 text-xs font-bold transition-all duration-200"
                 style={{
                   color: activeTab === tab.id ? '#455324' : '#BA8944',
                   background: activeTab === tab.id ? '#F8D197' : 'transparent',
@@ -303,14 +254,12 @@ const ProductDetails: React.FC = () => {
           </div>
 
           {/* tab content */}
-          <div className="p-4 sm:p-6 md:p-8">
+          <div className="p-4 sm:p-6">
 
             {activeTab === 'description' && (
-              <div className="space-y-3 sm:space-y-4">
-                <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#442413' }}>
-                  {description}
-                </p>
-                <p className="text-sm leading-relaxed" style={{ color: '#763C19' }}>
+              <div className="space-y-3">
+                <p className="text-sm leading-relaxed" style={{ color: '#442413' }}>{description}</p>
+                <p className="text-xs leading-relaxed" style={{ color: '#763C19' }}>
                   {tr(
                     `صُنع بعناية فائقة على يد حرفيي ${coopName}. بشرائك لهذا المنتج، تدعم مباشرة سبل العيش المستدامة في المنطقة.`,
                     `Handcrafted with care by the artisans of ${coopName}. By purchasing this product, you directly support sustainable livelihoods in the region.`
@@ -320,7 +269,7 @@ const ProductDetails: React.FC = () => {
             )}
 
             {activeTab === 'details' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[
                   { label: tr('المنتج', 'Product'),       value: name },
                   { label: tr('التعاونية', 'Cooperative'), value: coopName },
@@ -331,26 +280,23 @@ const ProductDetails: React.FC = () => {
                   { label: tr('التقييم', 'Rating'),        value: `${product.rating} / 5` },
                   { label: tr('المكونات', 'Ingredients'),  value: tr('طبيعية 100%', '100% Natural') },
                 ].map((row) => (
-                  <div key={row.label}
-                    className="flex justify-between items-center p-2.5 sm:p-3 rounded-xl text-xs sm:text-sm"
-                    style={{ background: '#F7E5CD' }}>
+                  <div key={row.label} className="flex justify-between items-center p-2.5 rounded-xl text-xs" style={{ background: '#F7E5CD' }}>
                     <span className="font-semibold" style={{ color: '#763C19' }}>{row.label}</span>
-                    <span style={{ color: '#442413' }}>{row.value}</span>
+                    <span className="truncate max-w-[120px] text-end" style={{ color: '#442413' }}>{row.value}</span>
                   </div>
                 ))}
               </div>
             )}
 
             {activeTab === 'reviews' && (
-              <div className="text-center py-6 sm:py-8 md:py-10">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{ background: '#F8D197' }}>
-                  <Star className="w-5 h-5 sm:w-7 sm:h-7" style={{ color: '#CC8F57' }} />
+              <div className="text-center py-8">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: '#F8D197' }}>
+                  <Star className="w-5 h-5" style={{ color: '#CC8F57' }} />
                 </div>
-                <p className="font-semibold mb-1 text-sm sm:text-base" style={{ color: '#455324' }}>
+                <p className="font-semibold text-sm mb-1" style={{ color: '#455324' }}>
                   {tr('لا توجد تقييمات بعد', 'No reviews yet')}
                 </p>
-                <p className="text-xs sm:text-sm" style={{ color: '#BA8944' }}>
+                <p className="text-xs" style={{ color: '#BA8944' }}>
                   {tr('كن أول من يقيم هذا المنتج!', 'Be the first to review this product!')}
                 </p>
               </div>
@@ -358,7 +304,6 @@ const ProductDetails: React.FC = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };
