@@ -24,8 +24,17 @@ export interface BilingualText {
 export interface Category {
   id: CategoryId;
   name: BilingualText;
-  icon: string; // emoji or icon name
+  icon: string;
   productCount?: number;
+}
+
+// ─── Volume Option ────────────────────────────────────────────────
+// kola produit 3ando list dyal volumes li ikhtar menhom l'client
+export interface VolumeOption {
+  label: BilingualText;   // ex: { en: '250ml', ar: '250مل' }
+  value: number;          // ex: 250  (always in base unit: ml, g, etc.)
+  unit: string;           // ex: 'ml' | 'g' | 'kg' | 'L'
+  price: number;          // prix spécifique à ce volume
 }
 
 // ─── Product ─────────────────────────────────────────────────────
@@ -33,19 +42,20 @@ export interface Product {
   id: string;
   name: BilingualText;
   description: BilingualText;
-  price: number;
-  unit: BilingualText;        // e.g. "kg" / "كغ" or "250ml" / "250مل"
+  price: number;            // prix de base (= premier volume si volumes défini)
+  unit: BilingualText;      // e.g. "250ml bottle" / "زجاجة 250مل"
   category: CategoryId;
   image: string;
-  images?: string[];          // gallery images
+  images?: string[];
   cooperativeId: string;
-  rating: number;             // 0–5
+  rating: number;
   reviewCount?: number;
   stock?: number;
   isNew?: boolean;
   isFeatured?: boolean;
-  weight?: string;            // packaging info
-  origin?: BilingualText;     // e.g. "Guelmim" / "كلميم"
+  weight?: string;
+  origin?: BilingualText;
+  volumes?: VolumeOption[]; // ← JDID: options de volume disponibles
 }
 
 // ─── Cooperative ─────────────────────────────────────────────────
@@ -56,33 +66,25 @@ export interface Cooperative {
   shortDescription?: BilingualText;
   image: string;
   logo?: string;
-
-  // Location details
-  city: BilingualText;        // e.g. "Guelmim" / "كلميم"
-  province: BilingualText;    // e.g. "Guelmim Province" / "إقليم كلميم"
-  region: BilingualText;      // e.g. "Guelmim-Oued Noun" / "كلميم-واد نون"
-  address?: BilingualText;    // full address if available
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-
-  // Contact
+  city: BilingualText;
+  province: BilingualText;
+  region: BilingualText;
+  address?: BilingualText;
+  coordinates?: { lat: number; lng: number };
   phone?: string;
   email?: string;
   website?: string;
-
-  // Meta
   foundedYear?: number;
   memberCount?: number;
-  certifications?: string[];  // e.g. ["Bio", "Fair Trade"]
-  categories?: CategoryId[];  // which categories they produce
+  certifications?: string[];
+  categories?: CategoryId[];
 }
 
 // ─── Cart ────────────────────────────────────────────────────────
 export interface CartItem {
   product: Product;
   quantity: number;
+  selectedVolume?: VolumeOption; // ← JDID: volume li khtaro l'client
 }
 
 export interface Cart {

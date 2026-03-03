@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ShoppingBag, Star, Truck, ShieldCheck, ArrowLeft, ArrowRight, MapPin, Users, Award, Package } from 'lucide-react';
+import {
+  ShoppingBag, Star, Truck, ShieldCheck,
+  ArrowLeft, ArrowRight, MapPin, Users, Award, Package,
+} from 'lucide-react';
 import { products, cooperatives } from '../data';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { VolumeOption } from '../types';
+import VolumeSelector from '../components/Volumeselector';
 
 type Tab = 'description' | 'details' | 'reviews';
 
@@ -22,6 +27,11 @@ const ProductDetails: React.FC = () => {
   const lang = (field: { en: string; ar: string }) => (isRtl ? field.ar : field.en);
 
   const product = products.find((p) => p.id === id);
+
+  // ── Volume state ─────────────────────────────────────────────
+  const [selectedVolume, setSelectedVolume] = useState<VolumeOption | null>(
+    product?.volumes ? product.volumes[0] : null
+  );
 
   if (!product) {
     return (
@@ -43,13 +53,18 @@ const ProductDetails: React.FC = () => {
   const cooperative = cooperatives.find((c) => c.id === product.cooperativeId);
   const name        = lang(product.name);
   const description = lang(product.description);
-  const unit        = product.unit ? lang(product.unit) : '';
   const origin      = product.origin ? lang(product.origin) : null;
   const coopName    = cooperative ? lang(cooperative.name) : '';
   const coopCity    = cooperative ? lang(cooperative.city) : '';
 
+  // ── Prix dynamique selon volume choisi ───────────────────────
+  const currentPrice = selectedVolume ? selectedVolume.price : product.price;
+  const currentUnit  = selectedVolume
+    ? lang(selectedVolume.label)
+    : (product.unit ? lang(product.unit) : '');
+
   const handleAddToCart = () => {
-    for (let i = 0; i < qty; i++) addToCart(product);
+    for (let i = 0; i < qty; i++) addToCart(product, selectedVolume ?? undefined);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -63,7 +78,7 @@ const ProductDetails: React.FC = () => {
   return (
     <div className="min-h-screen pb-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
-      {/* ── Breadcrumb ──────────────────────────────────────── */}
+      {/* ── Breadcrumb ──────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-2">
         <div className="flex items-center gap-1.5 text-xs flex-wrap" style={{ color: '#BA8944' }}>
           <Link to="/" className="hover:underline" style={{ color: '#BA8944' }}>{tr('الرئيسية', 'Home')}</Link>
@@ -74,17 +89,17 @@ const ProductDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Main Grid ───────────────────────────────────────── */}
+      {/* ── Main Grid ───────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
 
-        {/* LEFT — Image ───────────────────────────────────── */}
+        {/* LEFT — Image */}
         <div className="space-y-3">
-          {/* Image — smaller on mobile */}
-          <div className="relative rounded-2xl overflow-hidden shadow-md"
-            style={{ aspectRatio: '1/1', border: '1.5px solid #F0E4CC', maxHeight: '280px' }}>
+          <div
+            className="relative rounded-2xl overflow-hidden shadow-md"
+            style={{ aspectRatio: '1/1', border: '1.5px solid #F0E4CC', maxHeight: '280px' }}
+          >
             <img src={product.image} alt={name} className="w-full h-full object-cover" />
 
-            {/* badges */}
             <div className="absolute top-3 start-3 flex flex-col gap-1.5">
               {product.isNew && (
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: '#9FA93D', color: '#fff' }}>
@@ -98,9 +113,10 @@ const ProductDetails: React.FC = () => {
               )}
             </div>
 
-            {/* rating */}
-            <div className="absolute top-3 end-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold shadow"
-              style={{ background: 'rgba(255,255,255,0.92)', color: '#BA8944' }}>
+            <div
+              className="absolute top-3 end-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold shadow"
+              style={{ background: 'rgba(255,255,255,0.92)', color: '#BA8944' }}
+            >
               <Star className="w-3.5 h-3.5 fill-current" />
               {product.rating}
             </div>
@@ -108,9 +124,11 @@ const ProductDetails: React.FC = () => {
 
           {/* Cooperative mini card */}
           {cooperative && (
-            <Link to={`/cooperatives/${cooperative.id}`}
+            <Link
+              to={`/cooperatives/${cooperative.id}`}
               className="flex items-center gap-3 p-3 rounded-xl transition-colors hover:shadow-md"
-              style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
+              style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}
+            >
               <div className="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0">
                 <img src={cooperative.image} alt={coopName} className="w-full h-full object-cover" />
               </div>
@@ -124,16 +142,18 @@ const ProductDetails: React.FC = () => {
                 </div>
               </div>
               <div className="flex-shrink-0">
-                {isRtl ? <ArrowLeft className="w-4 h-4" style={{ color: '#CC8F57' }} /> : <ArrowRight className="w-4 h-4" style={{ color: '#CC8F57' }} />}
+                {isRtl
+                  ? <ArrowLeft  className="w-4 h-4" style={{ color: '#CC8F57' }} />
+                  : <ArrowRight className="w-4 h-4" style={{ color: '#CC8F57' }} />}
               </div>
             </Link>
           )}
         </div>
 
-        {/* RIGHT — Info ────────────────────────────────────── */}
+        {/* RIGHT — Info */}
         <div className="flex flex-col">
 
-          {/* category + origin */}
+          {/* Category + origin */}
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: '#F8D197', color: '#763C19' }}>
               {product.category}
@@ -145,14 +165,12 @@ const ProductDetails: React.FC = () => {
             )}
           </div>
 
-          {/* name */}
+          {/* Name */}
           <h1 className="font-serif text-2xl sm:text-3xl font-bold leading-tight mb-2" style={{ color: '#455324' }}>
             {name}
           </h1>
 
-          {unit && <p className="text-xs mb-2" style={{ color: '#BA8944' }}>{unit}</p>}
-
-          {/* rating row */}
+          {/* Rating */}
           <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center gap-0.5">
               {[1,2,3,4,5].map((s) => (
@@ -168,64 +186,98 @@ const ProductDetails: React.FC = () => {
             )}
           </div>
 
-          {/* description preview */}
+          {/* Description preview */}
           <p className="text-sm leading-relaxed mb-4 line-clamp-3" style={{ color: '#763C19' }}>
             {description}
           </p>
 
           <div className="mb-4" style={{ borderTop: '1px solid #F0E4CC' }} />
 
+          {/* ── Volume Selector (medium) ─────────────────────── */}
+          {product.volumes && product.volumes.length > 0 && selectedVolume && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold mb-2" style={{ color: '#763C19' }}>
+                {tr('اختر الحجم', 'Choose size')}
+              </p>
+              <VolumeSelector
+                volumes={product.volumes}
+                selected={selectedVolume}
+                onChange={setSelectedVolume}
+                size="md"
+              />
+            </div>
+          )}
+
           {/* Price + qty + add to cart */}
           <div className="rounded-2xl p-4 mb-4" style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
-            {/* price */}
-            <div className="flex items-baseline gap-1.5 mb-4">
-              <span className="text-3xl font-bold" style={{ color: '#455324' }}>{product.price.toFixed(2)}</span>
+
+            {/* Dynamic price */}
+            <div className="flex items-baseline gap-1.5 mb-1">
+              <span className="text-3xl font-bold transition-all duration-200" style={{ color: '#455324' }}>
+                {currentPrice.toFixed(2)}
+              </span>
               <span className="text-base font-semibold" style={{ color: '#CC8F57' }}>MAD</span>
+              {currentUnit && (
+                <span className="text-xs" style={{ color: '#BA894480' }}>/ {currentUnit}</span>
+              )}
             </div>
 
-            {/* qty stepper */}
+            {/* Qty stepper */}
             <div className="flex items-center gap-3 mb-3 flex-wrap">
               <span className="text-xs font-semibold" style={{ color: '#763C19' }}>{tr('الكمية', 'Qty')}</span>
               <div className="flex items-center rounded-xl overflow-hidden" style={{ border: '1.5px solid #F0E4CC' }}>
-                <button onClick={() => setQty((q) => Math.max(1, q - 1))}
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
                   className="w-8 h-8 flex items-center justify-center font-bold text-base transition-colors"
                   style={{ color: '#455324' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>−</button>
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                >−</button>
                 <span className="w-9 h-8 flex items-center justify-center font-bold text-sm"
-                  style={{ color: '#455324', borderLeft: '1px solid #F0E4CC', borderRight: '1px solid #F0E4CC' }}>{qty}</span>
-                <button onClick={() => setQty((q) => q + 1)}
+                  style={{ color: '#455324', borderLeft: '1px solid #F0E4CC', borderRight: '1px solid #F0E4CC' }}>
+                  {qty}
+                </span>
+                <button
+                  onClick={() => setQty((q) => q + 1)}
                   className="w-8 h-8 flex items-center justify-center font-bold text-base transition-colors"
                   style={{ color: '#455324' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>+</button>
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                >+</button>
               </div>
               <span className="text-xs" style={{ color: '#9FA93D' }}>
-                {tr('المجموع:', 'Total:')} {(product.price * qty).toFixed(2)} MAD
+                {tr('المجموع:', 'Total:')} {(currentPrice * qty).toFixed(2)} MAD
               </span>
             </div>
 
             {/* Add to cart */}
-            <button onClick={handleAddToCart}
+            <button
+              onClick={handleAddToCart}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white transition-all duration-300 active:scale-95"
               style={{
-                background: added ? 'linear-gradient(135deg, #9FA93D, #617131)' : 'linear-gradient(135deg, #455324, #617131)',
+                background: added
+                  ? 'linear-gradient(135deg, #9FA93D, #617131)'
+                  : 'linear-gradient(135deg, #455324, #617131)',
                 boxShadow: '0 4px 14px #45532430',
-              }}>
+              }}
+            >
               <ShoppingBag className="w-4 h-4" />
-              {added ? tr('✓ تمت الإضافة!', '✓ Added!') : t('product.addToCart', tr('أضف للسلة', 'Add to Cart'))}
+              {added
+                ? tr('✓ تمت الإضافة!', '✓ Added!')
+                : t('product.addToCart', tr('أضف للسلة', 'Add to Cart'))}
             </button>
           </div>
 
-          {/* Guarantees — 2x2 compact */}
+          {/* Guarantees */}
           <div className="grid grid-cols-2 gap-2">
             {[
               { icon: <Truck className="w-4 h-4" />,       text: tr('شحن مجاني', 'Free Shipping') },
-              { icon: <ShieldCheck className="w-4 h-4" />, text: tr('منتج أصيل', 'Authentic') },
-              { icon: <Award className="w-4 h-4" />,       text: tr('جودة معتمدة', 'Certified') },
+              { icon: <ShieldCheck className="w-4 h-4" />, text: tr('منتج أصيل', 'Authentic')     },
+              { icon: <Award className="w-4 h-4" />,       text: tr('جودة معتمدة', 'Certified')   },
               { icon: <Users className="w-4 h-4" />,       text: tr('دعم التعاونيات', 'Supports Coops') },
             ].map((g) => (
-              <div key={g.text} className="flex items-center gap-1.5 p-2.5 rounded-xl text-xs font-medium" style={{ background: '#F7E5CD', color: '#455324' }}>
+              <div key={g.text} className="flex items-center gap-1.5 p-2.5 rounded-xl text-xs font-medium"
+                style={{ background: '#F7E5CD', color: '#455324' }}>
                 <span style={{ color: '#CC8F57' }}>{g.icon}</span>
                 {g.text}
               </div>
@@ -234,11 +286,10 @@ const ProductDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* ── TABS ────────────────────────────────────────────── */}
+      {/* ── TABS ────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
 
-          {/* tab headers */}
           <div className="flex" style={{ borderBottom: '1.5px solid #F0E4CC' }}>
             {tabs.map((tab) => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
@@ -253,7 +304,6 @@ const ProductDetails: React.FC = () => {
             ))}
           </div>
 
-          {/* tab content */}
           <div className="p-4 sm:p-6">
 
             {activeTab === 'description' && (
@@ -271,14 +321,15 @@ const ProductDetails: React.FC = () => {
             {activeTab === 'details' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[
-                  { label: tr('المنتج', 'Product'),       value: name },
+                  { label: tr('المنتج', 'Product'),        value: name },
                   { label: tr('التعاونية', 'Cooperative'), value: coopName },
-                  { label: tr('المدينة', 'City'),          value: coopCity },
-                  { label: tr('الوحدة', 'Unit'),           value: unit || '—' },
-                  { label: tr('المصدر', 'Origin'),         value: origin || '—' },
-                  { label: tr('التصنيف', 'Category'),      value: product.category },
-                  { label: tr('التقييم', 'Rating'),        value: `${product.rating} / 5` },
-                  { label: tr('المكونات', 'Ingredients'),  value: tr('طبيعية 100%', '100% Natural') },
+                  { label: tr('المدينة', 'City'),           value: coopCity },
+                  { label: tr('الحجم المختار', 'Selected Size'), value: currentUnit || '—' },
+                  { label: tr('السعر', 'Price'),            value: `${currentPrice.toFixed(2)} MAD` },
+                  { label: tr('المصدر', 'Origin'),          value: origin || '—' },
+                  { label: tr('التصنيف', 'Category'),       value: product.category },
+                  { label: tr('التقييم', 'Rating'),         value: `${product.rating} / 5` },
+                  { label: tr('المكونات', 'Ingredients'),   value: tr('طبيعية 100%', '100% Natural') },
                 ].map((row) => (
                   <div key={row.label} className="flex justify-between items-center p-2.5 rounded-xl text-xs" style={{ background: '#F7E5CD' }}>
                     <span className="font-semibold" style={{ color: '#763C19' }}>{row.label}</span>
