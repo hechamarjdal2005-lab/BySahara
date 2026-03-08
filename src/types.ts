@@ -29,7 +29,6 @@ export interface Category {
 }
 
 // ─── Volume Option ────────────────────────────────────────────────
-// kola produit 3ando list dyal volumes li ikhtar menhom l'client
 export interface VolumeOption {
   label: BilingualText;   // ex: { en: '250ml', ar: '250مل' }
   value: number;          // ex: 250  (always in base unit: ml, g, etc.)
@@ -42,8 +41,8 @@ export interface Product {
   id: string;
   name: BilingualText;
   description: BilingualText;
-  price: number;            // prix de base (= premier volume si volumes défini)
-  unit: BilingualText;      // e.g. "250ml bottle" / "زجاجة 250مل"
+  price: number;
+  unit: BilingualText;
   category: CategoryId;
   image: string;
   images?: string[];
@@ -55,7 +54,7 @@ export interface Product {
   isFeatured?: boolean;
   weight?: string;
   origin?: BilingualText;
-  volumes?: VolumeOption[]; // ← JDID: options de volume disponibles
+  volumes?: VolumeOption[];
 }
 
 // ─── Cooperative ─────────────────────────────────────────────────
@@ -84,7 +83,7 @@ export interface Cooperative {
 export interface CartItem {
   product: Product;
   quantity: number;
-  selectedVolume?: VolumeOption; // ← JDID: volume li khtaro l'client
+  selectedVolume?: VolumeOption;
 }
 
 export interface Cart {
@@ -113,4 +112,27 @@ export interface Review {
   rating: number;
   comment: BilingualText;
   date: string;
+}
+
+// ─── Page Content Types (for dynamic CMS sections) ───────────────
+export interface PageSection {
+  id: string;
+  section_key: string;
+  title: BilingualText;
+  subtitle?: BilingualText;
+  description?: BilingualText;
+  image_url?: string;
+  link_url?: string;
+  order_index: number;
+  is_active: boolean;
+}
+
+export interface PageStat {
+  id: string;
+  icon_emoji: string;
+  value_dynamic: boolean;
+  value_static?: string;
+  label: BilingualText;
+  order_index: number;
+  is_active: boolean;
 }

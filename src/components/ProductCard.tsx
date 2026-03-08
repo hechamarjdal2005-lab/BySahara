@@ -5,38 +5,31 @@ import { ShoppingBag, Star } from 'lucide-react';
 import { Product, VolumeOption } from '../types';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import { cooperatives } from '../data';
-import VolumeSelector from './Volumeselector';
+import VolumeSelector from './VolumeSelector';
 
 interface ProductCardProps {
   product: Product;
+  cooperativeName?: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
   const { language } = useLanguage();
   const isRtl = language === 'ar';
 
-  const name   = isRtl ? product.name.ar   : product.name.en;
+  const name = isRtl ? product.name.ar : product.name.en;
   const origin = product.origin ? (isRtl ? product.origin.ar : product.origin.en) : null;
 
   // ── Volume state ─────────────────────────────────────────────
-  // ibtda b le premier volume, ila mashi volume ikhdem b price de base
   const [selectedVolume, setSelectedVolume] = useState<VolumeOption | null>(
-    product.volumes ? product.volumes[0] : null
+    product.volumes && product.volumes.length > 0 ? product.volumes[0] : null
   );
 
   const currentPrice = selectedVolume ? selectedVolume.price : product.price;
-  const currentUnit  = selectedVolume
+  const currentUnit = selectedVolume
     ? (isRtl ? selectedVolume.label.ar : selectedVolume.label.en)
     : (product.unit ? (isRtl ? product.unit.ar : product.unit.en) : '');
-
-  // ── Cooperative ───────────────────────────────────────────────
-  const cooperative = cooperatives.find((c) => c.id === product.cooperativeId);
-  const cooperativeName = cooperative
-    ? (isRtl ? cooperative.name.ar : cooperative.name.en)
-    : null;
 
   return (
     <div
@@ -114,8 +107,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </h3>
         </Link>
 
-        {/* ── Volume Selector (small) ── */}
-        {product.volumes && product.volumes.length > 0 && selectedVolume && (
+        {/* ── Volume Selector (if product has volumes) ── */}
+        {product.volumes && product.volumes.length > 0 && (
           <div className="mb-3">
             <VolumeSelector
               volumes={product.volumes}
@@ -126,8 +119,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         )}
 
-        {/* Unit label (ila mashi volumes) */}
-        {!product.volumes && currentUnit && (
+        {/* Unit label (if no volumes) */}
+        {(!product.volumes || product.volumes.length === 0) && currentUnit && (
           <p className="text-xs mb-3" style={{ color: '#BA894480' }}>{currentUnit}</p>
         )}
 
@@ -139,7 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 {currentPrice.toFixed(2)}
               </span>
               <span className="text-xs ms-1 font-medium" style={{ color: '#CC8F57' }}>MAD</span>
-              {/* show selected unit next to price */}
+              {/* Show selected unit next to price */}
               {selectedVolume && (
                 <span className="text-xs ms-1" style={{ color: '#BA894480' }}>
                   / {isRtl ? selectedVolume.label.ar : selectedVolume.label.en}
@@ -148,12 +141,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
 
             <button
-              onClick={() =>
-                addToCart(
-                  product,
-                  selectedVolume ?? undefined
-                )
-              }
+              onClick={() => addToCart(product, selectedVolume ?? undefined)}
               className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 active:scale-95"
               style={{ background: '#455324', color: '#fff' }}
               aria-label={t('product.addToCart', 'Add to cart')}

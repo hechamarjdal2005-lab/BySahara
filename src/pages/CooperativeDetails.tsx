@@ -1,20 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ArrowLeft, ArrowRight, Users, Leaf, Award, Phone, Package } from 'lucide-react';
+import { MapPin, ArrowLeft, ArrowRight, Users, Leaf, Award, Phone, Package, Loader2 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { cooperatives, products } from '../data';
+import { fetchCooperativeById, fetchProductsByCooperative } from '../data';
 import { useLanguage } from '../context/LanguageContext';
+import { Cooperative, Product, BilingualText } from '../types';
 
 const CooperativeDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { language } = useLanguage();
   const isRtl = language === 'ar';
   const t = (ar: string, en: string) => (isRtl ? ar : en);
-  const lang = (field: { en: string; ar: string }) => (isRtl ? field.ar : field.en);
+  const lang = (field: BilingualText | string | undefined | null): string => {
+    if (!field) return '';
+    if (typeof field === 'string') return field;
+    return isRtl ? field.ar : field.en;
+  };
 
-  const cooperative = cooperatives.find((c) => c.id === id);
+  // ─── State ──────────────────────────────────────────────────
+  const [cooperative, setCooperative] = useState<Cooperative | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!cooperative) {
+  // ─── Fetch Data on Mount ────────────────────────────────────
+  useEffect(() => {
+    const loadData = async () => {
+      if (!id) {
+        setError('Invalid cooperative ID');
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        const [coopData, productsData] = await Promise.all([
+          fetchCooperativeById(id),
+          fetchProductsByCooperative(id),
+        ]);
+        setCooperative(coopData);
+        setProducts(productsData);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading cooperative details:', err);
+        setError('Failed to load cooperative. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
+
+  // ─── Loading State ──────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: '#455324' }} />
+          <p className="text-sm" style={{ color: '#763C19' }}>{t('جاري التحميل...', 'Loading...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Error / Not Found State ────────────────────────────────
+  if (error || !cooperative) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: '#F8D197' }}>
@@ -23,6 +72,7 @@ const CooperativeDetails: React.FC = () => {
         <h2 className="font-serif text-xl font-bold mb-3" style={{ color: '#455324' }}>
           {t('التعاونية غير موجودة', 'Cooperative not found')}
         </h2>
+        {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
         <Link to="/cooperatives"
           className="inline-flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white text-sm"
           style={{ background: '#455324' }}>
@@ -33,18 +83,19 @@ const CooperativeDetails: React.FC = () => {
     );
   }
 
-  const coopProducts = products.filter((p) => p.cooperativeId === cooperative.id);
-  const name        = lang(cooperative.name);
-  const city        = lang(cooperative.city);
-  const province    = lang(cooperative.province);
+  // ─── Derived Values ─────────────────────────────────────────
+  const name = lang(cooperative.name);
+  const city = lang(cooperative.city);
+  const province = lang(cooperative.province);
   const description = lang(cooperative.description);
 
   const impactItems = [
-    { icon: <Users className="w-4 h-4" />,  title: t('التمكين', 'Empowerment'), desc: t('أجور عادلة واستقلالية', 'Fair wages & independence') },
-    { icon: <Leaf className="w-4 h-4" />,   title: t('الاستدامة', 'Sustainability'), desc: t('مواد صديقة للبيئة', 'Eco-friendly materials') },
-    { icon: <Award className="w-4 h-4" />,  title: t('الجودة', 'Quality'), desc: t('رقابة صارمة للجودة', 'Rigorous quality control') },
+    { icon: <Users className="w-4 h-4" />, title: t('التمكين', 'Empowerment'), desc: t('أجور عادلة واستقلالية', 'Fair wages & independence') },
+    { icon: <Leaf className="w-4 h-4" />, title: t('الاستدامة', 'Sustainability'), desc: t('مواد صديقة للبيئة', 'Eco-friendly materials') },
+    { icon: <Award className="w-4 h-4" />, title: t('الجودة', 'Quality'), desc: t('رقابة صارمة للجودة', 'Rigorous quality control') },
   ];
 
+  // ─── Main Render ────────────────────────────────────────────
   return (
     <div className="min-h-screen pb-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
@@ -115,7 +166,7 @@ const CooperativeDetails: React.FC = () => {
           )}
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#F8D197', color: '#455324' }}>
             <Package className="w-3.5 h-3.5" />
-            {coopProducts.length} {t('منتج', 'products')}
+            {products.length} {t('منتج', 'products')}
           </div>
           {cooperative.certifications?.map((cert) => (
             <span key={cert} className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: '#9FA93D20', color: '#617131' }}>
@@ -195,17 +246,17 @@ const CooperativeDetails: React.FC = () => {
               {t('المنتجات', 'Products')}
             </h2>
           </div>
-          {coopProducts.length > 0 && (
+          {products.length > 0 && (
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#F8D197', color: '#763C19' }}>
-              {coopProducts.length} {t('منتج', 'products')}
+              {products.length} {t('منتج', 'products')}
             </span>
           )}
         </div>
 
-        {coopProducts.length > 0 ? (
+        {products.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {coopProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} cooperativeName={name} />
             ))}
           </div>
         ) : (

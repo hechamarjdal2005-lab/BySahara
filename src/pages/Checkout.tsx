@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Truck, ShoppingBag, ArrowLeft, ArrowRight, MessageCircle, Banknote } from 'lucide-react';
+import { Truck, ShoppingBag, ArrowLeft, ArrowRight, MessageCircle, Banknote, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import { cooperatives } from '../data';
+import { fetchCooperatives } from '../data';
+import { Cooperative, BilingualText } from '../types';
 
 const WHATSAPP_NUMBER = '212649026589';
 
@@ -53,7 +54,15 @@ const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const isRtl = language === 'ar';
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
+  const lang = (field: BilingualText | string | undefined | null): string => {
+    if (!field) return '';
+    if (typeof field === 'string') return field;
+    return isRtl ? field.ar : field.en;
+  };
 
+  // ─── State ──────────────────────────────────────────────────
+  const [cooperatives, setCooperatives] = useState<Cooperative[]>([]);
+  const [loadingCoops, setLoadingCoops] = useState(true);
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -64,6 +73,23 @@ const Checkout: React.FC = () => {
     postalCode: '',
   });
 
+  // ─── Fetch Cooperatives on Mount ────────────────────────────
+  useEffect(() => {
+    const loadCooperatives = async () => {
+      try {
+        setLoadingCoops(true);
+        const data = await fetchCooperatives();
+        setCooperatives(data);
+      } catch (err) {
+        console.error('Error loading cooperatives:', err);
+      } finally {
+        setLoadingCoops(false);
+      }
+    };
+    loadCooperatives();
+  }, []);
+
+  // ─── Handlers ───────────────────────────────────────────────
   const handleChange = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
@@ -83,14 +109,12 @@ const Checkout: React.FC = () => {
     const itemLines = Object.entries(byCooperative)
       .map(([coopId, items]) => {
         const coop = cooperatives.find((c) => c.id === coopId);
-        const coopName = coop
-          ? (isRtl ? coop.name.ar : coop.name.en)
-          : tr('تعاونية غير محددة', 'Unknown Cooperative');
+        const coopName = coop ? lang(coop.name) : tr('تعاونية غير محددة', 'Unknown Cooperative');
 
         const productLines = items
           .map(
             (item) =>
-              `   • ${isRtl ? item.name.ar : item.name.en} x${item.quantity} — ${(item.price * item.quantity).toFixed(2)} MAD`
+              `   • ${lang(item.name)} x${item.quantity} — ${(item.price * item.quantity).toFixed(2)} MAD`
           )
           .join('\n');
 
@@ -122,11 +146,24 @@ const Checkout: React.FC = () => {
     navigate('/');
   };
 
+  // ─── Loading State ──────────────────────────────────────────
   if (cart.length === 0) {
     navigate('/cart');
     return null;
   }
 
+  if (loadingCoops) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: '#455324' }} />
+          <p className="text-sm" style={{ color: '#763C19' }}>{tr('جاري التحميل...', 'Loading...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Main Render ────────────────────────────────────────────
   return (
     <div
       className="min-h-screen pb-20"
@@ -270,9 +307,7 @@ const Checkout: React.FC = () => {
                     });
                     return Object.entries(byCoopUI).map(([coopId, items]) => {
                       const coop = cooperatives.find((c) => c.id === coopId);
-                      const coopName = coop
-                        ? (isRtl ? coop.name.ar : coop.name.en)
-                        : tr('تعاونية', 'Cooperative');
+                      const coopName = coop ? lang(coop.name) : tr('تعاونية', 'Cooperative');
                       return (
                         <div key={coopId}>
                           {/* cooperative label */}
@@ -287,13 +322,13 @@ const Checkout: React.FC = () => {
                               <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0">
                                 <img
                                   src={item.image}
-                                  alt={isRtl ? item.name.ar : item.name.en}
+                                  alt={lang(item.name)}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
                               <div className="flex-grow min-w-0">
                                 <p className="text-xs font-semibold truncate" style={{ color: '#455324' }}>
-                                  {isRtl ? item.name.ar : item.name.en}
+                                  {lang(item.name)}
                                 </p>
                                 <p className="text-xs" style={{ color: '#BA8944' }}>×{item.quantity}</p>
                               </div>

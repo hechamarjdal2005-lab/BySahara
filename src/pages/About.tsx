@@ -1,95 +1,84 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-const values = [
-  {
-    titleAr: 'الأصالة',
-    titleEn: 'Authenticity',
-    descAr: 'كل منتج مصنوع يدوياً باستخدام تقنيات أجدادية توارثتها أجيال من الحرفيين الأمازيغ في منطقة كلميم.',
-    descEn: 'Every product is handcrafted using ancestral techniques passed down through generations of Amazigh artisans in the Guelmim region.',
-    svg: (
-      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-        <path d="M20 4 L24 14 L35 14 L26 21 L29 32 L20 26 L11 32 L14 21 L5 14 L16 14 Z" />
-      </svg>
-    ),
-    accent: '#9FA93D', bg: 'rgba(159,169,61,0.13)',
-  },
-  {
-    titleAr: 'جودة حرفية',
-    titleEn: 'Artisan Quality',
-    descAr: 'نختار فقط أجود المنتجات — زيوت معصورة على البارد، دقيق مطحون على الحجر، أعشاب برية — مباشرة من التعاونيات.',
-    descEn: 'We select only the finest products — cold-pressed oils, stone-ground flour, wild herbs — sourced directly from the cooperatives.',
-    svg: (
-      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-        <circle cx="20" cy="20" r="14" /><path d="M13 20 L18 25 L27 15" />
-      </svg>
-    ),
-    accent: '#CC8F57', bg: 'rgba(204,143,87,0.13)',
-  },
-  {
-    titleAr: 'أثر مجتمعي',
-    titleEn: 'Social Impact',
-    descAr: 'كل عملية شراء تدعم مباشرة التعاونيات التي تقودها المرأة وتحافظ على التراث الثقافي لكلميم-واد نون.',
-    descEn: 'Every purchase directly supports women-led cooperatives and preserves the cultural heritage of Guelmim-Oued Noun.',
-    svg: (
-      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-        <path d="M20 34 C20 34 6 26 6 16 A8 8 0 0 1 20 12 A8 8 0 0 1 34 16 C34 26 20 34 20 34 Z" />
-        <circle cx="20" cy="19" r="3" />
-      </svg>
-    ),
-    accent: '#BA8944', bg: 'rgba(186,137,68,0.13)',
-  },
-];
-
-const GeometricPattern: React.FC<{ opacity?: number }> = ({ opacity = 0.06 }) => (
-  <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
-    <defs>
-      <pattern id="geo" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-        <polygon points="30,4 56,18 56,42 30,56 4,42 4,18" fill="none" stroke="currentColor" strokeWidth="0.8" />
-        <circle cx="30" cy="30" r="4" fill="none" stroke="currentColor" strokeWidth="0.6" />
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" fill="url(#geo)" />
-  </svg>
-);
+import { Loader2 } from 'lucide-react';
+import { fetchAboutPage } from '../data';
+import { useLanguage } from '../context/LanguageContext';
 
 const About: React.FC = () => {
-  const { i18n } = useTranslation();
-  const isRtl = i18n.language === 'ar';
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const isRtl = language === 'ar';
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
 
+  const [pageContent, setPageContent] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchAboutPage();
+        setPageContent(data);
+      } catch (err) {
+        console.error('Error loading about page:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const getPageSection = (key: string) => pageContent.find(c => c.section_key === key);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
+        <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#455324' }} />
+      </div>
+    );
+  }
+
+  const heroBadge = getPageSection('hero_badge');
+  const heroTitle = getPageSection('hero_title');
+  const heroDesc = getPageSection('hero_description');
+  const heroBadgeMain = getPageSection('hero_badge_main');
+  const missionTitle = getPageSection('mission_title');
+  const missionContent = getPageSection('mission_content');
+  const rootsBadge = getPageSection('roots_badge');
+  const rootsTitle = getPageSection('roots_title');
+  const rootsDesc = getPageSection('roots_description');
+
   return (
-    <div dir={isRtl ? 'rtl' : 'ltr'} className="min-h-screen" style={{ background: '#FDFAF5' }}>
+    <div className="min-h-screen" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
-      {/* ══ HERO ══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #2d3a14 0%, #455324 55%, #617131 100%)' }}>
-        <GeometricPattern opacity={0.07} />
-        <div className="absolute top-0 start-0 end-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #F8D197, transparent)' }} />
-
-        <div className="relative max-w-5xl mx-auto px-5 sm:px-10 py-10 sm:py-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      {/* Hero Section */}
+      <section style={{ background: 'linear-gradient(135deg, #2d3a14 0%, #455324 55%, #617131 100%)' }}>
+        <div className="max-w-5xl mx-auto px-5 sm:px-10 py-10 sm:py-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div>
-            <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4"
-              style={{ background: 'rgba(248,209,151,0.15)', color: '#F8D197', border: '1px solid rgba(248,209,151,0.3)' }}>
-              {tr('قصتنا', 'Our Story')}
-            </span>
-            <h1 className="font-serif font-bold leading-tight mb-4 text-3xl sm:text-5xl" style={{ color: '#fff' }}>
-              {tr('من نحن', 'About')}{' '}
-              <span style={{ color: '#F8D197' }}>BySahara</span>
-            </h1>
+            {heroBadge && (
+              <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4"
+                style={{ background: 'rgba(248,209,151,0.15)', color: '#F8D197', border: '1px solid rgba(248,209,151,0.3)' }}>
+                {isRtl ? heroBadge.title_ar : heroBadge.title_en}
+              </span>
+            )}
+            {heroTitle && (
+              <h1 className="font-serif font-bold leading-tight mb-4 text-3xl sm:text-5xl" style={{ color: '#fff' }}>
+                {isRtl ? heroTitle.title_ar : heroTitle.title_en}
+              </h1>
+            )}
             <div className="flex items-center gap-3 mb-4">
               <div className="h-px flex-1" style={{ background: 'rgba(248,209,151,0.3)' }} />
               <span style={{ color: '#F8D197', opacity: 0.6 }}>✦</span>
               <div className="h-px flex-1" style={{ background: 'rgba(248,209,151,0.3)' }} />
             </div>
-            <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#F7E5CD', maxWidth: '38ch' }}>
-              {tr(
-                'BySahara أكثر من مجرد سوق — إنها جسر يربط التراث الحي لجنوب المغرب بالعالم.',
-                "BySahara is more than a marketplace — it's a bridge connecting the living heritage of southern Morocco with the world."
-              )}
-            </p>
+            {heroDesc && (
+              <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#F7E5CD', maxWidth: '38ch' }}>
+                {isRtl ? heroDesc.content_ar : heroDesc.content_en}
+              </p>
+            )}
           </div>
 
-          {/* Hero image — desktop only */}
+          {/* Hero Image */}
           <div className="relative hidden md:block">
             <div className="absolute -inset-3 rounded-3xl" style={{ background: 'rgba(248,209,151,0.08)', border: '1px solid rgba(248,209,151,0.15)' }} />
             <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '4/3' }}>
@@ -99,60 +88,48 @@ const About: React.FC = () => {
                 📍 {tr('كلميم-واد نون، المغرب', 'Guelmim-Oued Noun, Morocco')}
               </p>
             </div>
-            <div className="absolute -bottom-5 -start-5 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl" style={{ background: '#F8D197' }}>
-              <span className="text-xl">🏆</span>
-              <div>
-                <p className="text-xs font-bold" style={{ color: '#455324' }}>{tr('أصالة 100%', '100% Authentic')}</p>
-                <p className="text-xs" style={{ color: '#763C19' }}>{tr('تأسست 2020', 'Est. 2020')}</p>
+            {heroBadgeMain && (
+              <div className="absolute -bottom-5 -start-5 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl" style={{ background: '#F8D197' }}>
+                <span className="text-xl">🏆</span>
+                <div>
+                  <p className="text-xs font-bold" style={{ color: '#455324' }}>
+                    {isRtl ? heroBadgeMain.badge_text_ar : heroBadgeMain.badge_text_en}
+                  </p>
+                  <p className="text-xs" style={{ color: '#763C19' }}>
+                    {isRtl ? heroBadgeMain.badge_subtext_ar : heroBadgeMain.badge_subtext_en}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* ══ MISSION ═══════════════════════════════════════════ */}
+      {/* Mission Section */}
       <section className="max-w-5xl mx-auto px-5 sm:px-10 py-10 sm:py-20">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr] gap-10 items-center">
-
-          {/* Images — hidden on mobile to save space */}
-          <div className="relative hidden md:block order-2 md:order-1">
+          {/* Image */}
+          <div className="relative hidden md:block">
             <div className="relative rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: '4/5' }}>
               <img src="https://images.unsplash.com/photo-1590412613626-4444634710f3?auto=format&fit=crop&q=80&w=800" alt="Moroccan women cooperative" className="w-full h-full object-cover" />
             </div>
             <div className="absolute -bottom-6 -end-4 w-28 h-28 rounded-2xl overflow-hidden shadow-2xl" style={{ border: '3px solid #fff' }}>
               <img src="https://images.unsplash.com/photo-1575808142341-e39853744dbd?auto=format&fit=crop&q=80&w=300" alt="Medjool dates" className="w-full h-full object-cover" />
             </div>
-            <div className="absolute top-1/2 -start-5 -translate-y-1/2 px-3 py-6 rounded-xl shadow-lg" style={{ background: '#455324', zIndex: 2, writingMode: 'vertical-rl' }}>
-              <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#F8D197' }}>
-                {tr('منتجات أصيلة', 'Authentic')}
-              </span>
-            </div>
           </div>
 
           {/* Text */}
-          <div className="order-1 md:order-2">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: '#9FA93D' }}>
-              {tr('من نحن', 'Who We Are')}
-            </p>
-            <h2 className="font-serif font-bold leading-tight mb-4 text-2xl sm:text-4xl" style={{ color: '#2d3a14' }}>
-              {tr('مهمتنا', 'Our Mission')}
-            </h2>
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-0.5 rounded-full" style={{ background: '#CC8F57' }} />
-              <div className="w-2 h-2 rounded-full" style={{ background: '#F8D197' }} />
-            </div>
-            <p className="leading-relaxed mb-4 text-sm sm:text-base" style={{ color: '#442413' }}>
-              {tr(
-                'نحن ندعم التعاونيات المحلية — خاصة التي تقودها المرأة — بإعطائها منصة عالمية لمشاركة منتجاتها الأصيلة. كل عملية شراء تُعيل أسرة وتحافظ على تقاليد عريقة.',
-                'We empower local cooperatives — especially those led by women — by giving them a global stage to share their authentic products. Every purchase sustains a livelihood and preserves centuries-old traditions.'
-              )}
-            </p>
-            <p className="leading-relaxed text-sm sm:text-base" style={{ color: '#763C19' }}>
-              {tr(
-                'من واحات أسا-الزاك إلى غابات أركان كلميم، نختار أجود المنتجات مباشرة من تعاونيات منطقة كلميم-واد نون.',
-                'From the oases of Assa-Zag to the argan forests of Guelmim, we curate only the finest goods straight from the cooperatives of the Guelmim-Oued Noun region.'
-              )}
-            </p>
+          <div>
+            {missionTitle && (
+              <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: '#9FA93D' }}>
+                {isRtl ? missionTitle.title_ar : missionTitle.title_en}
+              </p>
+            )}
+            {missionContent && (
+              <p className="leading-relaxed text-sm sm:text-base" style={{ color: '#442413' }}>
+                {isRtl ? missionContent.content_ar : missionContent.content_en}
+              </p>
+            )}
             <div className="flex flex-wrap gap-2 mt-6">
               {[
                 tr('عضوي 100%', '100% Organic'),
@@ -169,86 +146,31 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* ══ PHOTO BAND ════════════════════════════════════════ */}
-      <section className="max-w-5xl mx-auto px-5 sm:px-10 pb-10 sm:pb-20">
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {[
-            { src: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&q=80&w=500', labelAr: 'زيوت الأركان', labelEn: 'Argan Oils' },
-            { src: 'https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&q=80&w=500', labelAr: 'توابل وأعشاب', labelEn: 'Spices & Herbs' },
-            { src: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&q=80&w=500', labelAr: 'عسل بري', labelEn: 'Wild Honey' },
-          ].map((img) => (
-            <div key={img.src} className="relative overflow-hidden rounded-xl sm:rounded-2xl" style={{ aspectRatio: '3/4' }}>
-              <img src={img.src} alt={tr(img.labelAr, img.labelEn)} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              <p className="absolute bottom-2 start-2 text-xs font-bold text-white">{tr(img.labelAr, img.labelEn)}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ══ VALUES ════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden py-12 sm:py-20 px-5" style={{ background: '#2d3a14' }}>
-        <GeometricPattern opacity={0.05} />
-        <div className="relative max-w-5xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2" style={{ color: '#9FA93D' }}>
-              {tr('ما يحركنا', 'What Drives Us')}
-            </p>
-            <h2 className="font-serif font-bold text-2xl sm:text-4xl" style={{ color: '#fff' }}>
-              {tr('لماذا تختار BySahara؟', 'Why Choose BySahara?')}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {values.map((v, i) => (
-              <div key={v.titleAr} className="group rounded-2xl p-5 sm:p-7 transition-all duration-300 hover:-translate-y-1"
-                style={{
-                  background: i === 1 ? '#455324' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${i === 1 ? '#617131' : 'rgba(255,255,255,0.08)'}`,
-                }}>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ background: v.bg, color: v.accent }}>
-                  {v.svg}
-                </div>
-                <h3 className="font-bold text-base mb-2" style={{ color: i === 1 ? '#F8D197' : '#fff' }}>
-                  {tr(v.titleAr, v.titleEn)}
-                </h3>
-                <p className="text-xs sm:text-sm leading-relaxed" style={{ color: i === 1 ? '#F7E5CD' : 'rgba(247,229,205,0.65)' }}>
-                  {tr(v.descAr, v.descEn)}
-                </p>
-                <div className="mt-5 h-0.5 w-8 rounded-full transition-all duration-300 group-hover:w-14" style={{ background: v.accent }} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ REGION BANNER ═════════════════════════════════════ */}
+      {/* Roots Section */}
       <section className="px-5 py-10 sm:py-16">
         <div className="relative max-w-5xl mx-auto rounded-2xl sm:rounded-3xl overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #CC8F57 0%, #BA8944 100%)' }}>
-          <div className="absolute inset-0 opacity-10"><GeometricPattern opacity={1} /></div>
-          <div className="absolute end-0 top-1/2 -translate-y-1/2 font-serif font-bold leading-none select-none pointer-events-none pe-4 sm:pe-6"
-            style={{ fontSize: 'clamp(4rem, 12vw, 10rem)', color: 'rgba(255,255,255,0.08)' }}>
-            صحراء
-          </div>
           <div className="relative px-6 sm:px-10 py-10 sm:py-16 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              {tr('جذورنا', 'Our Roots')}
-            </p>
-            <h2 className="font-serif font-bold mb-4 text-2xl sm:text-4xl" style={{ color: '#fff' }}>
-              {tr('كلميم-واد نون', 'Guelmim-Oued Noun')}
-            </h2>
+            {rootsBadge && (
+              <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                {isRtl ? rootsBadge.title_ar : rootsBadge.title_en}
+              </p>
+            )}
+            {rootsTitle && (
+              <h2 className="font-serif font-bold mb-4 text-2xl sm:text-4xl" style={{ color: '#fff' }}>
+                {isRtl ? rootsTitle.title_ar : rootsTitle.title_en}
+              </h2>
+            )}
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="h-px w-10 rounded-full" style={{ background: 'rgba(255,255,255,0.4)' }} />
               <span style={{ color: 'rgba(255,255,255,0.6)' }}>✦</span>
               <div className="h-px w-10 rounded-full" style={{ background: 'rgba(255,255,255,0.4)' }} />
             </div>
-            <p className="max-w-xl mx-auto leading-relaxed text-sm sm:text-base" style={{ color: 'rgba(255,255,255,0.88)' }}>
-              {tr(
-                'جميع تعاونياتنا متجذرة في منطقة كلميم-واد نون — أرض تمازجت فيها الثقافات الصحراوية والأمازيغية لآلاف السنين لتخلق تقاليد حرفية فريدة.',
-                'All our cooperatives are rooted in the Guelmim-Oued Noun region — a land where Saharan, Berber, and Sahrawi cultures have blended for millennia to create unique artisanal traditions.'
-              )}
-            </p>
+            {rootsDesc && (
+              <p className="max-w-xl mx-auto leading-relaxed text-sm sm:text-base" style={{ color: 'rgba(255,255,255,0.88)' }}>
+                {isRtl ? rootsDesc.content_ar : rootsDesc.content_en}
+              </p>
+            )}
           </div>
         </div>
       </section>

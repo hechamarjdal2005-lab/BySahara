@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ShoppingBag, Star, Truck, ShieldCheck,
-  ArrowLeft, ArrowRight, MapPin, Users, Award, Package,
+  ArrowLeft, ArrowRight, MapPin, Users, Award, Package, Loader2,
 } from 'lucide-react';
-import { products, cooperatives } from '../data';
+import { fetchProductById, fetchCooperativeById } from '../data';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import { VolumeOption } from '../types';
-import VolumeSelector from '../components/Volumeselector';
+import { Product, Cooperative, BilingualText, VolumeOption } from '../types';
+import VolumeSelector from '../components/VolumeSelector'; // Fixed: capital S
 
 type Tab = 'description' | 'details' | 'reviews';
 
@@ -18,22 +18,71 @@ const ProductDetails: React.FC = () => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
   const { language } = useLanguage();
+  const isRtl = language === 'ar';
+  
+  // ─── State ──────────────────────────────────────────────────
+  const [product, setProduct] = useState<Product | null>(null);
+  const [cooperative, setCooperative] = useState<Cooperative | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const [activeTab, setActiveTab] = useState<Tab>('description');
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [selectedVolume, setSelectedVolume] = useState<VolumeOption | null>(null);
 
-  const isRtl = language === 'ar';
+  // ─── Helpers ────────────────────────────────────────────────
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
-  const lang = (field: { en: string; ar: string }) => (isRtl ? field.ar : field.en);
+  const lang = (field: BilingualText | string | undefined | null): string => {
+    if (!field) return '';
+    if (typeof field === 'string') return field;
+    return isRtl ? field.ar : field.en;
+  };
 
-  const product = products.find((p) => p.id === id);
+  // ─── Fetch Data on Mount ────────────────────────────────────
+  useEffect(() => {
+    const loadData = async () => {
+      if (!id) {
+        setError('Invalid product ID');
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        const [productData, cooperativeData] = await Promise.all([
+          fetchProductById(id),
+          fetchProductById(id).then(p => p?.cooperativeId ? fetchCooperativeById(p.cooperativeId) : null),
+        ]);
+        setProduct(productData);
+        setCooperative(cooperativeData);
+        if (productData?.volumes?.length) {
+          setSelectedVolume(productData.volumes[0]);
+        }
+        setError(null);
+      } catch (err) {
+        console.error('Error loading product details:', err);
+        setError('Failed to load product. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
 
-  // ── Volume state ─────────────────────────────────────────────
-  const [selectedVolume, setSelectedVolume] = useState<VolumeOption | null>(
-    product?.volumes ? product.volumes[0] : null
-  );
+  // ─── Loading State ──────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: '#455324' }} />
+          <p className="text-sm" style={{ color: '#763C19' }}>{tr('جاري التحميل...', 'Loading...')}</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (!product) {
+  // ─── Error / Not Found State ────────────────────────────────
+  if (error || !product) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: '#F8D197' }}>
@@ -42,6 +91,7 @@ const ProductDetails: React.FC = () => {
         <h2 className="font-serif text-xl font-bold mb-3" style={{ color: '#455324' }}>
           {tr('المنتج غير موجود', 'Product not found')}
         </h2>
+        {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
         <Link to="/shop" className="inline-flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white text-sm" style={{ background: '#455324' }}>
           {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           {tr('العودة للمتجر', 'Back to Shop')}
@@ -50,19 +100,18 @@ const ProductDetails: React.FC = () => {
     );
   }
 
-  const cooperative = cooperatives.find((c) => c.id === product.cooperativeId);
-  const name        = lang(product.name);
+  // ─── Derived Values ─────────────────────────────────────────
+  const name = lang(product.name);
   const description = lang(product.description);
-  const origin      = product.origin ? lang(product.origin) : null;
-  const coopName    = cooperative ? lang(cooperative.name) : '';
-  const coopCity    = cooperative ? lang(cooperative.city) : '';
-
-  // ── Prix dynamique selon volume choisi ───────────────────────
+  const origin = product.origin ? lang(product.origin) : null;
+  const coopName = cooperative ? lang(cooperative.name) : '';
+  const coopCity = cooperative ? lang(cooperative.city) : '';
   const currentPrice = selectedVolume ? selectedVolume.price : product.price;
-  const currentUnit  = selectedVolume
+  const currentUnit = selectedVolume
     ? lang(selectedVolume.label)
     : (product.unit ? lang(product.unit) : '');
 
+  // ─── Handlers ───────────────────────────────────────────────
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) addToCart(product, selectedVolume ?? undefined);
     setAdded(true);
@@ -75,6 +124,7 @@ const ProductDetails: React.FC = () => {
     { id: 'reviews',     label: tr('التقييمات', 'Reviews') },
   ];
 
+  // ─── Main Render ────────────────────────────────────────────
   return (
     <div className="min-h-screen pb-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
@@ -194,7 +244,7 @@ const ProductDetails: React.FC = () => {
           <div className="mb-4" style={{ borderTop: '1px solid #F0E4CC' }} />
 
           {/* ── Volume Selector (medium) ─────────────────────── */}
-          {product.volumes && product.volumes.length > 0 && selectedVolume && (
+          {product.volumes && product.volumes.length > 0 && (
             <div className="mb-4">
               <p className="text-xs font-semibold mb-2" style={{ color: '#763C19' }}>
                 {tr('اختر الحجم', 'Choose size')}

@@ -1,15 +1,12 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useLanguage } from "../context/LanguageContext";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { ArrowRight, Loader2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { fetchCategories, fetchCategoriesSection } from '../data';
+import { Category } from '../types';
 
-interface Category {
-  id: string;
-  nameAr: string;
-  nameEn: string;
-  slug: string;
-  icon: React.ReactNode;
-}
-
+// ─── YOUR ORIGINAL SVG ICONS ─────────────────────────────────
 const IconDriedFruits = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <ellipse cx="22" cy="34" rx="9" ry="13" /><ellipse cx="42" cy="34" rx="9" ry="13" />
@@ -20,6 +17,7 @@ const IconDriedFruits = () => (
     <ellipse cx="42" cy="34" rx="2.5" ry="4" fill="currentColor" stroke="none" opacity="0.3"/>
   </svg>
 );
+
 const IconSpices = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <path d="M16 38 Q14 52 32 52 Q50 52 48 38 Z" /><path d="M13 38 L51 38" />
@@ -31,6 +29,7 @@ const IconSpices = () => (
     <path d="M20 24 Q22 20 24 16" />
   </svg>
 );
+
 const IconTea = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <path d="M14 30 L18 52 Q18 54 32 54 Q46 54 46 52 L50 30 Z" /><path d="M12 30 L52 30" />
@@ -41,6 +40,7 @@ const IconTea = () => (
     <rect x="28" y="38" width="8" height="6" rx="1.5" fill="currentColor" stroke="none" opacity="0.3"/>
   </svg>
 );
+
 const IconEssentialOils = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <path d="M24 26 Q20 28 20 36 L20 48 Q20 52 32 52 Q44 52 44 48 L44 36 Q44 28 40 26 Z" />
@@ -51,6 +51,7 @@ const IconEssentialOils = () => (
     <rect x="23" y="30" width="18" height="10" rx="2" fill="currentColor" stroke="none" opacity="0.12"/>
   </svg>
 );
+
 const IconHoney = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <path d="M18 28 L18 50 Q18 54 32 54 Q46 54 46 50 L46 28 Z" />
@@ -62,6 +63,7 @@ const IconHoney = () => (
     <path d="M24 44 L27 42 L30 44 L30 48 L27 50 L24 48 Z" opacity="0.35" fill="currentColor" stroke="none"/>
   </svg>
 );
+
 const IconOils = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <path d="M28 10 Q28 7 32 7 Q36 7 36 10 L38 20 Q44 24 44 34 L44 50 Q44 54 32 54 Q20 54 20 50 L20 34 Q20 24 26 20 Z" />
@@ -72,6 +74,7 @@ const IconOils = () => (
     <ellipse cx="18" cy="14" rx="3" ry="2" transform="rotate(-10 18 14)" fill="currentColor" stroke="none" opacity="0.4"/>
   </svg>
 );
+
 const IconFlour = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <path d="M20 22 Q16 26 16 34 L16 50 Q16 54 32 54 Q48 54 48 50 L48 34 Q48 26 44 22 Z" />
@@ -82,6 +85,7 @@ const IconFlour = () => (
     <circle cx="38" cy="46" r="1" fill="currentColor" stroke="none" opacity="0.4"/>
   </svg>
 );
+
 const IconBeauty = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
     <ellipse cx="32" cy="46" rx="18" ry="8" />
@@ -95,23 +99,29 @@ const IconBeauty = () => (
   </svg>
 );
 
-const categories: Category[] = [
-  { id: "1", nameAr: "فواكه جافة",            nameEn: "Dried Fruits",        slug: "dried-fruits",   icon: <IconDriedFruits /> },
-  { id: "2", nameAr: "توابل و بهارات",         nameEn: "Spices & Herbs",      slug: "spices",          icon: <IconSpices /> },
-  { id: "3", nameAr: "شاي و أعشاب",            nameEn: "Teas & Herbs",        slug: "tea",             icon: <IconTea /> },
-  { id: "4", nameAr: "مستخلصات وزيوت عطرية",   nameEn: "Essential Oils",      slug: "distilled-water", icon: <IconEssentialOils /> },
-  { id: "5", nameAr: "عسل وأملو ومربى",        nameEn: "Honey, Amlou & Jams", slug: "honey",           icon: <IconHoney /> },
-  { id: "6", nameAr: "زيوت غذائية",            nameEn: "Cooking Oils",        slug: "oils",            icon: <IconOils /> },
-  { id: "7", nameAr: "دقيق و سميد",            nameEn: "Flour & Semolina",    slug: "flour",           icon: <IconFlour /> },
-  { id: "8", nameAr: "صحة و جمال",             nameEn: "Health & Beauty",     slug: "beauty",          icon: <IconBeauty /> },
-];
+// ─── Get Icon by Category ID ─────────────────────────────────
+const getCategoryIcon = (categoryId: string) => {
+  const icons: Record<string, JSX.Element> = {
+    'dried-fruits': <IconDriedFruits />,
+    'spices': <IconSpices />,
+    'tea': <IconTea />,
+    'distilled-water': <IconEssentialOils />,
+    'honey': <IconHoney />,
+    'oils': <IconOils />,
+    'flour': <IconFlour />,
+    'beauty': <IconBeauty />,
+  };
+  return icons[categoryId] || <IconSpices />;
+};
 
-// ── Card — icon sans background ───────────────────────────────
+// ─── Category Card ────────────────────────────────────────────
 const CategoryCard: React.FC<{ category: Category; language: string }> = ({ category, language }) => {
-  const name = language === "ar" ? category.nameAr : category.nameEn;
+  const name = typeof category.name === 'string' ? category.name : (language === 'ar' ? category.name.ar : category.name.en);
+  const icon = getCategoryIcon(category.id);
+
   return (
     <Link
-      to={`/shop?category=${category.slug}`}
+      to={`/shop?category=${category.id}`}
       className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl transition-all duration-300 cursor-pointer"
       style={{ background: '#fff', border: '1.5px solid #F0E4CC', minHeight: '108px' }}
       onMouseEnter={(e) => {
@@ -120,8 +130,8 @@ const CategoryCard: React.FC<{ category: Category; language: string }> = ({ cate
         el.style.borderColor = '#CC8F57';
         el.style.transform = 'translateY(-3px)';
         el.style.boxShadow = '0 8px 20px rgba(204,143,87,0.16)';
-        const icon = el.querySelector('.cat-icon') as HTMLElement;
-        if (icon) icon.style.color = '#CC8F57';
+        const iconEl = el.querySelector('.cat-icon') as HTMLElement;
+        if (iconEl) iconEl.style.color = '#CC8F57';
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLElement;
@@ -129,13 +139,12 @@ const CategoryCard: React.FC<{ category: Category; language: string }> = ({ cate
         el.style.borderColor = '#F0E4CC';
         el.style.transform = 'translateY(0)';
         el.style.boxShadow = 'none';
-        const icon = el.querySelector('.cat-icon') as HTMLElement;
-        if (icon) icon.style.color = '#617131';
+        const iconEl = el.querySelector('.cat-icon') as HTMLElement;
+        if (iconEl) iconEl.style.color = '#617131';
       }}
     >
-      {/* Icon — no background wrapper */}
       <div className="cat-icon transition-colors duration-300" style={{ color: '#617131' }}>
-        {category.icon}
+        {icon}
       </div>
       <span className="text-xs text-center font-semibold leading-snug" style={{ color: '#455324' }}>
         {name}
@@ -144,27 +153,74 @@ const CategoryCard: React.FC<{ category: Category; language: string }> = ({ cate
   );
 };
 
-// ── Section ───────────────────────────────────────────────────
+// ─── Section ──────────────────────────────────────────────────
 const CategoriesSection: React.FC = () => {
+  const { t } = useTranslation();
   const { language } = useLanguage();
-  const [showAll, setShowAll] = useState(false);
-  const isRtl = language === "ar";
+  const isRtl = language === 'ar';
+  const tr = (ar: string, en: string) => (isRtl ? ar : en);
 
-  const title       = isRtl ? "تصفح حسب الفئة" : "Browse by Category";
-  const description = isRtl
-    ? "اكتشف منتجاتنا المحلية الأصيلة المعتمدة من تعاونيات كلميم-واد نون"
-    : "Discover authentic certified local products from Guelmim-Oued Noun cooperatives";
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [sectionContent, setSectionContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [catsData, sectionData] = await Promise.all([
+          fetchCategories(),
+          fetchCategoriesSection(),
+        ]);
+        setCategories(catsData);
+        setSectionContent(sectionData[0] || null);
+      } catch (err) {
+        console.error('Error loading categories section:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-16" style={{ background: '#fff' }}>
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: '#455324' }} />
+        </div>
+      </section>
+    );
+  }
+
+  const title = sectionContent?.title_en 
+    ? (isRtl ? sectionContent.title_ar : sectionContent.title_en)
+    : tr('تصفح حسب الفئة', 'Browse by Category');
+
+  const description = sectionContent?.subtitle_en
+    ? (isRtl ? sectionContent.subtitle_ar : sectionContent.subtitle_en)
+    : tr('اكتشف منتجاتنا المحلية الأصيلة المعتمدة من تعاونيات كلميم-واد نون', 
+         'Discover authentic certified local products from Guelmim-Oued Noun cooperatives');
+
+  const buttonText = sectionContent?.button_text_en
+    ? (isRtl ? sectionContent.button_text_ar : sectionContent.button_text_en)
+    : tr('عرض الكل', 'View all');
+
+  const buttonLink = sectionContent?.button_link || '/shop';
 
   const mobileVisible = showAll ? categories : categories.slice(0, 4);
 
   return (
-    <section className="py-16" dir={isRtl ? "rtl" : "ltr"} style={{ background: '#fff' }}>
+    <section className="py-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#fff' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         {/* ── DESKTOP: 4 | center | 4 ── */}
         <div className="hidden lg:grid lg:grid-cols-12 gap-6 items-center">
           <div className="lg:col-span-4 grid grid-cols-2 gap-3">
-            {categories.slice(0, 4).map((cat) => <CategoryCard key={cat.id} category={cat} language={language} />)}
+            {categories.slice(0, 4).map((cat) => (
+              <CategoryCard key={cat.id} category={cat} language={language} />
+            ))}
           </div>
 
           <div className="lg:col-span-4 text-center px-2">
@@ -176,14 +232,18 @@ const CategoriesSection: React.FC = () => {
             <div className="flex justify-center mb-4">
               <img src="https://i.ibb.co/TqY5ZpYR/logo-by-sahara.png" alt="By Sahara" className="h-14 object-contain" />
             </div>
-            <h2 className="text-2xl lg:text-3xl font-bold leading-tight mb-2" style={{ color: '#455324' }}>{title}</h2>
-            <p className="text-sm leading-relaxed mb-5" style={{ color: '#763C19' }}>{description}</p>
+            <h2 className="text-2xl lg:text-3xl font-bold leading-tight mb-2" style={{ color: '#455324' }}>
+              {title}
+            </h2>
+            <p className="text-sm leading-relaxed mb-5" style={{ color: '#763C19' }}>
+              {description}
+            </p>
             <Link
-              to="/shop"
+              to={buttonLink}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm text-white transition-opacity hover:opacity-90"
               style={{ background: 'linear-gradient(135deg, #455324, #617131)' }}
             >
-              {isRtl ? "عرض الكل ←" : "View all →"}
+              {isRtl ? `${buttonText} ←` : `${buttonText} →`}
             </Link>
             <div className="flex items-center justify-center gap-3 mt-5">
               <div className="h-px w-10 rounded" style={{ background: '#F8D197' }} />
@@ -193,7 +253,9 @@ const CategoriesSection: React.FC = () => {
           </div>
 
           <div className="lg:col-span-4 grid grid-cols-2 gap-3">
-            {categories.slice(4, 8).map((cat) => <CategoryCard key={cat.id} category={cat} language={language} />)}
+            {categories.slice(4, 8).map((cat) => (
+              <CategoryCard key={cat.id} category={cat} language={language} />
+            ))}
           </div>
         </div>
 
@@ -204,7 +266,9 @@ const CategoriesSection: React.FC = () => {
             <p className="text-xs leading-relaxed px-4" style={{ color: '#763C19' }}>{description}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 mb-4">
-            {mobileVisible.map((cat) => <CategoryCard key={cat.id} category={cat} language={language} />)}
+            {mobileVisible.map((cat) => (
+              <CategoryCard key={cat.id} category={cat} language={language} />
+            ))}
           </div>
           <div className="flex justify-center">
             <button
@@ -216,7 +280,7 @@ const CategoriesSection: React.FC = () => {
                 border: showAll ? '1.5px solid #CC8F57' : 'none',
               }}
             >
-              {showAll ? (isRtl ? "عرض أقل ↑" : "Show less ↑") : (isRtl ? "عرض المزيد ↓" : "Show more ↓")}
+              {showAll ? (isRtl ? 'عرض أقل ↑' : 'Show less ↑') : (isRtl ? 'عرض المزيد ↓' : 'Show more ↓')}
             </button>
           </div>
         </div>

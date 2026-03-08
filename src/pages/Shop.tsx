@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { Search, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { products, categories as allCategories } from '../data';
+import { fetchProducts, fetchCooperatives, fetchCategories } from '../data';
 import { useLanguage } from '../context/LanguageContext';
-import { CategoryId } from '../types';
+import { CategoryId, Product, Cooperative, Category } from '../types';
 
 // ── Category Icons ────────────────────────────────────────────
 const CategoryIcon: React.FC<{ id: string; className?: string }> = ({ id, className = 'w-6 h-6' }) => {
@@ -95,6 +95,7 @@ const DesktopCard: React.FC<{ id: string; name: string; count: number; active: b
   </button>
 );
 
+// ── Main Component ───────────────────────────────────────────
 const Shop: React.FC = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
@@ -102,20 +103,53 @@ const Shop: React.FC = () => {
   const isRtl = language === 'ar';
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
 
+  // ─── State for Dynamic Data ─────────────────────────────────
+  const [products, setProducts] = useState<Product[]>([]);
+  const [cooperatives, setCooperatives] = useState<Cooperative[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // ─── UI State ───────────────────────────────────────────────
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | 'all'>('all');
-  const [search, setSearch]             = useState('');
-  const [sort, setSort]                 = useState<SortOption>('default');
-  const [showAllCats, setShowAllCats]   = useState(false);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortOption>('default');
+  const [showAllCats, setShowAllCats] = useState(false);
   const [showAllProds, setShowAllProds] = useState(false);
 
+  // ─── Fetch Data on Mount ────────────────────────────────────
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [productsData, cooperativesData, categoriesData] = await Promise.all([
+          fetchProducts(),
+          fetchCooperatives(),
+          fetchCategories(),
+        ]);
+        setProducts(productsData);
+        setCooperatives(cooperativesData);
+        setCategories(categoriesData);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading shop data:', err);
+        setError('Failed to load products. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  // ─── Handle URL Category Parameter ──────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cat = params.get('category');
     if (cat) {
-      const matched = allCategories.find((c) => c.id === cat);
+      const matched = categories.find((c) => c.id === cat);
       if (matched) {
         setSelectedCategory(matched.id as CategoryId);
-        const idx = allCategories.findIndex((c) => c.id === cat);
+        const idx = categories.findIndex((c) => c.id === cat);
         if (idx >= CATS_INITIAL) setShowAllCats(true);
       } else {
         setSelectedCategory('all');
@@ -123,13 +157,18 @@ const Shop: React.FC = () => {
     } else {
       setSelectedCategory('all');
     }
-  }, [location.search]);
+  }, [location.search, categories]);
 
+  // ─── Reset "Show All" on Filter Change ──────────────────────
   useEffect(() => { setShowAllProds(false); }, [selectedCategory, search, sort]);
 
-  const visibleCats  = showAllCats ? allCategories : allCategories.slice(0, CATS_INITIAL);
-  const hasMoreCats  = allCategories.length > CATS_INITIAL;
+  // ─── Helpers ────────────────────────────────────────────────
+  const getCategoryCount = (categoryId: CategoryId | 'all') => {
+    if (categoryId === 'all') return products.length;
+    return products.filter(p => p.category === categoryId).length;
+  };
 
+  // ─── Filter & Sort Products ─────────────────────────────────
   const filtered = products
     .filter((p) => selectedCategory === 'all' || p.category === selectedCategory)
     .filter((p) => {
@@ -138,15 +177,48 @@ const Shop: React.FC = () => {
       return p.name.en.toLowerCase().includes(q) || p.name.ar.includes(q);
     })
     .sort((a, b) => {
-      if (sort === 'price-asc')  return a.price - b.price;
+      if (sort === 'price-asc') return a.price - b.price;
       if (sort === 'price-desc') return b.price - a.price;
-      if (sort === 'rating')     return b.rating - a.rating;
+      if (sort === 'rating') return b.rating - a.rating;
       return 0;
     });
 
-  const shownProds   = showAllProds ? filtered : filtered.slice(0, PRODUCTS_INITIAL);
+  const visibleCats = showAllCats ? categories : categories.slice(0, CATS_INITIAL);
+  const hasMoreCats = categories.length > CATS_INITIAL;
+  const shownProds = showAllProds ? filtered : filtered.slice(0, PRODUCTS_INITIAL);
   const hasMoreProds = filtered.length > PRODUCTS_INITIAL;
 
+  // ─── Loading State ──────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: '#455324' }} />
+          <p className="text-sm" style={{ color: '#763C19' }}>{tr('جاري التحميل...', 'Loading products...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Error State ────────────────────────────────────────────
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#FDFAF5' }}>
+        <div className="text-center max-w-md">
+          <p className="text-red-600 font-semibold mb-2">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 rounded-lg text-sm font-medium"
+            style={{ background: '#455324', color: '#fff' }}
+          >
+            {tr('إعادة المحاولة', 'Retry')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Main Render ────────────────────────────────────────────
   return (
     <div className="min-h-screen pb-20" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
@@ -180,9 +252,9 @@ const Shop: React.FC = () => {
       <div className="sm:hidden px-4 py-4">
         <div className="rounded-2xl p-3" style={{ background: G.outerBg }}>
           <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            <MobileTile id="all" name={tr('الكل', 'Tous')} count={products.length} active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
+            <MobileTile id="all" name={tr('الكل', 'Tous')} count={getCategoryCount('all')} active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
             {visibleCats.map((cat) => (
-              <MobileTile key={cat.id} id={cat.id} name={isRtl ? cat.name.ar : cat.name.en} count={products.filter((p) => p.category === cat.id).length} active={selectedCategory === cat.id} onClick={() => setSelectedCategory(cat.id as CategoryId)} />
+              <MobileTile key={cat.id} id={cat.id} name={isRtl ? cat.name.ar : cat.name.en} count={getCategoryCount(cat.id as CategoryId)} active={selectedCategory === cat.id} onClick={() => setSelectedCategory(cat.id as CategoryId)} />
             ))}
           </div>
           {hasMoreCats && (
@@ -205,11 +277,11 @@ const Shop: React.FC = () => {
           <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             <div className="flex items-center gap-3 min-w-max">
               {/* All */}
-              <DesktopCard id="all" name={tr('الكل', 'All')} count={products.length} active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
+              <DesktopCard id="all" name={tr('الكل', 'All')} count={getCategoryCount('all')} active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
               <div className="w-px h-14 flex-shrink-0" style={{ background: '#EDD9AA' }} />
               {/* Cats */}
-              {allCategories.map((cat) => (
-                <DesktopCard key={cat.id} id={cat.id} name={isRtl ? cat.name.ar : cat.name.en} count={products.filter((p) => p.category === cat.id).length} active={selectedCategory === cat.id} onClick={() => setSelectedCategory(cat.id as CategoryId)} />
+              {categories.map((cat) => (
+                <DesktopCard key={cat.id} id={cat.id} name={isRtl ? cat.name.ar : cat.name.en} count={getCategoryCount(cat.id as CategoryId)} active={selectedCategory === cat.id} onClick={() => setSelectedCategory(cat.id as CategoryId)} />
               ))}
             </div>
           </div>
@@ -228,7 +300,7 @@ const Shop: React.FC = () => {
               <button onClick={() => setSelectedCategory('all')}
                 className="ms-2 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-bold"
                 style={{ background: '#F8D197', color: '#763C19' }}>
-                {isRtl ? allCategories.find((c) => c.id === selectedCategory)?.name.ar : allCategories.find((c) => c.id === selectedCategory)?.name.en}
+                {isRtl ? categories.find((c) => c.id === selectedCategory)?.name.ar : categories.find((c) => c.id === selectedCategory)?.name.en}
                 <X className="w-3 h-3" />
               </button>
             )}

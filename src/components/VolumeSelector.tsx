@@ -4,48 +4,54 @@ import { useLanguage } from '../context/LanguageContext';
 
 interface VolumeSelectorProps {
   volumes: VolumeOption[];
-  selected: VolumeOption;
+  selected: VolumeOption | null;
   onChange: (volume: VolumeOption) => void;
-  size?: 'sm' | 'md'; // sm = ProductCard, md = ProductDetails
+  size?: 'sm' | 'md' | 'lg';
 }
 
-const VolumeSelector: React.FC<VolumeSelectorProps> = ({
-  volumes,
-  selected,
+const VolumeSelector: React.FC<VolumeSelectorProps> = ({ 
+  volumes, 
+  selected, 
   onChange,
-  size = 'md',
+  size = 'md' 
 }) => {
   const { language } = useLanguage();
   const isRtl = language === 'ar';
 
-  const isSm = size === 'sm';
+  const sizeClasses = {
+    sm: 'px-2 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-4 py-2 text-base',
+  };
 
   return (
-    <div className="flex flex-wrap gap-1.5" dir={isRtl ? 'rtl' : 'ltr'}>
-      {volumes.map((vol) => {
-        const isActive = vol.value === selected.value && vol.unit === selected.unit;
-        const label = isRtl ? vol.label.ar : vol.label.en;
+    <div className="flex flex-wrap gap-1.5">
+      {volumes.map((volume) => {
+        const label = isRtl ? volume.label.ar : volume.label.en;
+        const isSelected = selected?.value === volume.value;
 
         return (
           <button
-            key={`${vol.value}-${vol.unit}`}
-            onClick={(e) => {
-              e.preventDefault();   // la y-navigate-sh f ProductCard
-              e.stopPropagation();
-              onChange(vol);
-            }}
-            className="rounded-lg font-semibold transition-all duration-200 active:scale-95 select-none"
+            key={volume.value}
+            onClick={() => onChange(volume)}
+            className={`rounded-lg font-medium transition-all duration-200 ${sizeClasses[size]}`}
             style={{
-              padding: isSm ? '2px 8px' : '5px 14px',
-              fontSize: isSm ? '0.65rem' : '0.78rem',
-              border: isActive
-                ? '1.5px solid #455324'
-                : '1.5px solid #F0E4CC',
-              background: isActive ? '#455324' : '#FDFAF5',
-              color: isActive ? '#F8D197' : '#763C19',
-              boxShadow: isActive ? '0 2px 8px #45532430' : 'none',
+              background: isSelected ? '#455324' : '#F7F1E8',
+              color: isSelected ? '#fff' : '#455324',
+              border: isSelected ? '1.5px solid #455324' : '1.5px solid #EDD9AA',
             }}
-            title={`${label} — ${vol.price.toFixed(2)} MAD`}
+            onMouseEnter={(e) => {
+              if (!isSelected) {
+                (e.currentTarget as HTMLElement).style.background = '#F0E4CC';
+                (e.currentTarget as HTMLElement).style.borderColor = '#CC8F57';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSelected) {
+                (e.currentTarget as HTMLElement).style.background = '#F7F1E8';
+                (e.currentTarget as HTMLElement).style.borderColor = '#EDD9AA';
+              }
+            }}
           >
             {label}
           </button>
