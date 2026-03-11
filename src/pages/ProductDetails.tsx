@@ -9,7 +9,7 @@ import { fetchProductById, fetchCooperativeById } from '../data';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Product, Cooperative, BilingualText, VolumeOption } from '../types';
-import VolumeSelector from '../components/VolumeSelector'; // Fixed: capital S
+import VolumeSelector from '../components/VolumeSelector';
 
 type Tab = 'description' | 'details' | 'reviews';
 
@@ -19,19 +19,17 @@ const ProductDetails: React.FC = () => {
   const { addToCart } = useCart();
   const { language } = useLanguage();
   const isRtl = language === 'ar';
-  
-  // ─── State ──────────────────────────────────────────────────
+
   const [product, setProduct] = useState<Product | null>(null);
   const [cooperative, setCooperative] = useState<Cooperative | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [activeTab, setActiveTab] = useState<Tab>('description');
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [selectedVolume, setSelectedVolume] = useState<VolumeOption | null>(null);
 
-  // ─── Helpers ────────────────────────────────────────────────
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
   const lang = (field: BilingualText | string | undefined | null): string => {
     if (!field) return '';
@@ -39,14 +37,9 @@ const ProductDetails: React.FC = () => {
     return isRtl ? field.ar : field.en;
   };
 
-  // ─── Fetch Data on Mount ────────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
-      if (!id) {
-        setError('Invalid product ID');
-        setLoading(false);
-        return;
-      }
+      if (!id) { setError('Invalid product ID'); setLoading(false); return; }
       try {
         setLoading(true);
         const [productData, cooperativeData] = await Promise.all([
@@ -55,9 +48,7 @@ const ProductDetails: React.FC = () => {
         ]);
         setProduct(productData);
         setCooperative(cooperativeData);
-        if (productData?.volumes?.length) {
-          setSelectedVolume(productData.volumes[0]);
-        }
+        if (productData?.volumes?.length) setSelectedVolume(productData.volumes[0]);
         setError(null);
       } catch (err) {
         console.error('Error loading product details:', err);
@@ -69,7 +60,6 @@ const ProductDetails: React.FC = () => {
     loadData();
   }, [id]);
 
-  // ─── Loading State ──────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
@@ -81,7 +71,6 @@ const ProductDetails: React.FC = () => {
     );
   }
 
-  // ─── Error / Not Found State ────────────────────────────────
   if (error || !product) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -100,18 +89,16 @@ const ProductDetails: React.FC = () => {
     );
   }
 
-  // ─── Derived Values ─────────────────────────────────────────
-  const name = lang(product.name);
+  const name        = lang(product.name);
   const description = lang(product.description);
-  const origin = product.origin ? lang(product.origin) : null;
-  const coopName = cooperative ? lang(cooperative.name) : '';
-  const coopCity = cooperative ? lang(cooperative.city) : '';
+  const origin      = product.origin ? lang(product.origin) : null;
+  const coopName    = cooperative ? lang(cooperative.name) : '';
+  const coopCity    = cooperative ? lang(cooperative.city) : '';
   const currentPrice = selectedVolume ? selectedVolume.price : product.price;
-  const currentUnit = selectedVolume
+  const currentUnit  = selectedVolume
     ? lang(selectedVolume.label)
     : (product.unit ? lang(product.unit) : '');
 
-  // ─── Handlers ───────────────────────────────────────────────
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) addToCart(product, selectedVolume ?? undefined);
     setAdded(true);
@@ -124,11 +111,10 @@ const ProductDetails: React.FC = () => {
     { id: 'reviews',     label: tr('التقييمات', 'Reviews') },
   ];
 
-  // ─── Main Render ────────────────────────────────────────────
   return (
     <div className="min-h-screen pb-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
-      {/* ── Breadcrumb ──────────────────────────────────────────── */}
+      {/* ── Breadcrumb ── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-2">
         <div className="flex items-center gap-1.5 text-xs flex-wrap" style={{ color: '#BA8944' }}>
           <Link to="/" className="hover:underline" style={{ color: '#BA8944' }}>{tr('الرئيسية', 'Home')}</Link>
@@ -139,7 +125,7 @@ const ProductDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Main Grid ───────────────────────────────────────────── */}
+      {/* ── Main Grid ── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
 
         {/* LEFT — Image */}
@@ -172,7 +158,6 @@ const ProductDetails: React.FC = () => {
             </div>
           </div>
 
-          {/* Cooperative mini card */}
           {cooperative && (
             <Link
               to={`/cooperatives/${cooperative.id}`}
@@ -243,7 +228,7 @@ const ProductDetails: React.FC = () => {
 
           <div className="mb-4" style={{ borderTop: '1px solid #F0E4CC' }} />
 
-          {/* ── Volume Selector (medium) ─────────────────────── */}
+          {/* Volume Selector */}
           {product.volumes && product.volumes.length > 0 && (
             <div className="mb-4">
               <p className="text-xs font-semibold mb-2" style={{ color: '#763C19' }}>
@@ -258,63 +243,74 @@ const ProductDetails: React.FC = () => {
             </div>
           )}
 
-          {/* Price + qty + add to cart */}
-          <div className="rounded-2xl p-4 mb-4" style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
+          {/* ── Price + Qty + Add to Cart card ── */}
+          <div
+            className="rounded-2xl p-4 mb-4"
+            style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}
+          >
+            {/* Prix + qty sur la même ligne */}
+            <div className="flex items-center justify-between mb-4">
+              {/* Prix */}
+              <div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold" style={{ color: '#455324' }}>
+                    {(currentPrice * qty).toFixed(2)}
+                  </span>
+                  <span className="text-base font-semibold" style={{ color: '#CC8F57' }}>MAD</span>
+                </div>
+                {currentUnit && (
+                  <p className="text-xs mt-0.5" style={{ color: '#BA894480' }}>
+                    {currentPrice.toFixed(2)} MAD / {currentUnit}
+                  </p>
+                )}
+              </div>
 
-            {/* Dynamic price */}
-            <div className="flex items-baseline gap-1.5 mb-1">
-              <span className="text-3xl font-bold transition-all duration-200" style={{ color: '#455324' }}>
-                {currentPrice.toFixed(2)}
-              </span>
-              <span className="text-base font-semibold" style={{ color: '#CC8F57' }}>MAD</span>
-              {currentUnit && (
-                <span className="text-xs" style={{ color: '#BA894480' }}>/ {currentUnit}</span>
-              )}
-            </div>
-
-            {/* Qty stepper */}
-            <div className="flex items-center gap-3 mb-3 flex-wrap">
-              <span className="text-xs font-semibold" style={{ color: '#763C19' }}>{tr('الكمية', 'Qty')}</span>
+              {/* Qty stepper */}
               <div className="flex items-center rounded-xl overflow-hidden" style={{ border: '1.5px solid #F0E4CC' }}>
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="w-8 h-8 flex items-center justify-center font-bold text-base transition-colors"
+                  className="w-9 h-9 flex items-center justify-center font-bold text-base transition-colors"
                   style={{ color: '#455324' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >−</button>
-                <span className="w-9 h-8 flex items-center justify-center font-bold text-sm"
-                  style={{ color: '#455324', borderLeft: '1px solid #F0E4CC', borderRight: '1px solid #F0E4CC' }}>
+                <span
+                  className="w-9 h-9 flex items-center justify-center font-bold text-sm"
+                  style={{ color: '#455324', borderLeft: '1px solid #F0E4CC', borderRight: '1px solid #F0E4CC' }}
+                >
                   {qty}
                 </span>
                 <button
                   onClick={() => setQty((q) => q + 1)}
-                  className="w-8 h-8 flex items-center justify-center font-bold text-base transition-colors"
+                  className="w-9 h-9 flex items-center justify-center font-bold text-base transition-colors"
                   style={{ color: '#455324' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >+</button>
               </div>
-              <span className="text-xs" style={{ color: '#9FA93D' }}>
-                {tr('المجموع:', 'Total:')} {(currentPrice * qty).toFixed(2)} MAD
-              </span>
             </div>
 
-            {/* Add to cart */}
+            {/* ✅ Add to Cart — full width, kbir, dark green */}
             <button
               onClick={handleAddToCart}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white transition-all duration-300 active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300 active:scale-95"
               style={{
                 background: added
                   ? 'linear-gradient(135deg, #9FA93D, #617131)'
                   : 'linear-gradient(135deg, #455324, #617131)',
-                boxShadow: '0 4px 14px #45532430',
+                boxShadow: '0 4px 14px #45532440',
+              }}
+              onMouseEnter={(e) => {
+                if (!added) (e.currentTarget as HTMLElement).style.opacity = '0.92';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.opacity = '1';
               }}
             >
               <ShoppingBag className="w-4 h-4" />
               {added
-                ? tr('✓ تمت الإضافة!', '✓ Added!')
-                : t('product.addToCart', tr('أضف للسلة', 'Add to Cart'))}
+                ? tr('✓ تمت الإضافة!', '✓ Added to cart!')
+                : t('product.addToCart', tr('أضف للسلة', 'Ajouter au panier'))}
             </button>
           </div>
 
@@ -336,7 +332,7 @@ const ProductDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* ── TABS ────────────────────────────────────────────────── */}
+      {/* ── TABS ── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
 
@@ -355,7 +351,6 @@ const ProductDetails: React.FC = () => {
           </div>
 
           <div className="p-4 sm:p-6">
-
             {activeTab === 'description' && (
               <div className="space-y-3">
                 <p className="text-sm leading-relaxed" style={{ color: '#442413' }}>{description}</p>
@@ -371,15 +366,15 @@ const ProductDetails: React.FC = () => {
             {activeTab === 'details' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[
-                  { label: tr('المنتج', 'Product'),        value: name },
-                  { label: tr('التعاونية', 'Cooperative'), value: coopName },
-                  { label: tr('المدينة', 'City'),           value: coopCity },
+                  { label: tr('المنتج', 'Product'),             value: name },
+                  { label: tr('التعاونية', 'Cooperative'),      value: coopName },
+                  { label: tr('المدينة', 'City'),                value: coopCity },
                   { label: tr('الحجم المختار', 'Selected Size'), value: currentUnit || '—' },
-                  { label: tr('السعر', 'Price'),            value: `${currentPrice.toFixed(2)} MAD` },
-                  { label: tr('المصدر', 'Origin'),          value: origin || '—' },
-                  { label: tr('التصنيف', 'Category'),       value: product.category },
-                  { label: tr('التقييم', 'Rating'),         value: `${product.rating} / 5` },
-                  { label: tr('المكونات', 'Ingredients'),   value: tr('طبيعية 100%', '100% Natural') },
+                  { label: tr('السعر', 'Price'),                 value: `${currentPrice.toFixed(2)} MAD` },
+                  { label: tr('المصدر', 'Origin'),               value: origin || '—' },
+                  { label: tr('التصنيف', 'Category'),            value: product.category },
+                  { label: tr('التقييم', 'Rating'),              value: `${product.rating} / 5` },
+                  { label: tr('المكونات', 'Ingredients'),        value: tr('طبيعية 100%', '100% Natural') },
                 ].map((row) => (
                   <div key={row.label} className="flex justify-between items-center p-2.5 rounded-xl text-xs" style={{ background: '#F7E5CD' }}>
                     <span className="font-semibold" style={{ color: '#763C19' }}>{row.label}</span>

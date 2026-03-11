@@ -21,7 +21,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) =
   const name = isRtl ? product.name.ar : product.name.en;
   const origin = product.origin ? (isRtl ? product.origin.ar : product.origin.en) : null;
 
-  // ── Volume state ─────────────────────────────────────────────
   const [selectedVolume, setSelectedVolume] = useState<VolumeOption | null>(
     product.volumes && product.volumes.length > 0 ? product.volumes[0] : null
   );
@@ -40,30 +39,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) =
         boxShadow: '0 2px 12px #F8D19730',
       }}
     >
-      {/* ── Image ─────────────────────────────────────────────── */}
-      <Link to={`/product/${product.id}`} className="block relative overflow-hidden" style={{ aspectRatio: '4/5' }}>
+      {/* ── Image ── */}
+      <Link to={`/product/${product.id}`} className="block relative overflow-hidden flex-shrink-0" style={{ aspectRatio: '4/5' }}>
         <img
           src={product.image}
           alt={name}
           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* Cooperative badge */}
         {cooperativeName && (
           <div className="absolute top-0 start-0 end-0 flex justify-center pt-2.5 pointer-events-none">
             <span
               className="px-3 py-1 rounded-full text-xs font-semibold shadow-md backdrop-blur-sm truncate max-w-[85%] text-center"
-              style={{ background: 'rgba(69, 83, 36, 0.82)', color: '#F8D197', letterSpacing: '0.01em' }}
+              style={{ background: 'rgba(69, 83, 36, 0.82)', color: '#F8D197' }}
             >
               {cooperativeName}
             </span>
           </div>
         )}
 
-        {/* Rating badge */}
         <div
           className="absolute bottom-3 end-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-sm"
           style={{ background: 'rgba(255,255,255,0.92)', color: '#BA8944' }}
@@ -72,7 +68,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) =
           {product.rating}
         </div>
 
-        {/* New / Featured badge */}
         {product.isNew && (
           <div className="absolute bottom-3 start-3 px-2 py-1 rounded-full text-xs font-bold" style={{ background: '#9FA93D', color: '#fff' }}>
             {isRtl ? 'جديد' : 'New'}
@@ -85,21 +80,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) =
         )}
       </Link>
 
-      {/* ── Content ───────────────────────────────────────────── */}
-      <div className="p-4 flex flex-col flex-grow" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* ── Content ── */}
+      <div className="p-3 flex flex-col flex-grow" dir={isRtl ? 'rtl' : 'ltr'}>
 
-        {/* Origin */}
         {origin && (
-          <div className="flex items-center justify-end mb-1.5">
+          <div className="flex items-center justify-end mb-1">
             <span className="text-xs" style={{ color: '#BA8944' }}>📍 {origin}</span>
           </div>
         )}
 
-        {/* Name */}
         <Link to={`/product/${product.id}`}>
           <h3
             className="font-serif font-bold leading-snug line-clamp-1 mb-2 transition-colors"
-            style={{ color: '#455324', fontSize: '1rem' }}
+            style={{ color: '#455324', fontSize: '0.9rem' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#CC8F57')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#455324')}
           >
@@ -107,9 +100,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) =
           </h3>
         </Link>
 
-        {/* ── Volume Selector (if product has volumes) ── */}
         {product.volumes && product.volumes.length > 0 && (
-          <div className="mb-3">
+          <div className="mb-2">
             <VolumeSelector
               volumes={product.volumes}
               selected={selectedVolume}
@@ -119,36 +111,35 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) =
           </div>
         )}
 
-        {/* Unit label (if no volumes) */}
         {(!product.volumes || product.volumes.length === 0) && currentUnit && (
-          <p className="text-xs mb-3" style={{ color: '#BA894480' }}>{currentUnit}</p>
+          <p className="text-xs mb-2" style={{ color: '#BA894480' }}>{currentUnit}</p>
         )}
 
-        {/* Divider + Price + Cart */}
-        <div className="mt-auto pt-3" style={{ borderTop: '1px solid #F8D197' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-xl font-bold" style={{ color: '#455324' }}>
+        {/* ── Price row ── */}
+        <div className="mt-auto pt-2" style={{ borderTop: '1px solid #F8D197' }}>
+          <div className="flex items-center justify-between gap-1">
+            <div className="min-w-0">
+              <span className="text-base font-bold" style={{ color: '#455324' }}>
                 {currentPrice.toFixed(2)}
               </span>
-              <span className="text-xs ms-1 font-medium" style={{ color: '#CC8F57' }}>MAD</span>
-              {/* Show selected unit next to price */}
+              <span className="text-xs ms-0.5 font-medium" style={{ color: '#CC8F57' }}>MAD</span>
               {selectedVolume && (
-                <span className="text-xs ms-1" style={{ color: '#BA894480' }}>
-                  / {isRtl ? selectedVolume.label.ar : selectedVolume.label.en}
+                <span className="block text-xs" style={{ color: '#BA894480' }}>
+                  {isRtl ? selectedVolume.label.ar : selectedVolume.label.en}
                 </span>
               )}
             </div>
 
             <button
               onClick={() => addToCart(product, selectedVolume ?? undefined)}
-              className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 active:scale-95"
-              style={{ background: '#455324', color: '#fff' }}
+              className="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95"
+              style={{ background: '#CC8F57', color: '#fff' }}
               aria-label={t('product.addToCart', 'Add to cart')}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#CC8F57'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = '#455324'; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#b87d4a'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = '#CC8F57'; }}
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-3 h-3" />
+              {isRtl ? 'أضف' : 'Add'}
             </button>
           </div>
         </div>
