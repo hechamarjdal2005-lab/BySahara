@@ -30,21 +30,34 @@ export default function PackCard({ pack, compact = false, isRtl = false }: PackC
   const badgeStyle   = pack.badge ? BADGE_STYLES[pack.badge] ?? { background: "#617131", color: "#fff" } : null;
   const discountPct  = Math.round((pack.savings / pack.total_original_price) * 100);
   const fallbackImg  = pack.image_url ?? "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=600&q=80";
+  const isSoldOut    = pack.stock === 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addPackToCart(pack); // ✅ real add to cart
+    addPackToCart(pack);
   };
 
   return (
     <div
       dir={isRtl ? "rtl" : "ltr"}
       onClick={() => navigate(`/packs/${pack.id}`)}
-      className="relative rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
-      style={{ background: "#fff", border: "1px solid #F0E4CC" }}
+      className="relative rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+      style={{
+        background: "#FDFAF5",         // ← nafs l background bhal ProductCard
+        border: "1.5px solid #F0E4CC",
+        height: "100%",
+      }}
     >
       {/* ── Image ── */}
-      <div className="relative overflow-hidden" style={{ height: compact ? "120px" : "140px" }}>
+      <div
+        className="relative overflow-hidden flex-shrink-0"
+        style={{ height: compact ? "120px" : "160px" }}
+      >
+        {/* Uniform background dessous l image */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(135deg, #F7F1E8 0%, #EDD9AA25 100%)" }}
+        />
         <img
           src={fallbackImg}
           alt={displayName}
@@ -52,10 +65,10 @@ export default function PackCard({ pack, compact = false, isRtl = false }: PackC
         />
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.0) 55%)" }}
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.0) 55%)" }}
         />
 
-        {/* Badges */}
+        {/* Badges top */}
         <div className="absolute top-2.5 start-2.5 flex gap-1.5 flex-wrap">
           {badgeStyle && displayBadge && (
             <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={badgeStyle}>
@@ -75,7 +88,7 @@ export default function PackCard({ pack, compact = false, isRtl = false }: PackC
         <div className="absolute bottom-0 start-0 end-0 px-3 pb-2">
           <h3
             className={`font-serif font-bold text-white leading-tight ${compact ? "text-sm" : "text-base"}`}
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}
           >
             {displayName}
           </h3>
@@ -87,8 +100,8 @@ export default function PackCard({ pack, compact = false, isRtl = false }: PackC
         </div>
       </div>
 
-      {/* ── Items ── */}
-      <div className="px-4 py-3 flex flex-col gap-1.5 flex-1">
+      {/* ── Items list ── */}
+      <div className="px-3 py-3 flex flex-col gap-1.5 flex-grow">
         {pack.items.map((item, idx) => (
           <div key={idx} className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
@@ -123,8 +136,8 @@ export default function PackCard({ pack, compact = false, isRtl = false }: PackC
           </div>
         ))}
 
-        {/* Savings */}
-        <div className="mt-1.5 pt-2" style={{ borderTop: "1px dashed #F0E4CC" }}>
+        {/* Savings summary */}
+        <div className="mt-2 pt-2" style={{ borderTop: "1px dashed #F0E4CC" }}>
           <div className="flex justify-between text-xs" style={{ color: "#BA8944" }}>
             <span>{isRtl ? "الأصلي" : "Original"}</span>
             <span className="line-through">{pack.total_original_price} MAD</span>
@@ -134,47 +147,45 @@ export default function PackCard({ pack, compact = false, isRtl = false }: PackC
             <span>-{pack.savings} MAD</span>
           </div>
         </div>
-      </div>
 
-      {/* ── Footer ── */}
-      <div
-        className="px-4 py-3 flex items-center justify-between"
-        style={{ borderTop: "1px solid #F0E4CC", background: "#FDFAF5" }}
-      >
-        <div>
+        {/* Price */}
+        <div className="mt-auto pt-2" style={{ borderTop: "1px solid #F0E4CC" }}>
           <span className={`font-bold ${compact ? "text-lg" : "text-xl"}`} style={{ color: "#455324" }}>
             {pack.pack_price}
           </span>
-          <span className="text-xs ms-0.5" style={{ color: "#BA8944" }}>MAD</span>
+          <span className="text-xs ms-1" style={{ color: "#BA8944" }}>MAD</span>
         </div>
-
-        <button
-          onClick={handleAddToCart}
-          disabled={pack.stock === 0}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
-          style={
-            pack.stock === 0
-              ? { background: "#F0E4CC", color: "#BA8944", cursor: "not-allowed" }
-              : { background: "#CC8F57", color: "#fff" }
-          }
-          onMouseEnter={(e) => { if (pack.stock !== 0) (e.currentTarget as HTMLElement).style.background = "#b87d4a"; }}
-          onMouseLeave={(e) => { if (pack.stock !== 0) (e.currentTarget as HTMLElement).style.background = "#CC8F57"; }}
-        >
-          <ShoppingCart size={13} />
-          {pack.stock === 0
-            ? isRtl ? "نفذ" : "Sold Out"
-            : isRtl ? "أضف" : "Add Pack"}
-        </button>
       </div>
 
       {/* Stock warning */}
       {pack.stock !== undefined && pack.stock > 0 && pack.stock <= 5 && (
-        <div className="px-4 pb-2">
+        <div className="px-3 pb-1">
           <p className="text-xs font-semibold" style={{ color: "#c0392b" }}>
             {isRtl ? `${pack.stock} قطع فقط!` : `Only ${pack.stock} left!`}
           </p>
         </div>
       )}
+
+      {/* ── Add to Cart – full width f bas ── */}
+      <div className="px-3 pb-3 pt-1">
+        <button
+          onClick={handleAddToCart}
+          disabled={isSoldOut}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95"
+          style={
+            isSoldOut
+              ? { background: "#F0E4CC", color: "#BA8944", cursor: "not-allowed" }
+              : { background: "#CC8F57", color: "#fff" }
+          }
+          onMouseEnter={(e) => { if (!isSoldOut) (e.currentTarget as HTMLElement).style.background = "#b87d4a"; }}
+          onMouseLeave={(e) => { if (!isSoldOut) (e.currentTarget as HTMLElement).style.background = "#CC8F57"; }}
+        >
+          <ShoppingCart size={15} />
+          {isSoldOut
+            ? isRtl ? "نفذ المخزون" : "Sold Out"
+            : isRtl ? "أضف الباقة للسلة" : "Add Pack to Cart"}
+        </button>
+      </div>
     </div>
   );
 }

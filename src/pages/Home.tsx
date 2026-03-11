@@ -128,6 +128,41 @@ const featureIcons: Record<string, React.ReactNode> = {
   delivery: <Truck className="w-6 h-6" />,
 };
 
+// ─── Intersection Observer Hook (scroll animations) ─────────
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, inView };
+}
+
+// ─── Animated Section Wrapper ────────────────────────────────
+const FadeUp: React.FC<{ children: React.ReactNode; delay?: number; className?: string }> = ({ children, delay = 0, className = '' }) => {
+  const { ref, inView } = useInView();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: inView ? 1 : 0,
+        transform: inView ? 'translateY(0)' : 'translateY(28px)',
+        transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 // ─── Main Component ─────────────────────────────────────────
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -147,7 +182,6 @@ const Home: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [featuredCooperatives, setFeaturedCooperatives] = useState<Cooperative[]>([]);
   const [packs, setPacks] = useState<Pack[]>([]);
-  
   const [loading, setLoading] = useState(true);
 
   // ─── Carousel States ──────────────────────────────────────
@@ -192,8 +226,6 @@ const Home: React.FC = () => {
         setPromoBanners(pbns);
         setFeaturedProducts(products);
         setFeaturedCooperatives(cooperatives.slice(0, 3));
-
-        // ── Packs (mock — badlha b Supabase call men ba3d) ──
         setPacks(getAllActivePacks());
       } catch (err) {
         console.error('Error loading home page:', err);
@@ -247,7 +279,7 @@ const Home: React.FC = () => {
   // ─── Mobile Scroll ────────────────────────────────────────
   const scrollProducts = (dir: 'left' | 'right') => {
     if (!productsScrollRef.current) return;
-    productsScrollRef.current.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
+    productsScrollRef.current.scrollBy({ left: dir === 'left' ? -180 : 180, behavior: 'smooth' });
   };
 
   // ─── Helpers ──────────────────────────────────────────────
@@ -288,75 +320,100 @@ const Home: React.FC = () => {
       {/* ══ GLOBAL STYLES ════════════════════════════════════ */}
       <style>{`
         @keyframes adProgress { from{width:0%} to{width:100%} }
-        @keyframes fadeSlideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeSlideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
         @keyframes marqueeRtl { 0%{transform:translateX(0)} 100%{transform:translateX(50%)} }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes floatBadge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
         .marquee-track { animation: marquee 22s linear infinite; }
         .marquee-track-rtl { animation: marqueeRtl 22s linear infinite; }
         .marquee-track:hover, .marquee-track-rtl:hover { animation-play-state: paused; }
         .products-scroll { scrollbar-width: none; -ms-overflow-style: none; }
         .products-scroll::-webkit-scrollbar { display: none; }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(69,83,36,0.15); }
+        .stat-card { transition: transform 0.25s ease; }
+        .stat-card:hover { transform: scale(1.04); }
+        .section-divider { 
+          height: 2px; 
+          background: linear-gradient(to right, transparent, #F8D197, #CC8F57, #F8D197, transparent);
+          margin: 0 auto;
+          border-radius: 999px;
+        }
       `}</style>
 
       {/* ══ HERO ═════════════════════════════════════════════ */}
       {heroSlides.length > 0 && current && (
         <section className="w-full">
-          <div className="relative overflow-hidden" style={{ minHeight: '300px' }}>
+          <div className="relative overflow-hidden" style={{ minHeight: '320px' }}>
             {heroSlides.map((s, i) => (
               <div key={s.id} className="absolute inset-0 transition-opacity duration-1000" style={{ opacity: i === slide ? 1 : 0 }}>
                 <img src={s.image_url} alt="" className="w-full h-full object-cover absolute inset-0" />
               </div>
             ))}
+            {/* Gradient overlay */}
             <div className="absolute inset-0" style={{ background: isRtl
-              ? 'linear-gradient(to left,rgba(45,60,20,0.72) 35%,rgba(45,60,20,0.30) 65%,rgba(0,0,0,0.05) 100%)'
-              : 'linear-gradient(to right,rgba(45,60,20,0.72) 35%,rgba(45,60,20,0.30) 65%,rgba(0,0,0,0.05) 100%)' }} />
+              ? 'linear-gradient(to left,rgba(45,60,20,0.78) 35%,rgba(45,60,20,0.30) 65%,rgba(0,0,0,0.05) 100%)'
+              : 'linear-gradient(to right,rgba(45,60,20,0.78) 35%,rgba(45,60,20,0.30) 65%,rgba(0,0,0,0.05) 100%)' }} />
+            {/* Bottom fade */}
+            <div className="absolute bottom-0 left-0 right-0 h-16" style={{ background: 'linear-gradient(to bottom, transparent, rgba(253,250,245,0.4))' }} />
 
-            <div className="relative z-10 flex flex-col justify-center min-h-[300px] px-6 md:px-14 py-8"
+            <div className="relative z-10 flex flex-col justify-center min-h-[320px] px-6 md:px-14 py-10"
               style={{ alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2" style={{ animation: 'fadeSlideIn 0.5s ease 0.1s both' }}>
                 <div className="h-px w-5 rounded" style={{ background: '#F8D197' }} />
                 <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#F8D197' }}>
                   {tr('بيصحراء', 'By Sahara')}
                 </span>
               </div>
-              <img src="https://i.ibb.co/TqY5ZpYR/logo-by-sahara.png" alt="By Sahara" className="h-9 object-contain mb-3"
-                style={{ filter: 'brightness(0) invert(1)' }} />
-              <h1 key={slide} className="font-serif text-2xl md:text-4xl font-bold text-white mb-2 leading-snug max-w-md"
-                style={{ whiteSpace: 'pre-line', animation: 'fadeSlideIn 0.6s ease forwards' }}>
+              <img
+                src="https://i.ibb.co/TqY5ZpYR/logo-by-sahara.png"
+                alt="By Sahara"
+                className="h-9 object-contain mb-3"
+                style={{ filter: 'brightness(0) invert(1)', animation: 'fadeSlideIn 0.5s ease 0.2s both' }}
+              />
+              <h1
+                key={slide}
+                className="font-serif text-2xl md:text-4xl font-bold text-white mb-2 leading-snug max-w-md"
+                style={{ whiteSpace: 'pre-line', animation: 'fadeSlideIn 0.6s ease 0.1s both' }}
+              >
                 {isRtl ? current.title_ar : current.title_en}
               </h1>
-              <p className="text-sm mb-4 font-light max-w-xs" style={{ color: '#F7E5CD' }}>
+              <p
+                className="text-sm mb-5 font-light max-w-xs"
+                style={{ color: '#F7E5CD', animation: 'fadeSlideIn 0.6s ease 0.2s both' }}
+              >
                 {isRtl ? current.subtitle_ar : current.subtitle_en}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" style={{ animation: 'fadeSlideIn 0.6s ease 0.3s both' }}>
                 <Link to="/shop"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105 shadow-md"
-                  style={{ background: '#CC8F57', color: '#fff' }}>
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
+                  style={{ background: '#CC8F57', color: '#fff', boxShadow: '0 4px 16px rgba(204,143,87,0.45)' }}>
                   {t('hero.cta', tr('تسوق الآن', 'Shop Now'))}
                   {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                 </Link>
                 <Link to="/cooperatives"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300"
-                  style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.30)', backdropFilter: 'blur(8px)' }}>
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 hover:bg-white/20"
+                  style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.35)', backdropFilter: 'blur(8px)' }}>
                   {tr('تعاونياتنا', 'Cooperatives')}
                 </Link>
               </div>
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-5">
                 {heroSlides.map((_, i) => (
                   <button key={i} onClick={() => setSlide(i)} className="rounded-full transition-all duration-300"
-                    style={{ width: i === slide ? '18px' : '6px', height: '6px', background: i === slide ? '#F8D197' : 'rgba(255,255,255,0.35)' }} />
+                    style={{ width: i === slide ? '20px' : '6px', height: '6px', background: i === slide ? '#F8D197' : 'rgba(255,255,255,0.35)' }} />
                 ))}
               </div>
             </div>
 
             <button onClick={() => setSlide(s => (s - 1 + heroSlides.length) % heroSlides.length)}
-              className="absolute start-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(255,255,255,0.18)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+              className="absolute start-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: 'rgba(255,255,255,0.18)', color: '#fff', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)' }}>
               <ArrowLeft className="w-4 h-4" />
             </button>
             <button onClick={() => setSlide(s => (s + 1) % heroSlides.length)}
-              className="absolute end-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(255,255,255,0.18)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+              className="absolute end-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: 'rgba(255,255,255,0.18)', color: '#fff', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)' }}>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -365,94 +422,123 @@ const Home: React.FC = () => {
 
       {/* ══ FEATURES ═════════════════════════════════════════ */}
       {features.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
+        <FadeUp className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {features.map((f) => (
-              <div key={f.id} className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: '#fff', border: '1px solid #F8D197' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#F8D197', color: '#455324' }}>
-                  {featureIcons[f.icon_key] || <ShieldCheck className="w-6 h-6" />}
+            {features.map((f, idx) => (
+              <FadeUp key={f.id} delay={idx * 80}>
+                <div
+                  className="flex items-center gap-3 p-4 rounded-2xl card-hover"
+                  style={{ background: '#fff', border: '1px solid #F8D197', boxShadow: '0 2px 8px #F8D19720' }}
+                >
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#F8D197', color: '#455324' }}>
+                    {featureIcons[f.icon_key] || <ShieldCheck className="w-6 h-6" />}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm mb-0.5" style={{ color: '#455324' }}>{isRtl ? f.title_ar : f.title_en}</h3>
+                    <p className="text-xs leading-relaxed" style={{ color: '#763C19' }}>{isRtl ? f.description_ar : f.description_en}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm mb-0.5" style={{ color: '#455324' }}>{isRtl ? f.title_ar : f.title_en}</h3>
-                  <p className="text-xs leading-relaxed" style={{ color: '#763C19' }}>{isRtl ? f.description_ar : f.description_en}</p>
-                </div>
-              </div>
+              </FadeUp>
             ))}
           </div>
-        </section>
+        </FadeUp>
       )}
 
       {/* ══ CATEGORIES ═══════════════════════════════════════ */}
-      <CategoriesSection />
+      <FadeUp>
+        <CategoriesSection />
+      </FadeUp>
+
+      {/* ══ DIVIDER ══════════════════════════════════════════ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
+        <div className="section-divider" style={{ maxWidth: '200px' }} />
+      </div>
 
       {/* ══ BEST SELLERS ═════════════════════════════════════ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#9FA93D' }}>
-              {tr('الأكثر مبيعاً', 'Best Sellers')}
-            </p>
-            <h2 className="font-serif text-xl md:text-2xl font-bold" style={{ color: '#455324' }}>
-              {tr('منتجات مميزة', 'Featured Products')}
-            </h2>
+        <FadeUp>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#9FA93D' }}>
+                {tr('الأكثر مبيعاً', 'Best Sellers')}
+              </p>
+              <h2 className="font-serif text-xl md:text-2xl font-bold" style={{ color: '#455324' }}>
+                {tr('منتجات مميزة', 'Featured Products')}
+              </h2>
+            </div>
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:scale-105 active:scale-95"
+              style={{ color: '#fff', background: '#CC8F57', boxShadow: '0 2px 8px rgba(204,143,87,0.35)' }}
+            >
+              {tr('عرض الكل', 'View All')}
+              {isRtl ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
+            </Link>
           </div>
-          <Link to="/shop" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ color: '#fff', background: '#CC8F57' }}>
-            {tr('عرض الكل', 'View All')}
-            {isRtl ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
-          </Link>
-        </div>
+        </FadeUp>
 
-        {/* Desktop: grid */}
-        <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-          {featuredProducts.map(p => (
-            <ProductCard key={p.id} product={p} cooperativeName={getCooperativeName(p.cooperativeId)} />
+        {/* Desktop grid – items-stretch → nafs l height */}
+        <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-stretch">
+          {featuredProducts.map((p, idx) => (
+            <FadeUp key={p.id} delay={idx * 50}>
+              <ProductCard product={p} cooperativeName={getCooperativeName(p.cooperativeId)} />
+            </FadeUp>
           ))}
         </div>
 
         {/* Mobile: horizontal scroll */}
         <div className="sm:hidden relative">
-          <div ref={productsScrollRef}
-            className="products-scroll flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-2">
+          <div
+            ref={productsScrollRef}
+            className="products-scroll flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3"
+            style={{ paddingInline: '2px' }}
+          >
             {featuredProducts.map(p => (
-              <div key={p.id} className="snap-start flex-shrink-0" style={{ width: '140px' }}>
+              <div key={p.id} className="snap-start flex-shrink-0" style={{ width: '160px' }}>
                 <ProductCard product={p} cooperativeName={getCooperativeName(p.cooperativeId)} />
               </div>
             ))}
           </div>
-          <button onClick={() => scrollProducts(isRtl ? 'right' : 'left')}
-            className="absolute start-0 top-1/2 -translate-y-1/2 -translate-x-1 z-10 w-6 h-6 rounded-full flex items-center justify-center shadow-md"
-            style={{ background: '#fff', color: '#455324', border: '1px solid #F8D197' }}>
-            <ChevronLeft className="w-3 h-3" />
+          <button
+            onClick={() => scrollProducts(isRtl ? 'right' : 'left')}
+            className="absolute start-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all hover:scale-110"
+            style={{ background: '#fff', color: '#455324', border: '1.5px solid #F8D197' }}
+          >
+            <ChevronLeft className="w-4 h-4" />
           </button>
-          <button onClick={() => scrollProducts(isRtl ? 'left' : 'right')}
-            className="absolute end-0 top-1/2 -translate-y-1/2 translate-x-1 z-10 w-6 h-6 rounded-full flex items-center justify-center shadow-md"
-            style={{ background: '#fff', color: '#455324', border: '1px solid #F8D197' }}>
-            <ChevronRight className="w-3 h-3" />
+          <button
+            onClick={() => scrollProducts(isRtl ? 'left' : 'right')}
+            className="absolute end-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all hover:scale-110"
+            style={{ background: '#fff', color: '#455324', border: '1.5px solid #F8D197' }}
+          >
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </section>
 
       {/* ══ PROMO PACKS ══════════════════════════════════════ */}
       {packs.length > 0 && (
-        <div className="mt-6">
-          <PacksSection
-            packs={packs}
-            variant="home"
-            isRtl={isRtl}
-          />
-        </div>
+        <FadeUp className="mt-6">
+          <PacksSection packs={packs} variant="home" isRtl={isRtl} />
+        </FadeUp>
       )}
 
       {/* ══ PROMO BANNER ══════════════════════════════════════ */}
       {promoBanner && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-8">
+        <FadeUp className="max-w-7xl mx-auto px-4 sm:px-8 mt-8">
           <Link to={promoBanner.cta_link || '/shop'}>
-            <div className="relative rounded-2xl overflow-hidden cursor-pointer group"
-              style={{ 
-                background: `linear-gradient(135deg,${promoBanner.background_color || '#455324'} 0%,#617131 60%,#9FA93D 100%)`, 
-                minHeight: '160px' 
-              }}>
-              <div className="absolute -top-8 -end-8 w-36 h-36 rounded-full opacity-10" style={{ background: '#F8D197' }} />
+            <div
+              className="relative rounded-2xl overflow-hidden cursor-pointer group"
+              style={{
+                background: `linear-gradient(135deg,${promoBanner.background_color || '#455324'} 0%,#617131 60%,#9FA93D 100%)`,
+                minHeight: '160px',
+                boxShadow: '0 8px 32px rgba(69,83,36,0.25)',
+              }}
+            >
+              {/* Decorative circles */}
+              <div className="absolute -top-8 -end-8 w-40 h-40 rounded-full opacity-10" style={{ background: '#F8D197' }} />
+              <div className="absolute -bottom-6 -start-6 w-28 h-28 rounded-full opacity-8" style={{ background: '#F8D197' }} />
+
               <div className="relative flex flex-col md:flex-row items-center justify-between gap-4 p-7">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#9FA93D' }}>
@@ -465,20 +551,22 @@ const Home: React.FC = () => {
                     {isRtl ? (promoBanner.subtitle_ar || '') : (promoBanner.subtitle_en || '')}
                   </p>
                 </div>
-                <div className="flex-shrink-0 flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 group-hover:scale-105"
-                  style={{ background: '#F8D197', color: '#455324' }}>
+                <div
+                  className="flex-shrink-0 flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg"
+                  style={{ background: '#F8D197', color: '#455324' }}
+                >
                   {isRtl ? (promoBanner.cta_text_ar || 'تسوق الآن') : (promoBanner.cta_text_en || 'Shop Now')}
                   {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                 </div>
               </div>
             </div>
           </Link>
-        </section>
+        </FadeUp>
       )}
 
       {/* ══ COOPERATIVE ADS ══════════════════════════════════ */}
       {coopAds.length > 0 && coopAd && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-10">
+        <FadeUp className="max-w-7xl mx-auto px-4 sm:px-8 mt-10">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#9FA93D' }}>
@@ -488,25 +576,32 @@ const Home: React.FC = () => {
                 {tr('اكتشف منتجاتهم', 'Leurs produits')}
               </h2>
             </div>
-            <Link to="/cooperatives" className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-semibold" style={{ color: '#fff', background: '#9FA93D' }}>
+            <Link to="/cooperatives" className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-semibold transition-all hover:scale-105" style={{ color: '#fff', background: '#9FA93D' }}>
               {tr('الكل', 'Toutes')}
               {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
             </Link>
           </div>
 
           <Link to={coopAd.link_url || `/cooperatives/${coopAd.id}`}>
-            <div className="relative rounded-2xl overflow-hidden shadow-lg cursor-pointer"
-              style={{ height: '240px', opacity: coopFade ? 1 : 0, transition: 'opacity 0.4s ease' }}>
-              <img src={coopAd.image_url} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: isRtl ? 'linear-gradient(to left,rgba(69,83,36,0.85) 40%,rgba(0,0,0,0.05) 100%)' : 'linear-gradient(to right,rgba(69,83,36,0.85) 40%,rgba(0,0,0,0.05) 100%)' }} />
-              <span className="absolute top-4 text-white text-xs font-bold px-3 py-1 rounded-full uppercase"
-                style={{ background: '#455324', border: '1px solid #F8D19760', [isRtl ? 'right' : 'left']: '16px' }}>
+            <div
+              className="relative rounded-2xl overflow-hidden shadow-xl cursor-pointer group"
+              style={{ height: '260px', opacity: coopFade ? 1 : 0, transition: 'opacity 0.4s ease' }}
+            >
+              <img src={coopAd.image_url} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0" style={{ background: isRtl ? 'linear-gradient(to left,rgba(69,83,36,0.88) 40%,rgba(0,0,0,0.05) 100%)' : 'linear-gradient(to right,rgba(69,83,36,0.88) 40%,rgba(0,0,0,0.05) 100%)' }} />
+              <span
+                className="absolute top-4 text-white text-xs font-bold px-3 py-1 rounded-full uppercase"
+                style={{ background: '#455324', border: '1px solid #F8D19760', [isRtl ? 'right' : 'left']: '16px', animation: 'floatBadge 3s ease infinite' }}
+              >
                 🤝 {tr('تعاونية شريكة', 'Coopérative partenaire')}
               </span>
               <div className="absolute bottom-0 p-6" style={{ [isRtl ? 'right' : 'left']: 0 }}>
                 <h3 className="text-white text-xl md:text-2xl font-bold mb-1">{isRtl ? coopAd.title_ar : coopAd.title_en}</h3>
                 <p className="text-sm mb-4" style={{ color: '#F7E5CD' }}>{isRtl ? coopAd.subtitle_ar : coopAd.subtitle_en}</p>
-                <span className="inline-block text-xs font-bold px-5 py-2 rounded-full" style={{ background: '#F8D197', color: '#455324' }}>
+                <span
+                  className="inline-block text-xs font-bold px-5 py-2 rounded-full transition-all group-hover:scale-105"
+                  style={{ background: '#F8D197', color: '#455324' }}
+                >
                   {isRtl ? '← اكتشف المنتجات' : 'Voir les produits →'}
                 </span>
               </div>
@@ -521,12 +616,12 @@ const Home: React.FC = () => {
                 style={{ width: i === coopCurrent ? '20px' : '7px', height: '7px', background: i === coopCurrent ? '#455324' : '#d6b896' }} />
             ))}
           </div>
-        </section>
+        </FadeUp>
       )}
 
       {/* ══ BRAND ADS ════════════════════════════════════════ */}
       {brandAds.length > 0 && brandAd && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-8">
+        <FadeUp className="max-w-7xl mx-auto px-4 sm:px-8 mt-8">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#9FA93D' }}>
@@ -536,16 +631,18 @@ const Home: React.FC = () => {
                 {tr('إعلانات', 'Publicités')}
               </h2>
             </div>
-            <Link to="/contact" className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-semibold" style={{ color: '#fff', background: '#CC8F57' }}>
+            <Link to="/contact" className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-semibold transition-all hover:scale-105" style={{ color: '#fff', background: '#CC8F57' }}>
               {tr('اعلن معنا', 'Annoncez')}
               {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
             </Link>
           </div>
 
           <a href={brandAd.link_url || '#'} target="_blank" rel="noopener noreferrer">
-            <div className="relative rounded-2xl overflow-hidden shadow-lg cursor-pointer"
-              style={{ height: '240px', opacity: brandFade ? 1 : 0, transition: 'opacity 0.4s ease' }}>
-              <img src={brandAd.image_url} alt="" className="w-full h-full object-cover" />
+            <div
+              className="relative rounded-2xl overflow-hidden shadow-xl cursor-pointer group"
+              style={{ height: '260px', opacity: brandFade ? 1 : 0, transition: 'opacity 0.4s ease' }}
+            >
+              <img src={brandAd.image_url} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0" style={{ background: isRtl ? 'linear-gradient(to left,rgba(0,0,0,0.85) 40%,rgba(0,0,0,0.05) 100%)' : 'linear-gradient(to right,rgba(0,0,0,0.85) 40%,rgba(0,0,0,0.05) 100%)' }} />
               <span className="absolute top-4 text-white text-xs font-bold px-3 py-1 rounded-full uppercase"
                 style={{ background: brandAd.badge_color || '#CC8F57', [isRtl ? 'right' : 'left']: '16px' }}>
@@ -558,7 +655,10 @@ const Home: React.FC = () => {
               <div className="absolute bottom-0 p-6" style={{ [isRtl ? 'right' : 'left']: 0 }}>
                 <h3 className="text-white text-xl md:text-2xl font-bold mb-1">{isRtl ? brandAd.title_ar : brandAd.title_en}</h3>
                 <p className="text-sm mb-4" style={{ color: '#e2e8f0' }}>{isRtl ? brandAd.subtitle_ar : brandAd.subtitle_en}</p>
-                <span className="inline-block text-xs font-bold px-5 py-2 rounded-full" style={{ background: '#fff', color: '#1a1a1a' }}>
+                <span
+                  className="inline-block text-xs font-bold px-5 py-2 rounded-full transition-all group-hover:scale-105"
+                  style={{ background: '#fff', color: '#1a1a1a' }}
+                >
                   {isRtl ? '← اكتشف' : 'Découvrir →'}
                 </span>
               </div>
@@ -573,20 +673,24 @@ const Home: React.FC = () => {
                 style={{ width: i === brandCurrent ? '20px' : '7px', height: '7px', background: i === brandCurrent ? '#455324' : '#d6b896' }} />
             ))}
           </div>
-        </section>
+        </FadeUp>
       )}
 
       {/* ══ COOPERATIVES CARDS ═══════════════════════════════ */}
       {featuredCooperatives.length > 0 && (
-        <section className="mt-8 py-10" style={{ background: '#F7E5CD40' }}>
+        <section className="mt-10 py-10" style={{ background: 'linear-gradient(180deg, #F7E5CD20 0%, #F7E5CD50 100%)' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-8">
-            <div className="text-center mb-7">
+            <FadeUp className="text-center mb-7">
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#9FA93D' }}>{tr('شركاؤنا', 'Our Partners')}</p>
               <h2 className="font-serif text-2xl md:text-3xl font-bold mb-2" style={{ color: '#455324' }}>{tr('التعاونيات المميزة', 'Featured Cooperatives')}</h2>
-            </div>
+            </FadeUp>
 
             <div className="hidden sm:grid sm:grid-cols-3 gap-6">
-              {featuredCooperatives.map(c => <CooperativeCard key={c.id} cooperative={c} />)}
+              {featuredCooperatives.map((c, idx) => (
+                <FadeUp key={c.id} delay={idx * 100}>
+                  <CooperativeCard cooperative={c} />
+                </FadeUp>
+              ))}
             </div>
 
             <div className="sm:hidden flex gap-3 overflow-x-auto products-scroll snap-x snap-mandatory pb-2">
@@ -597,53 +701,60 @@ const Home: React.FC = () => {
               ))}
             </div>
 
-            <div className="text-center mt-6">
+            <FadeUp className="text-center mt-6">
               <Link to="/cooperatives"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all hover:opacity-90"
-                style={{ background: '#455324', color: '#fff' }}>
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-md"
+                style={{ background: '#455324', color: '#fff', boxShadow: '0 4px 14px rgba(69,83,36,0.3)' }}>
                 {tr('كل التعاونيات', 'All Cooperatives')}
                 {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </Link>
-            </div>
+            </FadeUp>
           </div>
         </section>
       )}
 
       {/* ══ STATS ════════════════════════════════════════════ */}
       {stats.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
+        <FadeUp className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            {stats.map(s => (
-              <div key={s.id} className="p-5 rounded-2xl" style={{ background: '#fff', border: '1px solid #F8D197' }}>
-                <p className="font-serif text-3xl font-bold mb-0.5" style={{ color: '#455324' }}>{isRtl ? s.value_ar : s.value_en}</p>
-                <p className="text-xs font-medium" style={{ color: '#CC8F57' }}>{isRtl ? s.label_ar : s.label_en}</p>
-              </div>
+            {stats.map((s, idx) => (
+              <FadeUp key={s.id} delay={idx * 70}>
+                <div
+                  className="p-5 rounded-2xl stat-card"
+                  style={{ background: '#fff', border: '1px solid #F8D197', boxShadow: '0 2px 12px #F8D19720' }}
+                >
+                  <p className="font-serif text-3xl font-bold mb-0.5" style={{ color: '#455324' }}>{isRtl ? s.value_ar : s.value_en}</p>
+                  <p className="text-xs font-medium" style={{ color: '#CC8F57' }}>{isRtl ? s.label_ar : s.label_en}</p>
+                </div>
+              </FadeUp>
             ))}
           </div>
-        </section>
+        </FadeUp>
       )}
 
       {/* ══ PARTNERS MARQUEE ═════════════════════════════════ */}
       {partners.length > 0 && (
         <section className="py-8 overflow-hidden" style={{ background: '#F7F3EE' }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-5 text-center">
+          <FadeUp className="max-w-7xl mx-auto px-4 sm:px-8 mb-5 text-center">
             <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#9FA93D' }}>
               {tr('داعمونا', 'Nos Soutiens')}
             </p>
             <h2 className="font-serif text-xl md:text-2xl font-bold" style={{ color: '#455324' }}>
               {tr('بدعم من', 'Soutenus par')}
             </h2>
-          </div>
+          </FadeUp>
 
           <div className="relative overflow-hidden" style={{ maskImage: 'linear-gradient(to right,transparent,black 10%,black 90%,transparent)' }}>
-            <div 
+            <div
               className={`flex gap-6 w-max ${isRtl ? 'marquee-track-rtl' : 'marquee-track'}`}
               style={{ margin: '0 auto', paddingLeft: '50%', paddingRight: '50%' }}
             >
               {[...partners, ...partners].map((p, i) => (
                 <div key={`${p.id}-${i}`} className="flex flex-col items-center gap-2 flex-shrink-0" style={{ width: '110px' }}>
-                  <div className="flex items-center justify-center rounded-xl transition-all duration-300 hover:shadow-md"
-                    style={{ width: '80px', height: '60px', background: '#fff', border: '1px solid #E5D4B8', padding: '8px' }}>
+                  <div
+                    className="flex items-center justify-center rounded-xl transition-all duration-300 hover:shadow-md hover:scale-105"
+                    style={{ width: '80px', height: '60px', background: '#fff', border: '1px solid #E5D4B8', padding: '8px' }}
+                  >
                     <img src={p.logo_url} alt={isRtl ? p.name_ar : p.name_en} className="max-w-full max-h-full object-contain" />
                   </div>
                   <p className="text-xs font-semibold text-center leading-tight" style={{ color: '#617131' }}>
