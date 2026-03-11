@@ -7,6 +7,86 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import VolumeSelector from './VolumeSelector';
 
+// ─── Interactive Star Rating ─────────────────────────────────
+interface StarRatingProps {
+  productId: string;
+  baseRating: number;
+  isRtl: boolean;
+}
+
+const StarRating: React.FC<StarRatingProps> = ({ productId, baseRating, isRtl }) => {
+  const storageKey = `rating_${productId}`;
+  const saved = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+
+  const [userRating, setUserRating] = useState<number | null>(saved ? parseInt(saved) : null);
+  const [hovered, setHovered]       = useState<number | null>(null);
+  const [showThank, setShowThank]   = useState(false);
+
+  const displayRating = userRating ?? baseRating;
+  const activeStars   = hovered ?? userRating ?? Math.round(baseRating);
+
+  const handleRate = (e: React.MouseEvent, star: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setUserRating(star);
+    localStorage.setItem(storageKey, String(star));
+    setShowThank(true);
+    setTimeout(() => setShowThank(false), 1800);
+  };
+
+  return (
+    <div
+      className="absolute bottom-2 end-2 flex flex-col items-end gap-1"
+      onClick={(e) => e.preventDefault()}
+    >
+      {/* Thank you toast */}
+      {showThank && (
+        <div
+          className="px-2 py-0.5 rounded-full text-xs font-bold shadow-md"
+          style={{
+            background: '#455324',
+            color: '#F8D197',
+            animation: 'fadeSlideIn 0.3s ease',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {isRtl ? '🙏 شكراً!' : '🙏 Merci!'}
+        </div>
+      )}
+
+      {/* Stars row */}
+      <div
+        className="flex items-center gap-0.5 px-2 py-1 rounded-full shadow-sm backdrop-blur-sm"
+        style={{ background: 'rgba(255,255,255,0.95)' }}
+      >
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={(e) => handleRate(e, star)}
+            onMouseEnter={() => setHovered(star)}
+            onMouseLeave={() => setHovered(null)}
+            className="transition-transform duration-100 hover:scale-125 active:scale-110"
+            style={{ lineHeight: 1, padding: '1px' }}
+            aria-label={`Rate ${star} star`}
+          >
+            <Star
+              className="w-3 h-3"
+              style={{
+                fill: star <= activeStars ? '#BA8944' : 'transparent',
+                color: star <= activeStars ? '#BA8944' : '#D4C5A0',
+                transition: 'fill 0.15s, color 0.15s',
+              }}
+            />
+          </button>
+        ))}
+        <span className="text-xs font-bold ms-1" style={{ color: '#BA8944' }}>
+          {userRating ? userRating.toFixed(1) : baseRating}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 interface ProductCardProps {
   product: Product;
   cooperativeName?: string;
@@ -69,13 +149,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cooperativeName }) =
           </div>
         )}
 
-        <div
-          className="absolute bottom-2 end-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm backdrop-blur-sm"
-          style={{ background: 'rgba(255,255,255,0.92)', color: '#BA8944' }}
-        >
-          <Star className="w-3 h-3 fill-current" />
-          {product.rating}
-        </div>
+        <StarRating productId={product.id} baseRating={product.rating} isRtl={isRtl} />
 
         {product.isNew && (
           <div className="absolute bottom-2 start-2 px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#9FA93D', color: '#fff' }}>
