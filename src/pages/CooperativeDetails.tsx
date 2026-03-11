@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, ArrowLeft, ArrowRight, Users, Leaf, Award, Phone, Package, Loader2 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import PacksSection from '../components/PacksSection';
+import { getPacksByCooperative } from '../data/packsData';
 import { fetchCooperativeById, fetchProductsByCooperative } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { Cooperative, Product, BilingualText } from '../types';
+import { Pack } from '../types';
 
 const CooperativeDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,10 +23,11 @@ const CooperativeDetails: React.FC = () => {
   // ─── State ──────────────────────────────────────────────────
   const [cooperative, setCooperative] = useState<Cooperative | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [packs, setPacks] = useState<Pack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── Fetch Data on Mount ────────────────────────────────────
+  // ─── Fetch Data ─────────────────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
       if (!id) {
@@ -39,6 +43,8 @@ const CooperativeDetails: React.FC = () => {
         ]);
         setCooperative(coopData);
         setProducts(productsData);
+        // ── Packs dyal had cooperative ──
+        setPacks(getPacksByCooperative(id));
         setError(null);
       } catch (err) {
         console.error('Error loading cooperative details:', err);
@@ -50,7 +56,7 @@ const CooperativeDetails: React.FC = () => {
     loadData();
   }, [id]);
 
-  // ─── Loading State ──────────────────────────────────────────
+  // ─── Loading ─────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
@@ -62,7 +68,7 @@ const CooperativeDetails: React.FC = () => {
     );
   }
 
-  // ─── Error / Not Found State ────────────────────────────────
+  // ─── Error ───────────────────────────────────────────────────
   if (error || !cooperative) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -83,26 +89,23 @@ const CooperativeDetails: React.FC = () => {
     );
   }
 
-  // ─── Derived Values ─────────────────────────────────────────
-  const name = lang(cooperative.name);
-  const city = lang(cooperative.city);
-  const province = lang(cooperative.province);
+  const name        = lang(cooperative.name);
+  const city        = lang(cooperative.city);
+  const province    = lang(cooperative.province);
   const description = lang(cooperative.description);
 
   const impactItems = [
-    { icon: <Users className="w-4 h-4" />, title: t('التمكين', 'Empowerment'), desc: t('أجور عادلة واستقلالية', 'Fair wages & independence') },
-    { icon: <Leaf className="w-4 h-4" />, title: t('الاستدامة', 'Sustainability'), desc: t('مواد صديقة للبيئة', 'Eco-friendly materials') },
-    { icon: <Award className="w-4 h-4" />, title: t('الجودة', 'Quality'), desc: t('رقابة صارمة للجودة', 'Rigorous quality control') },
+    { icon: <Users className="w-4 h-4" />, title: t('التمكين', 'Empowerment'),   desc: t('أجور عادلة واستقلالية', 'Fair wages & independence') },
+    { icon: <Leaf  className="w-4 h-4" />, title: t('الاستدامة', 'Sustainability'), desc: t('مواد صديقة للبيئة', 'Eco-friendly materials') },
+    { icon: <Award className="w-4 h-4" />, title: t('الجودة', 'Quality'),          desc: t('رقابة صارمة للجودة', 'Rigorous quality control') },
   ];
 
-  // ─── Main Render ────────────────────────────────────────────
   return (
     <div className="min-h-screen pb-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
       {/* ── Back ──────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4">
-        <Link
-          to="/cooperatives"
+        <Link to="/cooperatives"
           className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
           style={{ color: '#BA8944' }}
           onMouseEnter={(e) => (e.currentTarget.style.color = '#455324')}
@@ -113,7 +116,7 @@ const CooperativeDetails: React.FC = () => {
         </Link>
       </div>
 
-      {/* ── Hero — compact on mobile ──────────────────────────── */}
+      {/* ── Hero ─────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-3">
         <div className="relative rounded-2xl overflow-hidden shadow-md" style={{ height: '200px' }}>
           <img src={cooperative.image} alt={name} className="w-full h-full object-cover" />
@@ -141,10 +144,10 @@ const CooperativeDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Main Content ──────────────────────────────────────── */}
+      {/* ── Main Content ─────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-4">
 
-        {/* ── Info strip (mobile: horizontal scroll pills) ────── */}
+        {/* Info strip */}
         <div className="flex flex-wrap gap-2 mb-4">
           {cooperative.memberCount && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#F8D197', color: '#455324' }}>
@@ -175,10 +178,8 @@ const CooperativeDetails: React.FC = () => {
           ))}
         </div>
 
-        {/* ── Desktop: 2-col layout / Mobile: stacked ─────────── */}
+        {/* About + Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-
-          {/* Description */}
           <div className="lg:col-span-2 rounded-2xl p-4 sm:p-6" style={{ background: '#fff', border: '1px solid #F0E4CC' }}>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-5 rounded-full" style={{ background: '#CC8F57' }} />
@@ -189,7 +190,6 @@ const CooperativeDetails: React.FC = () => {
             <p className="text-sm leading-relaxed" style={{ color: '#442413' }}>{description}</p>
           </div>
 
-          {/* Location card — hidden on mobile (info already in pills) */}
           <div className="hidden lg:block rounded-2xl p-5" style={{ background: '#fff', border: '1px solid #F0E4CC' }}>
             <h3 className="font-semibold text-sm mb-3" style={{ color: '#455324' }}>
               {t('معلومات التعاونية', 'Cooperative Info')}
@@ -225,7 +225,7 @@ const CooperativeDetails: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Impact — 3 small cards ───────────────────────────── */}
+        {/* Impact cards */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
           {impactItems.map((item) => (
             <div key={item.title} className="rounded-xl p-3 text-center" style={{ background: '#455324' }}>
@@ -237,8 +237,22 @@ const CooperativeDetails: React.FC = () => {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* ── Products ────────────────────────────────────────── */}
+      {/* ══ PACKS — khrjat men padding dyal content ══════════ */}
+      {packs.length > 0 && (
+        <div className="mt-2 mb-2">
+          <PacksSection
+            packs={packs}
+            variant="cooperative"
+            isRtl={isRtl}
+            title={t('عروض الباقات', 'Promo Packs')}
+          />
+        </div>
+      )}
+
+      {/* ══ PRODUCTS ════════════════════════════════════════ */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-1 h-5 rounded-full" style={{ background: '#CC8F57' }} />

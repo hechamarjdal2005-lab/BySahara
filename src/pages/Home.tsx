@@ -5,6 +5,8 @@ import { ArrowRight, ArrowLeft, Truck, ShieldCheck, Users, ChevronLeft, ChevronR
 import ProductCard from '../components/ProductCard';
 import CooperativeCard from '../components/CooperativeCard';
 import CategoriesSection from '../components/CategoriesSection';
+import PacksSection from '../components/PacksSection';
+import { getAllActivePacks } from '../data/packsData';
 import { 
   fetchFeaturedProducts, 
   fetchCooperatives,
@@ -19,6 +21,7 @@ import {
 } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { Product, Cooperative, BilingualText } from '../types';
+import { Pack } from '../types';
 
 // ─── Types for Dynamic Content ──────────────────────────────
 interface HeroSlide {
@@ -143,6 +146,7 @@ const Home: React.FC = () => {
   const [promoBanners, setPromoBanners] = useState<PromoBanner[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [featuredCooperatives, setFeaturedCooperatives] = useState<Cooperative[]>([]);
+  const [packs, setPacks] = useState<Pack[]>([]);
   
   const [loading, setLoading] = useState(true);
 
@@ -178,9 +182,6 @@ const Home: React.FC = () => {
           fetchCooperatives(),
         ]);
 
-        console.log('🔍 Cooperative Ads:', cAds);
-        console.log('🔍 Brand Ads:', bAds);
-
         setHeroSlides(slides);
         setPromotions(promos);
         setCoopAds(cAds);
@@ -191,6 +192,9 @@ const Home: React.FC = () => {
         setPromoBanners(pbns);
         setFeaturedProducts(products);
         setFeaturedCooperatives(cooperatives.slice(0, 3));
+
+        // ── Packs (mock — badlha b Supabase call men ba3d) ──
+        setPacks(getAllActivePacks());
       } catch (err) {
         console.error('Error loading home page:', err);
       } finally {
@@ -258,7 +262,7 @@ const Home: React.FC = () => {
     return coop ? lang(coop.name) : undefined;
   };
 
-  // ─── Get Current Items (with fallbacks) ───────────────────
+  // ─── Get Current Items ────────────────────────────────────
   const current = heroSlides[slide] ?? heroSlides[0] ?? null;
   const promo = promotions[promoCurrent] ?? promotions[0] ?? null;
   const coopAd = coopAds[coopCurrent] ?? coopAds[0] ?? null;
@@ -382,24 +386,24 @@ const Home: React.FC = () => {
       <CategoriesSection />
 
       {/* ══ BEST SELLERS ═════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-10">
-        <div className="flex items-center justify-between mb-5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
+        <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#9FA93D' }}>
               {tr('الأكثر مبيعاً', 'Best Sellers')}
             </p>
-            <h2 className="font-serif text-2xl md:text-3xl font-bold" style={{ color: '#455324' }}>
+            <h2 className="font-serif text-xl md:text-2xl font-bold" style={{ color: '#455324' }}>
               {tr('منتجات مميزة', 'Featured Products')}
             </h2>
           </div>
-          <Link to="/shop" className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-semibold" style={{ color: '#fff', background: '#CC8F57' }}>
+          <Link to="/shop" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ color: '#fff', background: '#CC8F57' }}>
             {tr('عرض الكل', 'View All')}
-            {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+            {isRtl ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
           </Link>
         </div>
 
         {/* Desktop: grid */}
-        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
           {featuredProducts.map(p => (
             <ProductCard key={p.id} product={p} cooperativeName={getCooperativeName(p.cooperativeId)} />
           ))}
@@ -408,25 +412,36 @@ const Home: React.FC = () => {
         {/* Mobile: horizontal scroll */}
         <div className="sm:hidden relative">
           <div ref={productsScrollRef}
-            className="products-scroll flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+            className="products-scroll flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-2">
             {featuredProducts.map(p => (
-              <div key={p.id} className="snap-start flex-shrink-0" style={{ width: '160px' }}>
+              <div key={p.id} className="snap-start flex-shrink-0" style={{ width: '140px' }}>
                 <ProductCard product={p} cooperativeName={getCooperativeName(p.cooperativeId)} />
               </div>
             ))}
           </div>
           <button onClick={() => scrollProducts(isRtl ? 'right' : 'left')}
-            className="absolute start-0 top-1/2 -translate-y-1/2 -translate-x-1 z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
+            className="absolute start-0 top-1/2 -translate-y-1/2 -translate-x-1 z-10 w-6 h-6 rounded-full flex items-center justify-center shadow-md"
             style={{ background: '#fff', color: '#455324', border: '1px solid #F8D197' }}>
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-3 h-3" />
           </button>
           <button onClick={() => scrollProducts(isRtl ? 'left' : 'right')}
-            className="absolute end-0 top-1/2 -translate-y-1/2 translate-x-1 z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
+            className="absolute end-0 top-1/2 -translate-y-1/2 translate-x-1 z-10 w-6 h-6 rounded-full flex items-center justify-center shadow-md"
             style={{ background: '#fff', color: '#455324', border: '1px solid #F8D197' }}>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3 h-3" />
           </button>
         </div>
       </section>
+
+      {/* ══ PROMO PACKS ══════════════════════════════════════ */}
+      {packs.length > 0 && (
+        <div className="mt-6">
+          <PacksSection
+            packs={packs}
+            variant="home"
+            isRtl={isRtl}
+          />
+        </div>
+      )}
 
       {/* ══ PROMO BANNER ══════════════════════════════════════ */}
       {promoBanner && (
@@ -570,12 +585,10 @@ const Home: React.FC = () => {
               <h2 className="font-serif text-2xl md:text-3xl font-bold mb-2" style={{ color: '#455324' }}>{tr('التعاونيات المميزة', 'Featured Cooperatives')}</h2>
             </div>
 
-            {/* Desktop: 3 cards grid */}
             <div className="hidden sm:grid sm:grid-cols-3 gap-6">
               {featuredCooperatives.map(c => <CooperativeCard key={c.id} cooperative={c} />)}
             </div>
 
-            {/* Mobile: horizontal scroll */}
             <div className="sm:hidden flex gap-3 overflow-x-auto products-scroll snap-x snap-mandatory pb-2">
               {featuredCooperatives.map(c => (
                 <div key={c.id} className="snap-start flex-shrink-0" style={{ width: '240px' }}>
@@ -625,11 +638,7 @@ const Home: React.FC = () => {
           <div className="relative overflow-hidden" style={{ maskImage: 'linear-gradient(to right,transparent,black 10%,black 90%,transparent)' }}>
             <div 
               className={`flex gap-6 w-max ${isRtl ? 'marquee-track-rtl' : 'marquee-track'}`}
-              style={{ 
-                margin: '0 auto',
-                paddingLeft: '50%',
-                paddingRight: '50%',
-              }}
+              style={{ margin: '0 auto', paddingLeft: '50%', paddingRight: '50%' }}
             >
               {[...partners, ...partners].map((p, i) => (
                 <div key={`${p.id}-${i}`} className="flex flex-col items-center gap-2 flex-shrink-0" style={{ width: '110px' }}>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSiteConfig } from '../context/SiteConfigContext';
 
 const DocumentTitle: React.FC = () => {

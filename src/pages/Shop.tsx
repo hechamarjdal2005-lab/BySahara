@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { Search, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import PacksSection from '../components/PacksSection';
+import { getAllActivePacks } from '../data/packsData';
 import { fetchProducts, fetchCooperatives, fetchCategories } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { CategoryId, Product, Cooperative, Category } from '../types';
+import { Pack } from '../types';
 
 // ── Category Icons ────────────────────────────────────────────
 const CategoryIcon: React.FC<{ id: string; className?: string }> = ({ id, className = 'w-6 h-6' }) => {
@@ -31,7 +34,6 @@ type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating';
 const CATS_INITIAL     = 5;
 const PRODUCTS_INITIAL = 6;
 
-// ── Colors ────────────────────────────────────────────────────
 const G = {
   outerBg:      '#4e6e1e',
   cardBg:       '#5d7f28',
@@ -42,54 +44,52 @@ const G = {
   normalText:   '#ffffff',
 };
 
-// ── Mobile tile (uniform grid) ────────────────────────────────
 const MobileTile: React.FC<{ id: string; name: string; count: number; active: boolean; onClick: () => void }> = ({ id, name, count, active, onClick }) => (
   <button
     onClick={onClick}
-    className="flex flex-col items-center justify-center gap-1.5 rounded-xl transition-all duration-200 active:scale-95 py-3 px-1"
+    className="flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 active:scale-95 py-2 px-1"
     style={{
       background:  active ? G.activeCard : G.cardBg,
-      border:      active ? `2.5px solid ${G.activeBorder}` : '2px solid rgba(255,255,255,0.08)',
-      minHeight:   '72px',
-      boxShadow:   active ? '0 4px 16px rgba(0,0,0,0.18)' : 'none',
+      border:      active ? `2px solid ${G.activeBorder}` : '1.5px solid rgba(255,255,255,0.08)',
+      minHeight:   '58px',
+      boxShadow:   active ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
     }}
     onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = G.cardHover; }}
     onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = G.cardBg; }}
   >
     <span style={{ color: active ? G.activeText : G.normalText }}>
-      {id === 'all' ? <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>🌿</span> : <CategoryIcon id={id} className="w-6 h-6" />}
+      {id === 'all' ? <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>🌿</span> : <CategoryIcon id={id} className="w-5 h-5" />}
     </span>
-    <span className="font-semibold leading-tight text-center" style={{ fontSize: '0.65rem', color: active ? G.activeText : G.normalText, maxWidth: '72px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={name}>
+    <span className="font-semibold leading-tight text-center" style={{ fontSize: '0.58rem', color: active ? G.activeText : G.normalText, maxWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={name}>
       {name}
     </span>
-    <span style={{ fontSize: '0.6rem', color: active ? '#617131' : 'rgba(255,255,255,0.55)' }}>{count}</span>
+    <span style={{ fontSize: '0.55rem', color: active ? '#617131' : 'rgba(255,255,255,0.55)' }}>{count}</span>
   </button>
 );
 
-// ── Desktop card (horizontal scroll) ─────────────────────────
 const DesktopCard: React.FC<{ id: string; name: string; count: number; active: boolean; onClick: () => void }> = ({ id, name, count, active, onClick }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-200 flex-shrink-0"
+    className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 flex-shrink-0"
     style={{
       background: active ? 'linear-gradient(135deg, #455324 0%, #617131 100%)' : '#F7F1E8',
       border: active ? '1.5px solid #455324' : '1.5px solid #EDD9AA',
-      boxShadow: active ? '0 4px 14px rgba(69,83,36,0.25)' : 'none',
-      minWidth: id === 'all' ? '120px' : '140px',
+      boxShadow: active ? '0 2px 8px rgba(69,83,36,0.20)' : 'none',
+      minWidth: id === 'all' ? '80px' : '110px',
     }}
     onMouseEnter={(e) => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#F0E4CC'; (e.currentTarget as HTMLElement).style.borderColor = '#CC8F57'; } }}
     onMouseLeave={(e) => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#F7F1E8'; (e.currentTarget as HTMLElement).style.borderColor = '#EDD9AA'; } }}
   >
-    <span className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-      style={{ background: active ? 'rgba(255,255,255,0.18)' : (id === 'all' ? '#EDD9AA' : '#fff'), color: active ? '#fff' : '#617131', boxShadow: active ? 'none' : '0 1px 4px rgba(0,0,0,0.06)' }}>
-      {id === 'all' ? <span style={{ fontSize: '1.4rem' }}>🌿</span> : <CategoryIcon id={id} className="w-7 h-7" />}
+    <span className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+      style={{ background: active ? 'rgba(255,255,255,0.18)' : (id === 'all' ? '#EDD9AA' : '#fff'), color: active ? '#fff' : '#617131' }}>
+      {id === 'all' ? <span style={{ fontSize: '1rem' }}>🌿</span> : <CategoryIcon id={id} className="w-4 h-4" />}
     </span>
     <div className="text-start">
-      <p className="text-xs font-bold leading-tight" style={{ color: active ? '#fff' : '#455324', maxWidth: '90px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={name}>
+      <p className="font-bold leading-tight" style={{ fontSize: '0.7rem', color: active ? '#fff' : '#455324', maxWidth: '75px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={name}>
         {name}
       </p>
-      <p className="text-xs leading-tight mt-0.5" style={{ color: active ? 'rgba(255,255,255,0.7)' : '#BA8944' }}>
-        {count} {id === 'all' ? 'items' : 'items'}
+      <p style={{ fontSize: '0.6rem', color: active ? 'rgba(255,255,255,0.7)' : '#BA8944' }}>
+        {count} items
       </p>
     </div>
   </button>
@@ -103,21 +103,21 @@ const Shop: React.FC = () => {
   const isRtl = language === 'ar';
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
 
-  // ─── State for Dynamic Data ─────────────────────────────────
+  // ─── State ──────────────────────────────────────────────────
   const [products, setProducts] = useState<Product[]>([]);
   const [cooperatives, setCooperatives] = useState<Cooperative[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [packs, setPacks] = useState<Pack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── UI State ───────────────────────────────────────────────
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | 'all'>('all');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortOption>('default');
   const [showAllCats, setShowAllCats] = useState(false);
   const [showAllProds, setShowAllProds] = useState(false);
 
-  // ─── Fetch Data on Mount ────────────────────────────────────
+  // ─── Fetch Data ─────────────────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -130,6 +130,7 @@ const Shop: React.FC = () => {
         setProducts(productsData);
         setCooperatives(cooperativesData);
         setCategories(categoriesData);
+        setPacks(getAllActivePacks());
         setError(null);
       } catch (err) {
         console.error('Error loading shop data:', err);
@@ -141,7 +142,7 @@ const Shop: React.FC = () => {
     loadData();
   }, []);
 
-  // ─── Handle URL Category Parameter ──────────────────────────
+  // ─── Handle URL Category ─────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cat = params.get('category');
@@ -159,16 +160,22 @@ const Shop: React.FC = () => {
     }
   }, [location.search, categories]);
 
-  // ─── Reset "Show All" on Filter Change ──────────────────────
+  // ─── Scroll to packs anchor from Home ────────────────────────
+  useEffect(() => {
+    if (location.hash === '#packs') {
+      setTimeout(() => {
+        document.getElementById('packs')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  }, [location.hash]);
+
   useEffect(() => { setShowAllProds(false); }, [selectedCategory, search, sort]);
 
-  // ─── Helpers ────────────────────────────────────────────────
   const getCategoryCount = (categoryId: CategoryId | 'all') => {
     if (categoryId === 'all') return products.length;
     return products.filter(p => p.category === categoryId).length;
   };
 
-  // ─── Filter & Sort Products ─────────────────────────────────
   const filtered = products
     .filter((p) => selectedCategory === 'all' || p.category === selectedCategory)
     .filter((p) => {
@@ -188,7 +195,7 @@ const Shop: React.FC = () => {
   const shownProds = showAllProds ? filtered : filtered.slice(0, PRODUCTS_INITIAL);
   const hasMoreProds = filtered.length > PRODUCTS_INITIAL;
 
-  // ─── Loading State ──────────────────────────────────────────
+  // ─── Loading ─────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
@@ -200,17 +207,12 @@ const Shop: React.FC = () => {
     );
   }
 
-  // ─── Error State ────────────────────────────────────────────
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#FDFAF5' }}>
         <div className="text-center max-w-md">
           <p className="text-red-600 font-semibold mb-2">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 rounded-lg text-sm font-medium"
-            style={{ background: '#455324', color: '#fff' }}
-          >
+          <button onClick={() => window.location.reload()} className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: '#455324', color: '#fff' }}>
             {tr('إعادة المحاولة', 'Retry')}
           </button>
         </div>
@@ -218,17 +220,17 @@ const Shop: React.FC = () => {
     );
   }
 
-  // ─── Main Render ────────────────────────────────────────────
+  // ─── Main Render ─────────────────────────────────────────────
   return (
     <div className="min-h-screen pb-20" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
       {/* ── Header ──────────────────────────────────────────── */}
       <div style={{ background: 'linear-gradient(135deg, #455324 0%, #617131 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-7 sm:py-10">
-          <p className="uppercase tracking-widest text-xs font-semibold mb-1" style={{ color: '#9FA93D' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-5 sm:py-7">
+          <p className="uppercase tracking-widest text-xs font-semibold mb-0.5" style={{ color: '#9FA93D' }}>
             {tr('تعاونيات كلميم-واد نون', 'Guelmim-Oued Noun Cooperatives')}
           </p>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-4 sm:mb-5">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white mb-3">
             {tr('تسوق المنتجات', 'Shop Products')}
           </h1>
           <div className="relative max-w-md">
@@ -236,7 +238,7 @@ const Shop: React.FC = () => {
             <input
               type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder={tr('ابحث عن منتج...', 'Search products...')}
-              className="w-full ps-10 pe-10 py-2.5 sm:py-3 rounded-xl text-sm outline-none"
+              className="w-full ps-10 pe-10 py-2 rounded-xl text-sm outline-none"
               style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)' }}
             />
             {search && (
@@ -248,38 +250,36 @@ const Shop: React.FC = () => {
         </div>
       </div>
 
-      {/* ── CATEGORIES — MOBILE: green grid ─────────────────── */}
-      <div className="sm:hidden px-4 py-4">
-        <div className="rounded-2xl p-3" style={{ background: G.outerBg }}>
-          <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+      {/* ── CATEGORIES — MOBILE ──────────────────────────────── */}
+      <div className="sm:hidden px-3 py-3">
+        <div className="rounded-xl p-2" style={{ background: G.outerBg }}>
+          <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
             <MobileTile id="all" name={tr('الكل', 'Tous')} count={getCategoryCount('all')} active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
             {visibleCats.map((cat) => (
               <MobileTile key={cat.id} id={cat.id} name={isRtl ? cat.name.ar : cat.name.en} count={getCategoryCount(cat.id as CategoryId)} active={selectedCategory === cat.id} onClick={() => setSelectedCategory(cat.id as CategoryId)} />
             ))}
           </div>
           {hasMoreCats && (
-            <div className="flex justify-center mt-3">
+            <div className="flex justify-center mt-2">
               <button onClick={() => setShowAllCats((v) => !v)}
-                className="inline-flex items-center gap-2 px-6 py-2 rounded-full font-bold text-sm active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #e8943a, #d4791f)', color: '#fff', boxShadow: '0 4px 14px rgba(232,148,58,0.45)' }}>
-                {showAllCats ? tr('عرض أقل', 'Voir Moins') : tr('عرض المزيد', 'Voir Plus')}
-                {showAllCats ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-xs active:scale-95"
+                style={{ background: 'linear-gradient(135deg, #e8943a, #d4791f)', color: '#fff' }}>
+                {showAllCats ? tr('أقل', 'Less') : tr('المزيد', 'More')}
+                {showAllCats ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* ── CATEGORIES — DESKTOP: sticky horizontal scroll ───── */}
+      {/* ── CATEGORIES — DESKTOP ─────────────────────────────── */}
       <div className="hidden sm:block sticky top-16 z-40"
-        style={{ background: '#fff', borderBottom: '1.5px solid #F0E4CC', boxShadow: '0 4px 16px rgba(69,83,36,0.07)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4">
+        style={{ background: '#fff', borderBottom: '1.5px solid #F0E4CC', boxShadow: '0 2px 8px rgba(69,83,36,0.06)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-2.5">
           <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            <div className="flex items-center gap-3 min-w-max">
-              {/* All */}
+            <div className="flex items-center gap-2 min-w-max">
               <DesktopCard id="all" name={tr('الكل', 'All')} count={getCategoryCount('all')} active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
-              <div className="w-px h-14 flex-shrink-0" style={{ background: '#EDD9AA' }} />
-              {/* Cats */}
+              <div className="w-px h-8 flex-shrink-0" style={{ background: '#EDD9AA' }} />
               {categories.map((cat) => (
                 <DesktopCard key={cat.id} id={cat.id} name={isRtl ? cat.name.ar : cat.name.en} count={getCategoryCount(cat.id as CategoryId)} active={selectedCategory === cat.id} onClick={() => setSelectedCategory(cat.id as CategoryId)} />
               ))}
@@ -288,8 +288,32 @@ const Shop: React.FC = () => {
         </div>
       </div>
 
-      {/* ── PRODUCTS ────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-8">
+      {/* ══ PROMO PACKS — itl3o lwlin qbl les produits ══════ */}
+      {packs.length > 0 && (
+        <div className="mt-6">
+          <PacksSection
+            packs={packs}
+            variant="shop"
+            isRtl={isRtl}
+          />
+        </div>
+      )}
+
+      {/* ── Divider ──────────────────────────────────────────── */}
+      {packs.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-2 mb-2">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-px" style={{ background: '#F0E4CC' }} />
+            <span className="text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full" style={{ color: '#BA8944', background: '#FDF6EC' }}>
+              {tr('جميع المنتجات', 'All Products')}
+            </span>
+            <div className="flex-1 h-px" style={{ background: '#F0E4CC' }} />
+          </div>
+        </div>
+      )}
+
+      {/* ══ PRODUCTS ════════════════════════════════════════ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-6">
 
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-4 sm:mb-6 gap-3 flex-wrap">
@@ -317,8 +341,7 @@ const Shop: React.FC = () => {
 
         {filtered.length > 0 ? (
           <>
-            {/* Mobile: 2 cols | Desktop: 4 cols */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 mb-5 sm:mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 mb-5 sm:mb-8">
               {shownProds.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
