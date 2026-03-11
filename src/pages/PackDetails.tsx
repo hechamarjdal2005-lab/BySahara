@@ -5,10 +5,12 @@ import { ArrowLeft, ArrowRight, ShoppingCart, Tag, Gift, Package2, Users, Truck,
 import { getAllActivePacks } from "../data/packsData";
 import { Pack } from "../types";
 import { useLanguage } from "../context/LanguageContext";
+import { useCart } from "../context/CartContext"; // ✅ JDID
 
 export default function PackDetails() {
   const { id } = useParams<{ id: string }>();
   const { language } = useLanguage();
+  const { addPackToCart } = useCart(); // ✅ JDID
   const isRtl = language === "ar";
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
 
@@ -58,8 +60,11 @@ export default function PackDetails() {
   };
   const badgeStyle = pack.badge ? BADGE_STYLES[pack.badge] ?? { background: "#617131", color: "#fff" } : null;
 
+  // ✅ FIX: real addPackToCart avec qty
   const handleAddToCart = () => {
-    // integrate with your CartContext here
+    for (let i = 0; i < qty; i++) {
+      addPackToCart(pack);
+    }
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -103,7 +108,6 @@ export default function PackDetails() {
                 alt={displayName}
                 className="w-full h-full object-cover"
               />
-              {/* Gradient */}
               <div
                 className="absolute inset-0"
                 style={{
@@ -131,7 +135,6 @@ export default function PackDetails() {
                 </span>
               </div>
 
-              {/* Cooperative name bottom */}
               {pack.cooperative_name && (
                 <div className="absolute bottom-4 start-4">
                   <span
@@ -168,7 +171,6 @@ export default function PackDetails() {
           {/* ══ RIGHT — Details ═══════════════════════════════ */}
           <div className="flex flex-col gap-5">
 
-            {/* Title + description */}
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#9FA93D" }}>
                 {tr("باقة برومو", "Promo Pack")}
@@ -206,16 +208,11 @@ export default function PackDetails() {
 
               <div className="px-4 py-3 flex flex-col gap-3">
                 {visibleItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between"
-                  >
+                  <div key={idx} className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <div
                         className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{
-                          background: item.is_free ? "#9FA93D20" : "#F8D19740",
-                        }}
+                        style={{ background: item.is_free ? "#9FA93D20" : "#F8D19740" }}
                       >
                         {item.is_free ? (
                           <Gift size={14} style={{ color: "#617131" }} />
@@ -228,7 +225,7 @@ export default function PackDetails() {
                           className="text-sm font-semibold"
                           style={{ color: item.is_free ? "#455324" : "#442413" }}
                         >
-                          {item.product_name}
+                          {isRtl && item.product_name_ar ? item.product_name_ar : item.product_name}
                           {item.is_free && (
                             <span
                               className="ms-2 text-xs font-bold px-1.5 py-0.5 rounded-full"
@@ -314,7 +311,6 @@ export default function PackDetails() {
 
             {/* ── Qty + Add to cart ── */}
             <div className="flex items-center gap-3">
-              {/* Qty selector */}
               <div
                 className="flex items-center rounded-xl overflow-hidden"
                 style={{ border: "1.5px solid #F0E4CC", background: "#fff" }}
@@ -345,7 +341,6 @@ export default function PackDetails() {
                 </button>
               </div>
 
-              {/* Add to cart */}
               <button
                 onClick={handleAddToCart}
                 disabled={pack.stock === 0}
@@ -375,7 +370,6 @@ export default function PackDetails() {
               </button>
             </div>
 
-            {/* Stock warning */}
             {pack.stock !== undefined && pack.stock > 0 && pack.stock <= 5 && (
               <p className="text-xs font-semibold" style={{ color: "#c0392b" }}>
                 ⚠️ {isRtl ? `${pack.stock} قطع فقط متبقية!` : `Only ${pack.stock} left in stock!`}

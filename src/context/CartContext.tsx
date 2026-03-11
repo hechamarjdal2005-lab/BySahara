@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CartItem, Product, VolumeOption } from '../types';
+import { CartItem, Product, VolumeOption, Pack } from '../types';
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product, volume?: VolumeOption) => void;
-  removeFromCart: (productId: string, volumeKey?: string) => void;
-  updateQuantity: (productId: string, quantity: number, volumeKey?: string) => void;
+  addPackToCart: (pack: Pack) => void;
+  removeFromCart: (cartKey: string) => void;
+  updateQuantity: (cartKey: string, quantity: number) => void;
   clearCart: () => void;
   total: number;
   itemCount: number;
@@ -13,79 +14,104 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// ── Unique key: product + volume (bach nfriqu items f cart) ──────
 const makeKey = (productId: string, volume?: VolumeOption) =>
   volume ? `${productId}__${volume.value}${volume.unit}` : productId;
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const savedCart = localStorage.getItem('cart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    try {
+      const saved = localStorage.getItem('bysahara_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('bysahara_cart', JSON.stringify(cart));
   }, [cart]);
 
-  // ── addToCart ─────────────────────────────────────────────────
+  // ── addToCart (products) ──────────────────────────────────────
   const addToCart = (product: Product, volume?: VolumeOption) => {
-    setCart((prevCart) => {
+    setCart((prev) => {
       const key = makeKey(product.id, volume);
-      const existingItem = prevCart.find((item) => item.cartKey === key);
-
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.cartKey === key ? { ...item, quantity: item.quantity + 1 } : item
+      const exists = prev.find((i) => i.cartKey === key);
+      if (exists) {
+        return prev.map((i) =>
+          i.cartKey === key ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
-
-      // Prix = volume price ila mwjoud, sinon product.price
       const price = volume ? volume.price : product.price;
-
       return [
-        ...prevCart,
+        ...prev,
         {
-          ...product,
+          cartKey: key,
+          type: 'product' as const,
+          id: product.id,
+          name: product.name,
+          image: product.image,
+          category: product.category,
+          price,
           quantity: 1,
-          price,                   // prix overridé selon volume
-          cartKey: key,            // unique key bach nidentifiw l'item
-          selectedVolume: volume,  // volume mkhtar
+          selectedVolume: volume,
+          product,
+        },
+      ];
+    });
+  };
+
+  // ── addPackToCart (packs) ─────────────────────────────────────
+  const addPackToCart = (pack: Pack) => {
+    setCart((prev) => {
+      const key = `pack__${pack.id}`;
+      const exists = prev.find((i) => i.cartKey === key);
+      if (exists) {
+        return prev.map((i) =>
+          i.cartKey === key ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      }
+      return [
+        ...prev,
+        {
+          cartKey: key,
+          type: 'pack' as const,
+          id: pack.id,
+          name: { en: pack.name, ar: pack.name_ar ?? pack.name },
+          image: pack.image_url ?? '',
+          category: 'pack',
+          price: pack.pack_price,
+          quantity: 1,
+          pack,
         },
       ];
     });
   };
 
   // ── removeFromCart ────────────────────────────────────────────
-  const removeFromCart = (productId: string, volumeKey?: string) => {
-    setCart((prevCart) =>
-      prevCart.filter((item) => item.cartKey !== (volumeKey ?? productId))
-    );
+  const removeFromCart = (cartKey: string) => {
+    setCart((prev) => prev.filter((i) => i.cartKey !== cartKey));
   };
 
   // ── updateQuantity ────────────────────────────────────────────
-  const updateQuantity = (productId: string, quantity: number, volumeKey?: string) => {
+  const updateQuantity = (cartKey: string, quantity: number) => {
     if (quantity < 1) {
-      removeFromCart(productId, volumeKey);
+      removeFromCart(cartKey);
       return;
     }
-    const key = volumeKey ?? productId;
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.cartKey === key ? { ...item, quantity } : item
-      )
+    setCart((prev) =>
+      prev.map((i) => (i.cartKey === cartKey ? { ...i, quantity } : i))
     );
   };
 
   // ── clearCart ─────────────────────────────────────────────────
   const clearCart = () => setCart([]);
 
-  // ── Totals (prix déjà overridé f addToCart) ───────────────────
-  const total     = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const itemCount = cart.reduce((s, i) => s + i.quantity, 0);
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, total, itemCount }}
+      value={{ cart, addToCart, addPackToCart, removeFromCart, updateQuantity, clearCart, total, itemCount }}
     >
       {children}
     </CartContext.Provider>
@@ -93,7 +119,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) throw new Error('useCart must be used within a CartProvider');
-  return context;
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error('useCart must be used within a CartProvider');
+  return ctx;
 };

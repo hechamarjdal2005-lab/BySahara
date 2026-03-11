@@ -3,6 +3,7 @@ import React from "react";
 import { Pack } from "../types";
 import { ShoppingCart, Tag, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 interface PackCardProps {
   pack: Pack;
@@ -19,18 +20,20 @@ const BADGE_STYLES: Record<string, { background: string; color: string }> = {
 
 export default function PackCard({ pack, compact = false, isRtl = false }: PackCardProps) {
   const navigate = useNavigate();
+  const { addPackToCart } = useCart();
+
   const tr = (ar: string | undefined, en: string | undefined, fallback = "") =>
     isRtl ? (ar ?? fallback) : (en ?? fallback);
 
-  const displayName  = tr(pack.name_ar,  pack.name,  pack.name);
+  const displayName  = tr(pack.name_ar, pack.name, pack.name);
   const displayBadge = tr(pack.badge_ar, pack.badge, "");
   const badgeStyle   = pack.badge ? BADGE_STYLES[pack.badge] ?? { background: "#617131", color: "#fff" } : null;
   const discountPct  = Math.round((pack.savings / pack.total_original_price) * 100);
   const fallbackImg  = pack.image_url ?? "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=600&q=80";
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // mashi navigate — ghir add to cart
-    console.log("Add pack to cart:", pack.id);
+    e.stopPropagation();
+    addPackToCart(pack); // ✅ real add to cart
   };
 
   return (
@@ -101,7 +104,7 @@ export default function PackCard({ pack, compact = false, isRtl = false }: PackC
                 className="text-xs"
                 style={{ color: item.is_free ? "#455324" : "#442413", fontWeight: item.is_free ? 600 : 400 }}
               >
-                {item.product_name}
+                {isRtl && item.product_name_ar ? item.product_name_ar : item.product_name}
                 {item.unit && (
                   <span className="ms-0.5" style={{ color: "#BA8944" }}>({item.unit})</span>
                 )}

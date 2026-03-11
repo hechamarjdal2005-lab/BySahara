@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, ArrowRight, ShoppingBag, Minus, Plus } from 'lucide-react';
+import { Trash2, ArrowRight, ShoppingBag, Minus, Plus, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -58,7 +58,7 @@ const Cart: React.FC = () => {
             {t('cart.eyebrow', 'Review your order')}
           </p>
           <h1 className="font-serif text-4xl font-bold text-white">
-            {t('cart.title', 'Shopping Cart')}
+            {t('cart.title', 'Your Cart')}
           </h1>
         </div>
       </div>
@@ -67,81 +67,142 @@ const Cart: React.FC = () => {
 
         {/* ── Cart Items ──────────────────────────────────────── */}
         <div className="lg:col-span-2 space-y-4">
-          {cart.map((item) => (
-            <div
-              key={item.id}
-              className="flex gap-4 p-4 rounded-2xl shadow-sm transition-shadow hover:shadow-md"
-              style={{ background: '#fff', border: '1px solid #F8D197' }}
-            >
-              <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={isRtl ? item.name.ar : item.name.en}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-grow flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-base leading-tight mb-1" style={{ color: '#455324' }}>
-                      {isRtl ? item.name.ar : item.name.en}
-                    </h3>
-                    <span
-                      className="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
-                      style={{ background: '#F8D197', color: '#763C19' }}
+          {cart.map((item) => {
+            const displayName = isRtl
+              ? (item.name?.ar ?? '')
+              : (item.name?.en ?? '');
+            const isPack = item.type === 'pack';
+
+            return (
+              <div
+                key={item.cartKey}
+                className="flex gap-4 p-4 rounded-2xl shadow-sm transition-shadow hover:shadow-md"
+                style={{ background: '#fff', border: `1px solid ${isPack ? '#9FA93D40' : '#F8D197'}` }}
+              >
+                {/* image */}
+                <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center"
+                      style={{ background: '#F8D197' }}
                     >
-                      {item.category}
+                      <Package className="w-8 h-8" style={{ color: '#455324' }} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-grow flex flex-col justify-between">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-base leading-tight mb-1" style={{ color: '#455324' }}>
+                        {displayName}
+                      </h3>
+
+                      {/* badge: pack vs product category */}
+                      {isPack ? (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          <span
+                            className="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
+                            style={{ background: '#9FA93D20', color: '#617131' }}
+                          >
+                            🎁 {tr('باك', 'Pack')}
+                          </span>
+                          {item.pack?.cooperative_name && (
+                            <span
+                              className="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
+                              style={{ background: '#F8D197', color: '#763C19' }}
+                            >
+                              {item.pack.cooperative_name}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span
+                          className="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
+                          style={{ background: '#F8D197', color: '#763C19' }}
+                        >
+                          {item.category}
+                        </span>
+                      )}
+
+                      {/* pack items preview */}
+                      {isPack && item.pack && (
+                        <div className="mt-2 space-y-0.5">
+                          {item.pack.items.slice(0, 3).map((pi, idx) => (
+                            <p key={idx} className="text-xs" style={{ color: '#BA8944' }}>
+                              · {isRtl && pi.product_name_ar ? pi.product_name_ar : pi.product_name}
+                              {pi.unit && ` (${pi.unit})`}
+                              {pi.is_free && (
+                                <span className="ms-1 font-semibold" style={{ color: '#617131' }}>FREE</span>
+                              )}
+                            </p>
+                          ))}
+                          {item.pack.items.length > 3 && (
+                            <p className="text-xs" style={{ color: '#BA8944' }}>
+                              +{item.pack.items.length - 3} {tr('منتجات أخرى', 'more items')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => removeFromCart(item.cartKey)}
+                      className="p-1.5 rounded-lg transition-colors hover:bg-red-50"
+                      style={{ color: '#BA8944' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#BA8944')}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex justify-between items-center mt-3">
+                    <div
+                      className="flex items-center rounded-xl overflow-hidden"
+                      style={{ border: '1.5px solid #F8D197' }}
+                    >
+                      <button
+                        onClick={() => updateQuantity(item.cartKey, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                        className="w-8 h-8 flex items-center justify-center transition-colors disabled:opacity-30"
+                        style={{ color: '#455324' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span
+                        className="w-8 h-8 flex items-center justify-center text-sm font-bold"
+                        style={{ color: '#455324', borderLeft: '1px solid #F8D197', borderRight: '1px solid #F8D197' }}
+                      >
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.cartKey, item.quantity + 1)}
+                        className="w-8 h-8 flex items-center justify-center transition-colors"
+                        style={{ color: '#455324' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <span className="font-bold text-lg" style={{ color: '#455324' }}>
+                      {(item.price * item.quantity).toFixed(2)}
+                      <span className="text-xs font-normal ms-1" style={{ color: '#CC8F57' }}>MAD</span>
                     </span>
                   </div>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="p-1.5 rounded-lg transition-colors hover:bg-red-50"
-                    style={{ color: '#BA8944' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#BA8944')}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="flex justify-between items-center mt-3">
-                  <div
-                    className="flex items-center rounded-xl overflow-hidden"
-                    style={{ border: '1.5px solid #F8D197' }}
-                  >
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
-                      className="w-8 h-8 flex items-center justify-center transition-colors disabled:opacity-30"
-                      style={{ color: '#455324' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span
-                      className="w-8 h-8 flex items-center justify-center text-sm font-bold"
-                      style={{ color: '#455324', borderLeft: '1px solid #F8D197', borderRight: '1px solid #F8D197' }}
-                    >
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center transition-colors"
-                      style={{ color: '#455324' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#F8D197')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                  <span className="font-bold text-lg" style={{ color: '#455324' }}>
-                    {(item.price * item.quantity).toFixed(2)}
-                    <span className="text-xs font-normal ms-1" style={{ color: '#CC8F57' }}>MAD</span>
-                  </span>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* clear cart */}
           <div className="text-end pt-1">
@@ -199,7 +260,7 @@ const Cart: React.FC = () => {
               {cart.length} {t('cart.items', 'items in your order')}
             </div>
 
-            {/* ✅ Cash on delivery badge — NOUVEAU */}
+            {/* Cash on delivery badge */}
             <div
               className="flex items-center justify-center gap-2 py-2.5 rounded-xl mb-4"
               style={{ background: '#9FA93D15', border: '1px dashed #617131' }}

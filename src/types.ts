@@ -30,10 +30,10 @@ export interface Category {
 
 // ─── Volume Option ────────────────────────────────────────────────
 export interface VolumeOption {
-  label: BilingualText;   // ex: { en: '250ml', ar: '250مل' }
-  value: number;          // ex: 250  (always in base unit: ml, g, etc.)
-  unit: string;           // ex: 'ml' | 'g' | 'kg' | 'L'
-  price: number;          // prix spécifique à ce volume
+  label: BilingualText;
+  value: number;
+  unit: string;
+  price: number;
 }
 
 // ─── Product ─────────────────────────────────────────────────────
@@ -79,11 +79,55 @@ export interface Cooperative {
   categories?: CategoryId[];
 }
 
-// ─── Cart ────────────────────────────────────────────────────────
-export interface CartItem {
-  product: Product;
+// ─── Pack ────────────────────────────────────────────────────────
+export interface PackItem {
+  product_id: string;
+  product_name: string;
+  product_name_ar?: string;
   quantity: number;
+  unit?: string;
+  is_free: boolean;
+  original_price: number;
+  pack_price: number;
+}
+
+export interface Pack {
+  id: string;
+  cooperative_id: string;
+  cooperative_name?: string;
+  name: string;
+  name_ar?: string;
+  description?: string;
+  description_ar?: string;
+  items: PackItem[];
+  total_original_price: number;
+  pack_price: number;
+  savings: number;
+  badge?: string;
+  badge_ar?: string;
+  image_url?: string;
+  is_active: boolean;
+  stock?: number;
+  created_at?: string;
+}
+
+// ─── Cart ────────────────────────────────────────────────────────
+export type CartItemType = 'product' | 'pack';
+
+export interface CartItem {
+  cartKey: string;
+  type: CartItemType;
+  id: string;
+  name: BilingualText;
+  image: string;
+  category: string;
+  price: number;
+  quantity: number;
+  // product-only
   selectedVolume?: VolumeOption;
+  product?: Product;
+  // pack-only
+  pack?: Pack;
 }
 
 export interface Cart {
@@ -92,7 +136,7 @@ export interface Cart {
   itemCount: number;
 }
 
-// ─── Filters (for Shop page) ─────────────────────────────────────
+// ─── Filters ─────────────────────────────────────────────────────
 export interface ShopFilters {
   category?: CategoryId | 'all';
   cooperativeId?: string;
@@ -114,7 +158,7 @@ export interface Review {
   date: string;
 }
 
-// ─── Page Content Types (for dynamic CMS sections) ───────────────
+// ─── Page Content Types ───────────────────────────────────────────
 export interface PageSection {
   id: string;
   section_key: string;
@@ -135,38 +179,4 @@ export interface PageStat {
   label: BilingualText;
   order_index: number;
   is_active: boolean;
-}
-// ============================================================
-// AJOUT F types.ts — zd had les types l schema dyal types.ts
-// ============================================================
-
-export interface PackItem {
-  product_id: string;
-  product_name: string;
-  product_name_ar?: string;
-  quantity: number;
-  unit?: string; // "50ml", "250g", etc.
-  is_free: boolean;         // true => hada l produit gratuit
-  original_price: number;   // prix normal
-  pack_price: number;       // prix f l pack (0 ila gratuit)
-}
-
-export interface Pack {
-  id: string;
-  cooperative_id: string;
-  cooperative_name?: string;
-  name: string;
-  name_ar?: string;
-  description?: string;
-  description_ar?: string;
-  items: PackItem[];        // liste des produits f l pack
-  total_original_price: number;  // sum des prix normaux
-  pack_price: number;            // prix final l pack
-  savings: number;               // total_original_price - pack_price
-  badge?: string;               // "Best Value" | "Limited" | "New"
-  badge_ar?: string;
-  image_url?: string;
-  is_active: boolean;
-  stock?: number;               // ila 0 => sold out
-  created_at?: string;
 }
