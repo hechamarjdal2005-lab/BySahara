@@ -1,3 +1,4 @@
+import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import AdminLayout from './AdminLayout'
 import LoginPage from './auth/LoginPage'
@@ -10,6 +11,8 @@ import MediaPage from './pages/MediaPage'
 import PartnersPage from './pages/PartnersPage'
 import ContentPage from './pages/ContentPage'
 import FooterPage from './pages/FooterPage'
+import PacksPage from './pages/PacksPage'
+import MessagesPage from './pages/MessagesPage'
 import SettingsPage from './pages/SettingsPage'
 
 export default function AdminApp() {
@@ -31,6 +34,8 @@ export default function AdminApp() {
         <Route path="media" element={<MediaPage />} />
         <Route path="partners" element={<PartnersPage />} />
         <Route path="content" element={<ContentPage />} />
+        <Route path="packs" element={<PacksPage />} />
+        <Route path="messages" element={<MessagesPage />} />
         <Route path="footer" element={<FooterPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
