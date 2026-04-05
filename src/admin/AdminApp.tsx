@@ -12,6 +12,7 @@ import MediaPage from './pages/MediaPage'
 import PartnersPage from './pages/PartnersPage'
 import ContentPage from './pages/ContentPage'
 import FooterPage from './pages/FooterPage'
+import OrdersPage from './pages/OrdersPage'
 import PacksPage from './pages/PacksPage'
 import MessagesPage from './pages/MessagesPage'
 import SettingsPage from './pages/SettingsPage'
@@ -35,6 +36,7 @@ export default function AdminApp() {
         <Route path="media" element={<MediaPage />} />
         <Route path="partners" element={<PartnersPage />} />
         <Route path="content" element={<ContentPage />} />
+        <Route path="orders" element={<OrdersPage />} />
         <Route path="packs" element={<PacksPage />} />
         <Route path="messages" element={<MessagesPage />} />
         <Route path="footer" element={<FooterPage />} />

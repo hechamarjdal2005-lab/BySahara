@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 
 const NAV = [
   { label: 'Tableau de bord', icon: '▦', path: '/admin', end: true },
+  { label: 'Commandes', icon: '🛍️', path: '/admin/orders', badge: true },
   { label: 'Produits', icon: '◈', path: '/admin/products' },
   { label: 'Catégories', icon: '◉', path: '/admin/categories' },
   { label: 'Coopératives', icon: '◎', path: '/admin/cooperatives' },
@@ -32,11 +33,13 @@ export default function Sidebar({ open, setOpen, collapsed, setCollapsed }: Side
 
   useEffect(() => {
     supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('is_read', false)
+    supabase.from('orders').select('id', { count: 'exact', head: true }).eq('is_seen', false).then(({ count }) => setUnread(u => u + (count ?? 0)))
       .then(({ count }) => setUnread(count ?? 0))
 
     const channel = supabase.channel('messages-badge')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_messages' }, () => {
         supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('is_read', false)
+    supabase.from('orders').select('id', { count: 'exact', head: true }).eq('is_seen', false).then(({ count }) => setUnread(u => u + (count ?? 0)))
           .then(({ count }) => setUnread(count ?? 0))
       }).subscribe()
 

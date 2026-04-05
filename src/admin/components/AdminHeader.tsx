@@ -20,6 +20,9 @@ export default function AdminHeader({ title, subtitle, onMenuClick, action }: Ad
   useEffect(() => {
     fetchNotifications()
     const channel = supabase.channel('notif-header')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, () => {
+        setUnread(u => u + 1)
+      })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
         setNotifications(prev => [payload.new, ...prev].slice(0, 10))
         setUnread(u => u + 1)
@@ -28,6 +31,8 @@ export default function AdminHeader({ title, subtitle, onMenuClick, action }: Ad
   }, [])
 
   const fetchNotifications = async () => {
+    const { count: ordersCount } = await supabase.from('orders').select('id', { count: 'exact', head: true }).eq('is_seen', false)
+    setUnread(u => u + (ordersCount ?? 0))
     const { data } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).limit(10)
     setNotifications(data ?? [])
     setUnread((data ?? []).filter((m: any) => !m.is_read).length)
