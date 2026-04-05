@@ -175,13 +175,21 @@ export default function PacksPage() {
         onSubmit={handleSubmit}
         loading={saving}
       >
-        <Field label="ID (unique)">
-          <Input value={form.id} onChange={e => set('id', e.target.value)} placeholder="pack-001" required disabled={!!editing} />
-        </Field>
         <Grid2>
-          <Field label="Nom (FR)"><Input value={form.name} onChange={e => set('name', e.target.value)} required /></Field>
+          <Field label="Nom (FR)">
+            <Input value={form.name} onChange={e => {
+              set('name', e.target.value)
+              if (!editing) set('id', 'pack-' + e.target.value.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+            }} required />
+          </Field>
           <Field label="Nom (AR)"><Input value={form.name_ar} onChange={e => set('name_ar', e.target.value)} required /></Field>
         </Grid2>
+        <Field label="ID (généré automatiquement)">
+          <div className="relative">
+            <Input value={form.id} onChange={e => set('id', e.target.value)} placeholder="pack-argan" required disabled={!!editing} />
+            {!editing && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>auto ✓</span>}
+          </div>
+        </Field>
         <Grid2>
           <Field label="Description (FR)"><Textarea value={form.description} onChange={e => set('description', e.target.value)} /></Field>
           <Field label="Description (AR)"><Textarea value={form.description_ar} onChange={e => set('description_ar', e.target.value)} /></Field>
