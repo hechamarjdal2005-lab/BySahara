@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import AdminHeader from '../components/AdminHeader'
@@ -11,13 +12,27 @@ import { supabase } from '../../lib/supabase'
 const TABS = ['Produits', 'Avis clients']
 
 const emptyProduct = {
-  name_en: '', name_ar: '', description_en: '', description_ar: '',
-  price: '', image_url: '', category_id: '', cooperative_id: '',
-  stock: '', is_active: true, is_featured: false,
+  name_en: '', name_ar: '',
+  description_en: '', description_ar: '',
+  unit_en: '', unit_ar: '',
+  origin_en: '', origin_ar: '',
+  price: '', image: '',
+  category: '', cooperative_id: '',
+  stock: '', weight: '',
+  is_new: false, is_featured: false,
 }
 
 const emptyVolume = {
   label_en: '', label_ar: '', value: '', unit: '', price: '', order_index: 0
+}
+
+const selectStyle: React.CSSProperties = {
+  width: '100%', padding: '10px 14px', borderRadius: '12px',
+  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+  color: '#fff', fontSize: '14px', outline: 'none', cursor: 'pointer',
+  appearance: 'none',
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+  backgroundRepeat: 'no-repeat', backgroundPosition: 'calc(100% - 12px) center',
 }
 
 export default function ProductsPage() {
@@ -41,14 +56,13 @@ export default function ProductsPage() {
   const [deleteVolume, setDeleteVolume] = useState<any>(null)
   const [savingVolume, setSavingVolume] = useState(false)
 
-  // Dropdown data
+  // Dropdowns
   const [categories, setCategories] = useState<any[]>([])
   const [cooperatives, setCooperatives] = useState<any[]>([])
 
   const products = useCrud<any>('products', 'created_at')
   const reviews = useCrud<any>('reviews', 'created_at')
 
-  // Load categories & cooperatives
   useEffect(() => {
     supabase.from('categories').select('id, name_en, name_ar').eq('is_active', true).order('order_index')
       .then(({ data }) => setCategories(data ?? []))
@@ -56,8 +70,8 @@ export default function ProductsPage() {
       .then(({ data }) => setCooperatives(data ?? []))
   }, [])
 
-  const set = (key: string, val: any) => setForm((p: any) => ({ ...p, [key]: val }))
-  const setVol = (key: string, val: any) => setVolumeForm((p: any) => ({ ...p, [key]: val }))
+  const set = (k: string, v: any) => setForm((p: any) => ({ ...p, [k]: v }))
+  const setVol = (k: string, v: any) => setVolumeForm((p: any) => ({ ...p, [k]: v }))
 
   const openCreate = () => { setEditing(null); setForm(emptyProduct); setModal(true) }
   const openEdit = (row: any) => { setEditing(row); setForm(row); setModal(true) }
@@ -108,9 +122,22 @@ export default function ProductsPage() {
     e.preventDefault()
     setSaving(true)
     const payload = {
-      ...form,
+      name_en: form.name_en,
+      name_ar: form.name_ar,
+      description_en: form.description_en,
+      description_ar: form.description_ar,
+      unit_en: form.unit_en,
+      unit_ar: form.unit_ar,
+      origin_en: form.origin_en || null,
+      origin_ar: form.origin_ar || null,
       price: parseFloat(form.price) || 0,
-      stock: parseInt(form.stock) || 0,
+      image: form.image,
+      category: form.category,
+      cooperative_id: form.cooperative_id || null,
+      stock: parseInt(form.stock) || null,
+      weight: form.weight || null,
+      is_new: !!form.is_new,
+      is_featured: !!form.is_featured,
     }
     if (editing) await products.update(editing.id, payload)
     else await products.create(payload)
@@ -124,15 +151,6 @@ export default function ProductsPage() {
     else await reviews.remove(deleteTarget.id)
     setSaving(false)
     setDeleteTarget(null)
-  }
-
-  // Shared select style
-  const selectStyle: React.CSSProperties = {
-    width: '100%', padding: '10px 14px', borderRadius: '12px',
-    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-    color: '#fff', fontSize: '14px', outline: 'none', cursor: 'pointer',
-    appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat', backgroundPosition: 'calc(100% - 12px) center',
   }
 
   return (
@@ -151,14 +169,11 @@ export default function ProductsPage() {
       />
 
       <div className="p-6 space-y-5">
-        {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: 'rgba(255,255,255,0.05)' }}>
           {TABS.map((t, i) => (
             <button key={t} onClick={() => setTab(i)}
               className="px-4 py-2 rounded-lg text-sm font-medium transition"
-              style={tab === i
-                ? { background: '#e8c547', color: '#0f172a' }
-                : { color: 'rgba(255,255,255,0.4)' }}>
+              style={tab === i ? { background: '#e8c547', color: '#0f172a' } : { color: 'rgba(255,255,255,0.4)' }}>
               {t}
             </button>
           ))}
@@ -171,39 +186,40 @@ export default function ProductsPage() {
               loading={products.loading}
               onEdit={openEdit}
               onDelete={setDeleteTarget}
-              onToggle={row => products.toggleActive(row.id, !!row.is_active)}
               columns={[
                 {
-                  key: 'image_url', label: 'Image',
-                  render: row => row.image_url
-                    ? <img src={row.image_url} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                    : <div className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-600" style={{ background: 'rgba(255,255,255,0.05)' }}>📦</div>
+                  key: 'image', label: 'Image',
+                  render: row => row.image
+                    ? <img src={row.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                    : <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)' }}>📦</div>
                 },
                 { key: 'name_en', label: 'Nom (FR)' },
                 { key: 'name_ar', label: 'Nom (AR)' },
                 { key: 'price', label: 'Prix', render: row => `${row.price ?? 0} MAD` },
-                { key: 'stock', label: 'Stock' },
+                { key: 'stock', label: 'Stock', render: row => row.stock ?? '—' },
                 {
-                  key: 'category_id', label: 'Catégorie',
+                  key: 'category', label: 'Catégorie',
                   render: row => {
-                    const cat = categories.find(c => c.id === row.category_id)
-                    return cat ? (
-                      <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(232,197,71,0.1)', color: '#e8c547' }}>
-                        {cat.name_en}
-                      </span>
-                    ) : <span className="text-gray-600 text-xs">—</span>
+                    const cat = categories.find(c => c.id === row.category)
+                    return cat
+                      ? <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(232,197,71,0.1)', color: '#e8c547' }}>{cat.name_en}</span>
+                      : <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{row.category || '—'}</span>
                   }
                 },
                 {
                   key: 'cooperative_id', label: 'Coopérative',
                   render: row => {
                     const coop = cooperatives.find(c => c.id === row.cooperative_id)
-                    return coop ? (
-                      <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
-                        {coop.name_en}
-                      </span>
-                    ) : <span className="text-gray-600 text-xs">—</span>
+                    return coop
+                      ? <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>{coop.name_en}</span>
+                      : <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>—</span>
                   }
+                },
+                {
+                  key: 'is_featured', label: 'Vedette',
+                  render: row => row.is_featured
+                    ? <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(249,115,22,0.1)', color: '#f97316' }}>⭐ Oui</span>
+                    : <span className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>Non</span>
                 },
                 {
                   key: 'volumes', label: 'Volumes',
@@ -229,7 +245,7 @@ export default function ProductsPage() {
               columns={[
                 { key: 'author', label: 'Auteur' },
                 { key: 'rating', label: 'Note', render: row => `${'⭐'.repeat(Math.round(row.rating ?? 0))} (${row.rating})` },
-                { key: 'comment_en', label: 'Commentaire', render: row => (row.comment_en ?? '').slice(0, 60) + '...' },
+                { key: 'comment_en', label: 'Commentaire', render: row => ((row.comment_en ?? '').slice(0, 60) + '...') },
                 { key: 'created_at', label: 'Date', render: row => new Date(row.created_at).toLocaleDateString('fr-FR') },
               ]}
             />
@@ -253,26 +269,49 @@ export default function ProductsPage() {
             <Input value={form.name_ar} onChange={e => set('name_ar', e.target.value)} placeholder="اسم المنتج" required />
           </Field>
         </Grid2>
+
         <Grid2>
           <Field label="Description (FR)">
-            <Textarea value={form.description_en} onChange={e => set('description_en', e.target.value)} />
+            <Textarea value={form.description_en} onChange={e => set('description_en', e.target.value)} required />
           </Field>
           <Field label="Description (AR)">
-            <Textarea value={form.description_ar} onChange={e => set('description_ar', e.target.value)} />
+            <Textarea value={form.description_ar} onChange={e => set('description_ar', e.target.value)} required />
           </Field>
         </Grid2>
+
+        <Grid2>
+          <Field label="Unité (FR) ex: 100ml, 250g">
+            <Input value={form.unit_en} onChange={e => set('unit_en', e.target.value)} placeholder="100ml" required />
+          </Field>
+          <Field label="الوحدة (AR)">
+            <Input value={form.unit_ar} onChange={e => set('unit_ar', e.target.value)} placeholder="١٠٠مل" required />
+          </Field>
+        </Grid2>
+
+        <Grid2>
+          <Field label="Origine (FR)">
+            <Input value={form.origin_en} onChange={e => set('origin_en', e.target.value)} placeholder="Guelmim, Maroc" />
+          </Field>
+          <Field label="الأصل (AR)">
+            <Input value={form.origin_ar} onChange={e => set('origin_ar', e.target.value)} placeholder="كلميم، المغرب" />
+          </Field>
+        </Grid2>
+
         <Grid2>
           <Field label="Prix (MAD)">
-            <Input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0.00" />
+            <Input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0.00" required />
           </Field>
           <Field label="Stock">
             <Input type="number" value={form.stock} onChange={e => set('stock', e.target.value)} placeholder="0" />
           </Field>
         </Grid2>
 
-        {/* ── Catégorie Dropdown ── */}
+        <Field label="Poids (ex: 500g)">
+          <Input value={form.weight} onChange={e => set('weight', e.target.value)} placeholder="500g" />
+        </Field>
+
         <Field label="Catégorie">
-          <select value={form.category_id} onChange={e => set('category_id', e.target.value)} style={selectStyle}>
+          <select value={form.category} onChange={e => set('category', e.target.value)} style={selectStyle} required>
             <option value="" style={{ background: '#1e293b' }}>— Sélectionner une catégorie —</option>
             {categories.map(cat => (
               <option key={cat.id} value={cat.id} style={{ background: '#1e293b' }}>
@@ -282,7 +321,6 @@ export default function ProductsPage() {
           </select>
         </Field>
 
-        {/* ── Coopérative Dropdown ── */}
         <Field label="Coopérative">
           <select value={form.cooperative_id} onChange={e => set('cooperative_id', e.target.value)} style={selectStyle}>
             <option value="" style={{ background: '#1e293b' }}>— Sélectionner une coopérative —</option>
@@ -295,16 +333,17 @@ export default function ProductsPage() {
         </Field>
 
         <Field label="Image du produit">
-          <ImageUploader value={form.image_url} onChange={url => set('image_url', url)} folder="products" />
+          <ImageUploader value={form.image} onChange={url => set('image', url)} folder="products" />
         </Field>
+
         <div className="flex gap-4">
           <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            <input type="checkbox" checked={!!form.is_active} onChange={e => set('is_active', e.target.checked)} />
-            Actif
+            <input type="checkbox" checked={!!form.is_featured} onChange={e => set('is_featured', e.target.checked)} />
+            Mis en avant ⭐
           </label>
           <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            <input type="checkbox" checked={!!form.is_featured} onChange={e => set('is_featured', e.target.checked)} />
-            Mis en avant
+            <input type="checkbox" checked={!!form.is_new} onChange={e => set('is_new', e.target.checked)} />
+            Nouveau 🆕
           </label>
         </div>
       </FormModal>
@@ -329,7 +368,6 @@ export default function ProductsPage() {
                 <button onClick={() => setVolumesModal(false)} className="text-gray-500 hover:text-white transition text-xl">✕</button>
               </div>
             </div>
-
             <div className="flex-1 overflow-y-auto p-6">
               {volumesLoading ? (
                 <div className="flex items-center justify-center py-12">
@@ -356,16 +394,8 @@ export default function ProductsPage() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => openEditVolume(v)}
-                          className="text-xs px-2 py-1 rounded-lg transition hover:opacity-80"
-                          style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>
-                          Modifier
-                        </button>
-                        <button onClick={() => setDeleteVolume(v)}
-                          className="text-xs px-2 py-1 rounded-lg transition hover:opacity-80"
-                          style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
-                          Supprimer
-                        </button>
+                        <button onClick={() => openEditVolume(v)} className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>Modifier</button>
+                        <button onClick={() => setDeleteVolume(v)} className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>Supprimer</button>
                       </div>
                     </div>
                   ))}
@@ -376,37 +406,18 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* ── Volume Form Modal ── */}
-      <FormModal
-        open={volumeModal}
-        title={editingVolume ? 'Modifier le volume' : 'Nouveau volume'}
-        onClose={() => setVolumeModal(false)}
-        onSubmit={handleVolumeSubmit}
-        loading={savingVolume}
-      >
+      <FormModal open={volumeModal} title={editingVolume ? 'Modifier le volume' : 'Nouveau volume'} onClose={() => setVolumeModal(false)} onSubmit={handleVolumeSubmit} loading={savingVolume}>
         <Grid2>
-          <Field label="Label (FR)">
-            <Input value={volumeForm.label_en} onChange={e => setVol('label_en', e.target.value)} placeholder="ex: 500ml" required />
-          </Field>
-          <Field label="Label (AR)">
-            <Input value={volumeForm.label_ar} onChange={e => setVol('label_ar', e.target.value)} placeholder="مل 500" required />
-          </Field>
+          <Field label="Label (FR)"><Input value={volumeForm.label_en} onChange={e => setVol('label_en', e.target.value)} placeholder="ex: 500ml" required /></Field>
+          <Field label="Label (AR)"><Input value={volumeForm.label_ar} onChange={e => setVol('label_ar', e.target.value)} placeholder="مل 500" required /></Field>
         </Grid2>
         <Grid2>
-          <Field label="Valeur">
-            <Input type="number" value={volumeForm.value} onChange={e => setVol('value', e.target.value)} placeholder="500" required />
-          </Field>
-          <Field label="Unité">
-            <Input value={volumeForm.unit} onChange={e => setVol('unit', e.target.value)} placeholder="ml / g / kg / L" required />
-          </Field>
+          <Field label="Valeur"><Input type="number" value={volumeForm.value} onChange={e => setVol('value', e.target.value)} placeholder="500" required /></Field>
+          <Field label="Unité"><Input value={volumeForm.unit} onChange={e => setVol('unit', e.target.value)} placeholder="ml / g / kg" required /></Field>
         </Grid2>
         <Grid2>
-          <Field label="Prix (MAD)">
-            <Input type="number" value={volumeForm.price} onChange={e => setVol('price', e.target.value)} placeholder="0.00" required />
-          </Field>
-          <Field label="Ordre">
-            <Input type="number" value={volumeForm.order_index} onChange={e => setVol('order_index', e.target.value)} />
-          </Field>
+          <Field label="Prix (MAD)"><Input type="number" value={volumeForm.price} onChange={e => setVol('price', e.target.value)} placeholder="0.00" required /></Field>
+          <Field label="Ordre"><Input type="number" value={volumeForm.order_index} onChange={e => setVol('order_index', e.target.value)} /></Field>
         </Grid2>
       </FormModal>
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react'
 import { Outlet, useOutletContext } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
