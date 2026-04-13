@@ -203,11 +203,7 @@ const Footer: React.FC = () => {
           <p className="text-xs" style={{ color: '#F7E5CD60' }}>
             © {new Date().getFullYear()} By Sahara. {tr('جميع الحقوق محفوظة', 'All rights reserved.')}
           </p>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs" style={{ color: '#F7E5CD40' }}>{tr('صُنع بـ', 'Made with')}</span>
-            <span style={{ color: '#CC8F57' }}>♥</span>
-            <span className="text-xs" style={{ color: '#F7E5CD40' }}>{tr('في المغرب', 'in Morocco')}</span>
-          </div>
+         
         </div>
       </div>
 
