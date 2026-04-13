@@ -20,21 +20,15 @@ const CooperativeDetails: React.FC = () => {
     return isRtl ? field.ar : field.en;
   };
 
-  // ─── State ──────────────────────────────────────────────────
   const [cooperative, setCooperative] = useState<Cooperative | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [packs, setPacks] = useState<Pack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── Fetch Data ─────────────────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
-      if (!id) {
-        setError('Invalid cooperative ID');
-        setLoading(false);
-        return;
-      }
+      if (!id) { setError('Invalid cooperative ID'); setLoading(false); return; }
       try {
         setLoading(true);
         const [coopData, productsData] = await Promise.all([
@@ -43,7 +37,6 @@ const CooperativeDetails: React.FC = () => {
         ]);
         setCooperative(coopData);
         setProducts(productsData);
-        // ── Packs dyal had cooperative ──
         setPacks(getPacksByCooperative(id));
         setError(null);
       } catch (err) {
@@ -56,7 +49,6 @@ const CooperativeDetails: React.FC = () => {
     loadData();
   }, [id]);
 
-  // ─── Loading ─────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
@@ -68,7 +60,6 @@ const CooperativeDetails: React.FC = () => {
     );
   }
 
-  // ─── Error ───────────────────────────────────────────────────
   if (error || !cooperative) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -95,9 +86,9 @@ const CooperativeDetails: React.FC = () => {
   const description = lang(cooperative.description);
 
   const impactItems = [
-    { icon: <Users className="w-4 h-4" />, title: t('التمكين', 'Empowerment'),   desc: t('أجور عادلة واستقلالية', 'Fair wages & independence') },
+    { icon: <Users className="w-4 h-4" />, title: t('التمكين', 'Empowerment'),    desc: t('أجور عادلة واستقلالية', 'Fair wages & independence') },
     { icon: <Leaf  className="w-4 h-4" />, title: t('الاستدامة', 'Sustainability'), desc: t('مواد صديقة للبيئة', 'Eco-friendly materials') },
-    { icon: <Award className="w-4 h-4" />, title: t('الجودة', 'Quality'),          desc: t('رقابة صارمة للجودة', 'Rigorous quality control') },
+    { icon: <Award className="w-4 h-4" />, title: t('الجودة', 'Quality'),           desc: t('رقابة صارمة للجودة', 'Rigorous quality control') },
   ];
 
   return (
@@ -105,7 +96,8 @@ const CooperativeDetails: React.FC = () => {
 
       {/* ── Back ──────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4">
-        <Link to="/cooperatives"
+        <Link
+          to="/cooperatives"
           className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
           style={{ color: '#BA8944' }}
           onMouseEnter={(e) => (e.currentTarget.style.color = '#455324')}
@@ -116,29 +108,86 @@ const CooperativeDetails: React.FC = () => {
         </Link>
       </div>
 
-      {/* ── Hero ─────────────────────────────────────────────── */}
+      {/* ── Hero: Cover + Logo + Name INSIDE cover ────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-3">
-        <div className="relative rounded-2xl overflow-hidden shadow-md" style={{ height: '200px' }}>
-          <img src={cooperative.image} alt={name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+        <div
+          className="relative rounded-2xl overflow-hidden shadow-md"
+          style={{ height: '260px' }}
+        >
+          {/* Cover image */}
+          <img
+            src={cooperative.image}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
 
+          {/* Gradient — heavy at bottom for text, light at top */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to top, rgba(20,12,2,0.88) 0%, rgba(15,9,2,0.50) 35%, transparent 65%)',
+            }}
+          />
+
+          {/* Certifications — top start */}
           {cooperative.certifications && cooperative.certifications.length > 0 && (
             <div className="absolute top-3 start-3 flex gap-1.5">
               {cooperative.certifications.map((cert) => (
-                <span key={cert} className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#9FA93D', color: '#fff' }}>
+                <span key={cert} className="text-xs font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: '#9FA93D', color: '#fff' }}>
                   {cert}
                 </span>
               ))}
             </div>
           )}
 
-          <div className="absolute bottom-0 start-0 end-0 px-4 py-3">
-            <h1 className="font-serif text-xl font-bold text-white leading-tight mb-1">{name}</h1>
-            <div className="flex items-center gap-1.5 text-white/85">
-              <MapPin className="w-3 h-3 flex-shrink-0" style={{ color: '#F8D197' }} />
-              <span className="text-xs font-medium">{city}</span>
-              <span style={{ color: '#F8D197' }}>·</span>
-              <span className="text-xs opacity-80">{province}</span>
+          {/* Logo + Name + City — bottom start, INSIDE cover */}
+          <div className="absolute bottom-0 start-0 end-0 px-5 pb-5 flex items-end gap-4">
+
+            {/* Logo circle */}
+            <div
+              className="flex-shrink-0 rounded-full overflow-hidden"
+              style={{
+                width: '76px',
+                height: '76px',
+                border: '3px solid rgba(255,255,255,0.22)',
+                background: '#F8D197',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.40)',
+              }}
+            >
+              {cooperative.logo ? (
+                <img
+                  src={cooperative.logo}
+                  alt={`${name} logo`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center font-bold"
+                  style={{ fontSize: '1.9rem', color: '#455324', background: '#F8D197' }}
+                >
+                  {name.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+
+            {/* Name + Location */}
+            <div className="min-w-0 pb-1">
+              <h1
+                className="font-serif font-bold text-white leading-tight"
+                style={{
+                  fontSize: '1.25rem',
+                  textShadow: '0 1px 8px rgba(0,0,0,0.6)',
+                }}
+              >
+                {name}
+              </h1>
+              <div className="flex items-center gap-1.5 mt-1">
+                <MapPin className="w-3 h-3 flex-shrink-0" style={{ color: '#F8D197' }} />
+                <span className="text-xs font-semibold" style={{ color: '#F8D197' }}>{city}</span>
+                <span className="text-white/40">·</span>
+                <span className="text-xs text-white/70">{province}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -150,29 +199,34 @@ const CooperativeDetails: React.FC = () => {
         {/* Info strip */}
         <div className="flex flex-wrap gap-2 mb-4">
           {cooperative.memberCount && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#F8D197', color: '#455324' }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+              style={{ background: '#F8D197', color: '#455324' }}>
               <Users className="w-3.5 h-3.5" />
               {cooperative.memberCount} {t('عضو', 'members')}
             </div>
           )}
           {cooperative.foundedYear && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#F8D197', color: '#455324' }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+              style={{ background: '#F8D197', color: '#455324' }}>
               <Award className="w-3.5 h-3.5" />
               {t('منذ', 'Since')} {cooperative.foundedYear}
             </div>
           )}
           {cooperative.phone && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#F8D197', color: '#455324' }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+              style={{ background: '#F8D197', color: '#455324' }}>
               <Phone className="w-3.5 h-3.5" />
               {cooperative.phone}
             </div>
           )}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#F8D197', color: '#455324' }}>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+            style={{ background: '#F8D197', color: '#455324' }}>
             <Package className="w-3.5 h-3.5" />
             {products.length} {t('منتج', 'products')}
           </div>
           {cooperative.certifications?.map((cert) => (
-            <span key={cert} className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: '#9FA93D20', color: '#617131' }}>
+            <span key={cert} className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold"
+              style={{ background: '#9FA93D20', color: '#617131' }}>
               ✓ {cert}
             </span>
           ))}
@@ -180,7 +234,8 @@ const CooperativeDetails: React.FC = () => {
 
         {/* About + Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-          <div className="lg:col-span-2 rounded-2xl p-4 sm:p-6" style={{ background: '#fff', border: '1px solid #F0E4CC' }}>
+          <div className="lg:col-span-2 rounded-2xl p-4 sm:p-6"
+            style={{ background: '#fff', border: '1px solid #F0E4CC' }}>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-5 rounded-full" style={{ background: '#CC8F57' }} />
               <h2 className="font-semibold text-base" style={{ color: '#455324' }}>
@@ -190,7 +245,8 @@ const CooperativeDetails: React.FC = () => {
             <p className="text-sm leading-relaxed" style={{ color: '#442413' }}>{description}</p>
           </div>
 
-          <div className="hidden lg:block rounded-2xl p-5" style={{ background: '#fff', border: '1px solid #F0E4CC' }}>
+          <div className="hidden lg:block rounded-2xl p-5"
+            style={{ background: '#fff', border: '1px solid #F0E4CC' }}>
             <h3 className="font-semibold text-sm mb-3" style={{ color: '#455324' }}>
               {t('معلومات التعاونية', 'Cooperative Info')}
             </h3>
@@ -229,7 +285,8 @@ const CooperativeDetails: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
           {impactItems.map((item) => (
             <div key={item.title} className="rounded-xl p-3 text-center" style={{ background: '#455324' }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1.5" style={{ background: '#F8D197', color: '#455324' }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1.5"
+                style={{ background: '#F8D197', color: '#455324' }}>
                 {item.icon}
               </div>
               <h4 className="font-bold text-xs mb-0.5" style={{ color: '#F8D197' }}>{item.title}</h4>
@@ -239,7 +296,7 @@ const CooperativeDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* ══ PACKS — khrjat men padding dyal content ══════════ */}
+      {/* ══ PACKS ════════════════════════════════════════════ */}
       {packs.length > 0 && (
         <div className="mt-2 mb-2">
           <PacksSection
@@ -261,7 +318,8 @@ const CooperativeDetails: React.FC = () => {
             </h2>
           </div>
           {products.length > 0 && (
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#F8D197', color: '#763C19' }}>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+              style={{ background: '#F8D197', color: '#763C19' }}>
               {products.length} {t('منتج', 'products')}
             </span>
           )}
@@ -274,7 +332,8 @@ const CooperativeDetails: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 rounded-2xl" style={{ background: '#fff', border: '1px solid #F8D197' }}>
+          <div className="text-center py-12 rounded-2xl"
+            style={{ background: '#fff', border: '1px solid #F8D197' }}>
             <Package className="w-8 h-8 mx-auto mb-2 opacity-30" style={{ color: '#CC8F57' }} />
             <p className="text-sm" style={{ color: '#BA8944' }}>
               {t('لا توجد منتجات متاحة', 'No products available')}
@@ -282,6 +341,7 @@ const CooperativeDetails: React.FC = () => {
           </div>
         )}
       </div>
+
     </div>
   );
 };
