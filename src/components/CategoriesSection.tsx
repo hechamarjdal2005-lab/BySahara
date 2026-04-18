@@ -10,7 +10,6 @@ import { Category } from '../types';
 
 const IconDriedFruits = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* fig / date shape */}
     <ellipse cx="32" cy="38" rx="10" ry="14" />
     <path d="M32 24 Q32 18 36 16" />
     <path d="M22 34 Q32 31 42 34" />
@@ -21,11 +20,9 @@ const IconDriedFruits = () => (
 
 const IconSpices = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* mortar / spice bowl */}
     <path d="M16 42 Q14 56 32 56 Q50 56 48 42 Z" />
     <path d="M13 42 L51 42" />
     <path d="M36 24 L42 40" strokeWidth="2.5" strokeLinecap="round" />
-    {/* leaf */}
     <path d="M21 28 Q18 20 24 18 Q26 24 21 28Z" fill="currentColor" stroke="none" opacity="0.3" />
     <path d="M21 28 Q23 22 24 18" />
   </svg>
@@ -33,12 +30,9 @@ const IconSpices = () => (
 
 const IconTea = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* cup */}
     <path d="M14 32 L18 54 Q18 56 32 56 Q46 56 46 54 L50 32 Z" />
     <path d="M12 32 L52 32" />
-    {/* handle */}
     <path d="M50 38 Q59 38 59 45 Q59 52 50 50" />
-    {/* steam */}
     <path d="M24 24 Q26 18 24 12" strokeWidth="1.2" />
     <path d="M32 22 Q34 16 32 10" strokeWidth="1.2" />
     <path d="M40 24 Q42 18 40 12" strokeWidth="1.2" />
@@ -47,7 +41,6 @@ const IconTea = () => (
 
 const IconEssentialOils = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* dropper bottle */}
     <path d="M26 28 Q21 30 21 40 L21 52 Q21 56 32 56 Q43 56 43 52 L43 40 Q43 30 38 28 Z" />
     <rect x="27" y="18" width="10" height="12" rx="2.5" />
     <rect x="26" y="12" width="12" height="8" rx="3" fill="currentColor" stroke="none" opacity="0.18" />
@@ -58,13 +51,10 @@ const IconEssentialOils = () => (
 
 const IconHoney = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* honey jar */}
     <path d="M19 32 L19 52 Q19 56 32 56 Q45 56 45 52 L45 32 Z" />
     <path d="M15 32 Q15 26 32 26 Q49 26 49 32 Z" />
     <rect x="23" y="18" width="18" height="10" rx="3.5" />
-    {/* honey dipper drip */}
     <path d="M32 26 L32 38 Q32 42 28 42 Q24 42 24 38" strokeWidth="2.5" strokeLinecap="round" />
-    {/* hexagons hint */}
     <path d="M36 46 L38 44 L41 44 L42 46 L41 48 L38 48 Z" opacity="0.3" fill="currentColor" stroke="none" />
     <path d="M23 44 L25 42 L28 42 L29 44 L28 46 L25 46 Z" opacity="0.3" fill="currentColor" stroke="none" />
   </svg>
@@ -72,11 +62,9 @@ const IconHoney = () => (
 
 const IconOils = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* oil bottle with cap */}
     <path d="M28 12 Q28 8 32 8 Q36 8 36 12 L38 22 Q44 26 44 36 L44 52 Q44 56 32 56 Q20 56 20 52 L20 36 Q20 26 26 22 Z" />
     <path d="M21 40 Q32 37 43 40" />
     <ellipse cx="32" cy="12" rx="5" ry="2.5" fill="currentColor" stroke="none" opacity="0.22" />
-    {/* olive branch */}
     <path d="M13 22 Q17 16 21 18" strokeWidth="1.2" />
     <ellipse cx="14" cy="18" rx="3.5" ry="2" transform="rotate(-30 14 18)" fill="currentColor" stroke="none" opacity="0.35" />
     <ellipse cx="19" cy="15" rx="3.5" ry="2" transform="rotate(-15 19 15)" fill="currentColor" stroke="none" opacity="0.35" />
@@ -85,15 +73,11 @@ const IconOils = () => (
 
 const IconFlour = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* flour sack */}
     <path d="M21 26 Q17 30 17 38 L17 52 Q17 56 32 56 Q47 56 47 52 L47 38 Q47 30 43 26 Z" />
-    {/* tied top */}
     <path d="M25 26 Q29 18 32 20 Q35 18 39 26" />
     <path d="M30 20 Q32 14 34 20" />
-    {/* texture lines */}
     <path d="M20 38 Q32 35 44 38" />
     <path d="M19 46 Q32 43 45 46" />
-    {/* dots */}
     <circle cx="27" cy="50" r="1.2" fill="currentColor" stroke="none" opacity="0.35" />
     <circle cx="32" cy="52" r="1.2" fill="currentColor" stroke="none" opacity="0.35" />
     <circle cx="37" cy="50" r="1.2" fill="currentColor" stroke="none" opacity="0.35" />
@@ -102,12 +86,10 @@ const IconFlour = () => (
 
 const IconBeauty = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    {/* cosmetic pot */}
     <ellipse cx="32" cy="50" rx="18" ry="8" />
     <path d="M14 50 L14 44 Q14 40 32 40 Q50 40 50 44 L50 50" />
     <ellipse cx="32" cy="44" rx="18" ry="6" fill="currentColor" stroke="none" opacity="0.12" />
     <ellipse cx="32" cy="44" rx="18" ry="6" />
-    {/* plant sprig on top */}
     <path d="M32 40 L32 30" />
     <path d="M32 34 Q26 30 25 24 Q31 24 32 30" fill="currentColor" stroke="none" opacity="0.28" />
     <path d="M32 32 Q38 28 40 22 Q34 22 32 28" fill="currentColor" stroke="none" opacity="0.28" />
@@ -116,17 +98,32 @@ const IconBeauty = () => (
   </svg>
 );
 
+// ─── NEW: Clothing & Accessories Icon ────────────────────────
+const IconClothing = () => (
+  <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
+    {/* hanger hook */}
+    <path d="M32 10 Q32 7 35 7 Q39 7 39 11 Q39 14 32 19" />
+    {/* djellaba / robe silhouette */}
+    <path d="M32 19 L18 28 L22 35 L26 32 L26 56 L38 56 L38 32 L42 35 L46 28 Z" />
+    {/* subtle embroidery hint on chest */}
+    <path d="M29 36 Q32 34 35 36" strokeWidth="1" opacity="0.5" />
+    <path d="M30 39 Q32 37.5 34 39" strokeWidth="1" opacity="0.5" />
+    <path d="M31 42 Q32 41 33 42" strokeWidth="1" opacity="0.5" />
+  </svg>
+);
+
 // ─── Get Icon by Category ID ─────────────────────────────────
 const getCategoryIcon = (categoryId: string) => {
   const icons: Record<string, JSX.Element> = {
-    'dried-fruits': <IconDriedFruits />,
-    'spices':       <IconSpices />,
-    'tea':          <IconTea />,
+    'dried-fruits':    <IconDriedFruits />,
+    'spices':          <IconSpices />,
+    'tea':             <IconTea />,
     'distilled-water': <IconEssentialOils />,
-    'honey':        <IconHoney />,
-    'oils':         <IconOils />,
-    'flour':        <IconFlour />,
-    'beauty':       <IconBeauty />,
+    'honey':           <IconHoney />,
+    'oils':            <IconOils />,
+    'flour':           <IconFlour />,
+    'beauty':          <IconBeauty />,
+    'clothing':        <IconClothing />,   // ← جديد
   };
   return icons[categoryId] || <IconSpices />;
 };
