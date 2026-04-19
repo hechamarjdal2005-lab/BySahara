@@ -5,11 +5,12 @@ import {
   ShoppingBag, Star, Truck, ShieldCheck,
   ArrowLeft, ArrowRight, MapPin, Users, Award, Package, Loader2,
 } from 'lucide-react';
-import { fetchProductById, fetchCooperativeById } from '../data';
+import { fetchProductById, fetchCooperativeById, fetchProducts } from '../data';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Product, Cooperative, BilingualText, VolumeOption } from '../types';
 import VolumeSelector from '../components/VolumeSelector';
+import ProductCard from '../components/ProductCard';
 
 type Tab = 'description' | 'details' | 'reviews';
 
@@ -30,18 +31,27 @@ const ProductDetails: React.FC = () => {
   const [added, setAdded] = useState(false);
   const [selectedVolume, setSelectedVolume] = useState<VolumeOption | null>(null);
 
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
   const tr = (ar: string, en: string) => (isRtl ? ar : en);
   const lang = (field: BilingualText | string | undefined | null): string => {
     if (!field) return '';
     if (typeof field === 'string') return field;
-    return isRtl ? field.ar : field.en;
+    return isRtl ? (field.ar || field.en || '') : (field.en || field.ar || '');
   };
 
+  // ── Scroll to top كل ما يتبدل المنتج ──
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]);
+
+  // ── Load product + cooperative ──
   useEffect(() => {
     const loadData = async () => {
       if (!id) { setError('Invalid product ID'); setLoading(false); return; }
       try {
         setLoading(true);
+        setRelatedProducts([]);
         const [productData, cooperativeData] = await Promise.all([
           fetchProductById(id),
           fetchProductById(id).then(p => p?.cooperativeId ? fetchCooperativeById(p.cooperativeId) : null),
@@ -59,6 +69,19 @@ const ProductDetails: React.FC = () => {
     };
     loadData();
   }, [id]);
+
+  // ── Fetch related products — عبر fetchProducts لي يمر من mapProduct ──
+  useEffect(() => {
+    const fetchRelated = async () => {
+      if (!product?.category || !product?.id) return;
+
+      const all = await fetchProducts({ category: product.category as any });
+      // نخرجو المنتج الحالي ونأخذو 4 فقط
+      const filtered = all.filter((p) => p.id !== product.id).slice(0, 4);
+      setRelatedProducts(filtered);
+    };
+    fetchRelated();
+  }, [product]);
 
   if (loading) {
     return (
@@ -243,14 +266,9 @@ const ProductDetails: React.FC = () => {
             </div>
           )}
 
-          {/* ── Price + Qty + Add to Cart card ── */}
-          <div
-            className="rounded-2xl p-4 mb-4"
-            style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}
-          >
-            {/* Prix + qty sur la même ligne */}
+          {/* ── Price + Qty + Add to Cart ── */}
+          <div className="rounded-2xl p-4 mb-4" style={{ background: '#fff', border: '1.5px solid #F0E4CC' }}>
             <div className="flex items-center justify-between mb-4">
-              {/* Prix */}
               <div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-bold" style={{ color: '#455324' }}>
@@ -290,7 +308,6 @@ const ProductDetails: React.FC = () => {
               </div>
             </div>
 
-            {/* ✅ Add to Cart — full width, kbir, dark green */}
             <button
               onClick={handleAddToCart}
               className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300 active:scale-95"
@@ -317,9 +334,9 @@ const ProductDetails: React.FC = () => {
           {/* Guarantees */}
           <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: <Truck className="w-4 h-4" />,       text: tr('شحن مجاني', 'Free Shipping') },
-              { icon: <ShieldCheck className="w-4 h-4" />, text: tr('منتج أصيل', 'Authentic')     },
-              { icon: <Award className="w-4 h-4" />,       text: tr('جودة معتمدة', 'Certified')   },
+              { icon: <Truck className="w-4 h-4" />,       text: tr('شحن مجاني', 'Free Shipping')       },
+              { icon: <ShieldCheck className="w-4 h-4" />, text: tr('منتج أصيل', 'Authentic')           },
+              { icon: <Award className="w-4 h-4" />,       text: tr('جودة معتمدة', 'Certified')         },
               { icon: <Users className="w-4 h-4" />,       text: tr('دعم التعاونيات', 'Supports Coops') },
             ].map((g) => (
               <div key={g.text} className="flex items-center gap-1.5 p-2.5 rounded-xl text-xs font-medium"
@@ -400,6 +417,36 @@ const ProductDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Related Products ── */}
+      {relatedProducts.length > 0 && (
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-10">
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-xl font-bold" style={{ color: '#455324' }}>
+              {tr('منتجات من نفس الفئة', 'Related Products')}
+            </h2>
+            <Link
+              to="/shop"
+              className="text-xs font-semibold flex items-center gap-1 hover:underline"
+              style={{ color: '#CC8F57' }}
+            >
+              {tr('عرض الكل', 'View all')}
+              {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+            </Link>
+          </div>
+
+          {/* Grid — نستعملو ProductCard مباشرة لأن البيانات مرات من mapProduct */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {relatedProducts.map((rel) => (
+              <ProductCard key={rel.id} product={rel} />
+            ))}
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 };
