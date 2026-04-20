@@ -90,20 +90,7 @@ const Footer: React.FC = () => {
             )}
           </div>
 
-          <div className="flex gap-2 w-full sm:w-auto">
-            <input
-              type="email"
-              placeholder={newsletterPlaceholder ? (isRtl ? newsletterPlaceholder.placeholder_ar : newsletterPlaceholder.placeholder_en) : tr('بريدك الإلكتروني...', 'Your email...')}
-              className="flex-1 sm:w-48 px-3 py-2 rounded-xl text-xs outline-none"
-              style={{ background: '#617131', color: '#F7E5CD', border: '1px solid #9FA93D40' }}
-            />
-            <button
-              className="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap"
-              style={{ background: '#F8D197', color: '#442413' }}
-            >
-              {newsletterButton ? (isRtl ? newsletterButton.button_text_ar : newsletterButton.button_text_en) : tr('اشترك', 'Subscribe')}
-            </button>
-          </div>
+       
         </div>
       </div>
 
@@ -203,11 +190,7 @@ const Footer: React.FC = () => {
           <p className="text-xs" style={{ color: '#F7E5CD60' }}>
             © {new Date().getFullYear()} By Sahara. {tr('جميع الحقوق محفوظة', 'All rights reserved.')}
           </p>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs" style={{ color: '#F7E5CD40' }}>{tr('صُنع بـ', 'Made with')}</span>
-            <span style={{ color: '#CC8F57' }}>♥</span>
-            <span className="text-xs" style={{ color: '#F7E5CD40' }}>{tr('في المغرب', 'in Morocco')}</span>
-          </div>
+         
         </div>
       </div>
 

@@ -21,14 +21,15 @@ export const fetchCategories = async (): Promise<Category[]> => {
     console.error('Error fetching categories:', error);
     // Fallback to hardcoded if DB fails
     return [
-      { id: 'honey', name: { en: 'Honey & Jams', ar: 'عسل وأملو ومربى' }, icon: '🍯' },
-      { id: 'oils', name: { en: 'Edible Oils', ar: 'زيوت غذائية' }, icon: '🫒' },
-      { id: 'flour', name: { en: 'Flour & Semolina', ar: 'دقيق و سميد' }, icon: '🌾' },
-      { id: 'tea', name: { en: 'Tea & Herbs', ar: 'شاي و أعشاب' }, icon: '🍵' },
-      { id: 'spices', name: { en: 'Spices & Condiments', ar: 'توابل و بهارات' }, icon: '🌶️' },
-      { id: 'dried-fruits', name: { en: 'Dried Fruits', ar: 'فواكه جافة' }, icon: '🫘' },
-      { id: 'distilled-water', name: { en: 'Distilled Waters & Essential Oils', ar: 'مياه مقطرة وزيوت عطرية' }, icon: '💧' },
-      { id: 'beauty', name: { en: 'Health & Beauty', ar: 'صحة وجمال' }, icon: '✨' },
+      { id: 'honey',           name: { en: 'Honey & Jams',                        ar: 'عسل وأملو ومربى' },          icon: '🍯' },
+      { id: 'oils',            name: { en: 'Edible Oils',                          ar: 'زيوت غذائية' },              icon: '🫒' },
+      { id: 'flour',           name: { en: 'Flour & Semolina',                     ar: 'دقيق و سميد' },              icon: '🌾' },
+      { id: 'tea',             name: { en: 'Tea & Herbs',                          ar: 'شاي و أعشاب' },              icon: '🍵' },
+      { id: 'spices',          name: { en: 'Spices & Condiments',                  ar: 'توابل و بهارات' },           icon: '🌶️' },
+      { id: 'dried-fruits',    name: { en: 'Dried Fruits',                         ar: 'فواكه جافة' },               icon: '🫘' },
+      { id: 'distilled-water', name: { en: 'Distilled Waters & Essential Oils',    ar: 'مياه مقطرة وزيوت عطرية' },  icon: '💧' },
+      { id: 'beauty',          name: { en: 'Health & Beauty',                      ar: 'صحة وجمال' },                icon: '✨' },
+      { id: 'clothing',        name: { en: 'Clothing & Accessories',               ar: 'ملابس و اكسسوارات' },        icon: '👗' }, // ← جديد
     ];
   }
   
@@ -102,7 +103,6 @@ export const fetchProducts = async (filters?: ShopFilters): Promise<Product[]> =
       )
     `);
 
-  // Apply filters
   if (filters?.category && filters.category !== 'all') {
     query = query.eq('category', filters.category);
   }
@@ -123,7 +123,6 @@ export const fetchProducts = async (filters?: ShopFilters): Promise<Product[]> =
     query = query.or(`name_en.ilike.${search},name_ar.ilike.${search}`);
   }
 
-  // Apply sorting
   if (filters?.sortBy === 'price-asc') {
     query = query.order('price', { ascending: true });
   } else if (filters?.sortBy === 'price-desc') {
@@ -234,7 +233,7 @@ export const fetchVolumesByProductId = async (productId: string): Promise<Volume
   }));
 };
 
-// ─── HERO SLIDES (For Home Page) ───────────────────────────────
+// ─── HERO SLIDES ───────────────────────────────────────────────
 export const fetchHeroSlides = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('hero_slides')
@@ -242,14 +241,11 @@ export const fetchHeroSlides = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching hero slides:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching hero slides:', error); return []; }
   return data || [];
 };
 
-// ─── PROMOTIONS (For Home Page) ────────────────────────────────
+// ─── PROMOTIONS ────────────────────────────────────────────────
 export const fetchPromotions = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('promotions')
@@ -257,14 +253,11 @@ export const fetchPromotions = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching promotions:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching promotions:', error); return []; }
   return data || [];
 };
 
-// ─── COOPERATIVE ADS (For Home Page) ───────────────────────────
+// ─── COOPERATIVE ADS ───────────────────────────────────────────
 export const fetchCooperativeAds = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('cooperative_ads')
@@ -272,14 +265,11 @@ export const fetchCooperativeAds = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching cooperative ads:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching cooperative ads:', error); return []; }
   return data || [];
 };
 
-// ─── BRAND ADS (For Home Page) ─────────────────────────────────
+// ─── BRAND ADS ─────────────────────────────────────────────────
 export const fetchBrandAds = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('brand_ads')
@@ -287,14 +277,11 @@ export const fetchBrandAds = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching brand ads:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching brand ads:', error); return []; }
   return data || [];
 };
 
-// ─── PARTNERS (For Home Page) ──────────────────────────────────
+// ─── PARTNERS ──────────────────────────────────────────────────
 export const fetchPartners = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('partners')
@@ -302,14 +289,11 @@ export const fetchPartners = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching partners:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching partners:', error); return []; }
   return data || [];
 };
 
-// ─── FEATURES (For Home Page) ──────────────────────────────────
+// ─── FEATURES ──────────────────────────────────────────────────
 export const fetchFeatures = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('features')
@@ -317,14 +301,11 @@ export const fetchFeatures = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching features:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching features:', error); return []; }
   return data || [];
 };
 
-// ─── STATS (For Home Page) ─────────────────────────────────────
+// ─── STATS ─────────────────────────────────────────────────────
 export const fetchStats = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('stats')
@@ -332,14 +313,11 @@ export const fetchStats = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching stats:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching stats:', error); return []; }
   return data || [];
 };
 
-// ─── PROMO BANNERS (For Home Page) ─────────────────────────────
+// ─── PROMO BANNERS ─────────────────────────────────────────────
 export const fetchPromoBanners = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('promo_banners')
@@ -347,14 +325,11 @@ export const fetchPromoBanners = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching promo banners:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching promo banners:', error); return []; }
   return data || [];
 };
 
-// ─── ABOUT PAGE CONTENT ──────────────────────────────────────
+// ─── ABOUT PAGE ──────────────────────────────────────────────
 export const fetchAboutPage = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('about_page_content')
@@ -362,14 +337,11 @@ export const fetchAboutPage = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching about page:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching about page:', error); return []; }
   return data || [];
 };
 
-// ─── CONTACT PAGE CONTENT ────────────────────────────────────
+// ─── CONTACT PAGE ────────────────────────────────────────────
 export const fetchContactPage = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('contact_page_content')
@@ -377,10 +349,7 @@ export const fetchContactPage = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching contact page:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching contact page:', error); return []; }
   return data || [];
 };
 
@@ -392,14 +361,11 @@ export const fetchContactInfo = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching contact info:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching contact info:', error); return []; }
   return data || [];
 };
 
-// ─── FOOTER CONTENT ──────────────────────────────────────────
+// ─── FOOTER ──────────────────────────────────────────────────
 export const fetchFooterContact = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('footer_contact')
@@ -407,10 +373,7 @@ export const fetchFooterContact = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching footer contact:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching footer contact:', error); return []; }
   return data || [];
 };
 
@@ -421,10 +384,7 @@ export const fetchFooterLinks = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching footer links:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching footer links:', error); return []; }
   return data || [];
 };
 
@@ -435,14 +395,11 @@ export const fetchFooterSocial = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching footer social:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching footer social:', error); return []; }
   return data || [];
 };
 
-// ─── COOPERATIVES PAGE CONTENT ─────────────────────────────────
+// ─── COOPERATIVES PAGE ─────────────────────────────────────────
 export const fetchCooperativesPage = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('cooperatives_page_content')
@@ -450,10 +407,7 @@ export const fetchCooperativesPage = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching cooperatives page:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching cooperatives page:', error); return []; }
   return data || [];
 };
 
@@ -465,10 +419,7 @@ export const fetchCooperativesStats = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching cooperatives stats:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching cooperatives stats:', error); return []; }
   return data || [];
 };
 
@@ -480,28 +431,21 @@ export const fetchFooterNewsletter = async (): Promise<any[]> => {
     .eq('is_active', true)
     .order('created_at', { ascending: true });
   
-  if (error) {
-    console.error('Error fetching footer newsletter:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching footer newsletter:', error); return []; }
   return data || [];
 };
 
-// ─── SITE SETTINGS (Logo, Branding, etc.) ───────────────────
+// ─── SITE SETTINGS ───────────────────────────────────────────
 export const fetchSiteSettings = async (): Promise<any[]> => {
   const { data, error } = await supabase
     .from('site_settings')
     .select('*')
     .eq('is_active', true);
   
-  if (error) {
-    console.error('Error fetching site settings:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching site settings:', error); return []; }
   return data || [];
 };
 
-// Helper to get a specific setting by key
 export const getSiteSetting = (settings: any[], key: string, language: string = 'en'): string => {
   const setting = settings.find(s => s.key === key);
   if (!setting) return '';
@@ -515,9 +459,6 @@ export const fetchCategoriesSection = async (): Promise<any[]> => {
     .select('*')
     .eq('is_active', true);
   
-  if (error) {
-    console.error('Error fetching categories section:', error);
-    return [];
-  }
+  if (error) { console.error('Error fetching categories section:', error); return []; }
   return data || [];
 };

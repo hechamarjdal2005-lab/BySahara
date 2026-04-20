@@ -1,122 +1,138 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { fetchCategories, fetchCategoriesSection } from '../data';
 import { Category } from '../types';
 
-// ─── YOUR ORIGINAL SVG ICONS ─────────────────────────────────
+// ─── ICONS — thin outline, minimal style ─────────────────────
+
 const IconDriedFruits = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <ellipse cx="22" cy="34" rx="9" ry="13" /><ellipse cx="42" cy="34" rx="9" ry="13" />
-    <path d="M22 21 Q22 16 26 14" /><path d="M42 21 Q42 16 46 14" />
-    <path d="M15 30 Q22 28 29 30" /><path d="M35 30 Q42 28 49 30" />
-    <path d="M15 38 Q22 36 29 38" /><path d="M35 38 Q42 36 49 38" />
-    <ellipse cx="22" cy="34" rx="2.5" ry="4" fill="currentColor" stroke="none" opacity="0.3"/>
-    <ellipse cx="42" cy="34" rx="2.5" ry="4" fill="currentColor" stroke="none" opacity="0.3"/>
+    <ellipse cx="32" cy="38" rx="10" ry="14" />
+    <path d="M32 24 Q32 18 36 16" />
+    <path d="M22 34 Q32 31 42 34" />
+    <path d="M22 41 Q32 38 42 41" />
+    <ellipse cx="32" cy="38" rx="3" ry="5" fill="currentColor" stroke="none" opacity="0.18" />
   </svg>
 );
 
 const IconSpices = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <path d="M16 38 Q14 52 32 52 Q50 52 48 38 Z" /><path d="M13 38 L51 38" />
-    <path d="M38 20 L44 36" strokeWidth="3" strokeLinecap="round"/>
-    <circle cx="24" cy="33" r="1.5" fill="currentColor" stroke="none"/>
-    <circle cx="30" cy="31" r="1.5" fill="currentColor" stroke="none"/>
-    <circle cx="36" cy="33" r="1.5" fill="currentColor" stroke="none"/>
-    <path d="M20 24 Q18 18 24 16 Q26 22 20 24Z" fill="currentColor" stroke="none" opacity="0.4"/>
-    <path d="M20 24 Q22 20 24 16" />
+    <path d="M16 42 Q14 56 32 56 Q50 56 48 42 Z" />
+    <path d="M13 42 L51 42" />
+    <path d="M36 24 L42 40" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M21 28 Q18 20 24 18 Q26 24 21 28Z" fill="currentColor" stroke="none" opacity="0.3" />
+    <path d="M21 28 Q23 22 24 18" />
   </svg>
 );
 
 const IconTea = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <path d="M14 30 L18 52 Q18 54 32 54 Q46 54 46 52 L50 30 Z" /><path d="M12 30 L52 30" />
-    <path d="M50 36 Q58 36 58 42 Q58 48 50 46" />
-    <path d="M24 22 Q26 16 24 10" strokeWidth="1.2"/><path d="M32 20 Q34 14 32 8" strokeWidth="1.2"/>
-    <path d="M40 22 Q42 16 40 10" strokeWidth="1.2"/>
-    <path d="M32 30 L32 38" strokeDasharray="2 2"/>
-    <rect x="28" y="38" width="8" height="6" rx="1.5" fill="currentColor" stroke="none" opacity="0.3"/>
+    <path d="M14 32 L18 54 Q18 56 32 56 Q46 56 46 54 L50 32 Z" />
+    <path d="M12 32 L52 32" />
+    <path d="M50 38 Q59 38 59 45 Q59 52 50 50" />
+    <path d="M24 24 Q26 18 24 12" strokeWidth="1.2" />
+    <path d="M32 22 Q34 16 32 10" strokeWidth="1.2" />
+    <path d="M40 24 Q42 18 40 12" strokeWidth="1.2" />
   </svg>
 );
 
 const IconEssentialOils = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <path d="M24 26 Q20 28 20 36 L20 48 Q20 52 32 52 Q44 52 44 48 L44 36 Q44 28 40 26 Z" />
-    <rect x="27" y="18" width="10" height="10" rx="2" />
-    <rect x="25" y="12" width="14" height="8" rx="3" fill="currentColor" stroke="none" opacity="0.25"/>
-    <rect x="25" y="12" width="14" height="8" rx="3" />
-    <path d="M21 40 Q32 37 43 40" />
-    <rect x="23" y="30" width="18" height="10" rx="2" fill="currentColor" stroke="none" opacity="0.12"/>
+    <path d="M26 28 Q21 30 21 40 L21 52 Q21 56 32 56 Q43 56 43 52 L43 40 Q43 30 38 28 Z" />
+    <rect x="27" y="18" width="10" height="12" rx="2.5" />
+    <rect x="26" y="12" width="12" height="8" rx="3" fill="currentColor" stroke="none" opacity="0.18" />
+    <rect x="26" y="12" width="12" height="8" rx="3" />
+    <path d="M22 42 Q32 39 42 42" />
   </svg>
 );
 
 const IconHoney = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <path d="M18 28 L18 50 Q18 54 32 54 Q46 54 46 50 L46 28 Z" />
-    <path d="M14 28 Q14 22 32 22 Q50 22 50 28 Z" />
-    <rect x="22" y="16" width="20" height="8" rx="3" fill="currentColor" stroke="none" opacity="0.2"/>
-    <rect x="22" y="16" width="20" height="8" rx="3" />
-    <path d="M32 22 L32 34 Q32 38 28 38 Q24 38 24 34" strokeWidth="3" strokeLinecap="round"/>
-    <path d="M34 42 L37 40 L40 42 L40 46 L37 48 L34 46 Z" opacity="0.35" fill="currentColor" stroke="none"/>
-    <path d="M24 44 L27 42 L30 44 L30 48 L27 50 L24 48 Z" opacity="0.35" fill="currentColor" stroke="none"/>
+    <path d="M19 32 L19 52 Q19 56 32 56 Q45 56 45 52 L45 32 Z" />
+    <path d="M15 32 Q15 26 32 26 Q49 26 49 32 Z" />
+    <rect x="23" y="18" width="18" height="10" rx="3.5" />
+    <path d="M32 26 L32 38 Q32 42 28 42 Q24 42 24 38" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M36 46 L38 44 L41 44 L42 46 L41 48 L38 48 Z" opacity="0.3" fill="currentColor" stroke="none" />
+    <path d="M23 44 L25 42 L28 42 L29 44 L28 46 L25 46 Z" opacity="0.3" fill="currentColor" stroke="none" />
   </svg>
 );
 
 const IconOils = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <path d="M28 10 Q28 7 32 7 Q36 7 36 10 L38 20 Q44 24 44 34 L44 50 Q44 54 32 54 Q20 54 20 50 L20 34 Q20 24 26 20 Z" />
-    <path d="M21 38 Q32 34 43 38" />
-    <ellipse cx="32" cy="10" rx="5" ry="2.5" fill="currentColor" stroke="none" opacity="0.3"/>
-    <path d="M12 20 Q16 14 20 16" />
-    <ellipse cx="14" cy="16" rx="3" ry="2" transform="rotate(-30 14 16)" fill="currentColor" stroke="none" opacity="0.4"/>
-    <ellipse cx="18" cy="14" rx="3" ry="2" transform="rotate(-10 18 14)" fill="currentColor" stroke="none" opacity="0.4"/>
+    <path d="M28 12 Q28 8 32 8 Q36 8 36 12 L38 22 Q44 26 44 36 L44 52 Q44 56 32 56 Q20 56 20 52 L20 36 Q20 26 26 22 Z" />
+    <path d="M21 40 Q32 37 43 40" />
+    <ellipse cx="32" cy="12" rx="5" ry="2.5" fill="currentColor" stroke="none" opacity="0.22" />
+    <path d="M13 22 Q17 16 21 18" strokeWidth="1.2" />
+    <ellipse cx="14" cy="18" rx="3.5" ry="2" transform="rotate(-30 14 18)" fill="currentColor" stroke="none" opacity="0.35" />
+    <ellipse cx="19" cy="15" rx="3.5" ry="2" transform="rotate(-15 19 15)" fill="currentColor" stroke="none" opacity="0.35" />
   </svg>
 );
 
 const IconFlour = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <path d="M20 22 Q16 26 16 34 L16 50 Q16 54 32 54 Q48 54 48 50 L48 34 Q48 26 44 22 Z" />
-    <path d="M24 22 Q28 16 32 18 Q36 16 40 22" /><path d="M30 18 Q32 12 34 18" />
-    <path d="M22 34 Q32 30 42 34" /><path d="M20 42 Q32 38 44 42" />
-    <circle cx="26" cy="46" r="1" fill="currentColor" stroke="none" opacity="0.4"/>
-    <circle cx="32" cy="48" r="1" fill="currentColor" stroke="none" opacity="0.4"/>
-    <circle cx="38" cy="46" r="1" fill="currentColor" stroke="none" opacity="0.4"/>
+    <path d="M21 26 Q17 30 17 38 L17 52 Q17 56 32 56 Q47 56 47 52 L47 38 Q47 30 43 26 Z" />
+    <path d="M25 26 Q29 18 32 20 Q35 18 39 26" />
+    <path d="M30 20 Q32 14 34 20" />
+    <path d="M20 38 Q32 35 44 38" />
+    <path d="M19 46 Q32 43 45 46" />
+    <circle cx="27" cy="50" r="1.2" fill="currentColor" stroke="none" opacity="0.35" />
+    <circle cx="32" cy="52" r="1.2" fill="currentColor" stroke="none" opacity="0.35" />
+    <circle cx="37" cy="50" r="1.2" fill="currentColor" stroke="none" opacity="0.35" />
   </svg>
 );
 
 const IconBeauty = () => (
   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
-    <ellipse cx="32" cy="46" rx="18" ry="8" />
-    <path d="M14 46 L14 40 Q14 36 32 36 Q50 36 50 40 L50 46" />
-    <ellipse cx="32" cy="40" rx="18" ry="6" fill="currentColor" stroke="none" opacity="0.15"/>
-    <ellipse cx="32" cy="40" rx="18" ry="6" />
-    <path d="M32 36 L32 26" />
-    <path d="M32 30 Q26 26 24 20 Q30 20 32 26" fill="currentColor" stroke="none" opacity="0.3"/>
-    <path d="M32 28 Q38 24 40 18 Q34 18 32 24" fill="currentColor" stroke="none" opacity="0.3"/>
-    <path d="M32 30 Q26 26 24 20" /><path d="M32 28 Q38 24 40 18" />
+    <ellipse cx="32" cy="50" rx="18" ry="8" />
+    <path d="M14 50 L14 44 Q14 40 32 40 Q50 40 50 44 L50 50" />
+    <ellipse cx="32" cy="44" rx="18" ry="6" fill="currentColor" stroke="none" opacity="0.12" />
+    <ellipse cx="32" cy="44" rx="18" ry="6" />
+    <path d="M32 40 L32 30" />
+    <path d="M32 34 Q26 30 25 24 Q31 24 32 30" fill="currentColor" stroke="none" opacity="0.28" />
+    <path d="M32 32 Q38 28 40 22 Q34 22 32 28" fill="currentColor" stroke="none" opacity="0.28" />
+    <path d="M32 34 Q26 30 25 24" />
+    <path d="M32 32 Q38 28 40 22" />
+  </svg>
+);
+
+// ─── NEW: Clothing & Accessories Icon ────────────────────────
+const IconClothing = () => (
+  <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9">
+    {/* hanger hook */}
+    <path d="M32 10 Q32 7 35 7 Q39 7 39 11 Q39 14 32 19" />
+    {/* djellaba / robe silhouette */}
+    <path d="M32 19 L18 28 L22 35 L26 32 L26 56 L38 56 L38 32 L42 35 L46 28 Z" />
+    {/* subtle embroidery hint on chest */}
+    <path d="M29 36 Q32 34 35 36" strokeWidth="1" opacity="0.5" />
+    <path d="M30 39 Q32 37.5 34 39" strokeWidth="1" opacity="0.5" />
+    <path d="M31 42 Q32 41 33 42" strokeWidth="1" opacity="0.5" />
   </svg>
 );
 
 // ─── Get Icon by Category ID ─────────────────────────────────
 const getCategoryIcon = (categoryId: string) => {
   const icons: Record<string, JSX.Element> = {
-    'dried-fruits': <IconDriedFruits />,
-    'spices': <IconSpices />,
-    'tea': <IconTea />,
+    'dried-fruits':    <IconDriedFruits />,
+    'spices':          <IconSpices />,
+    'tea':             <IconTea />,
     'distilled-water': <IconEssentialOils />,
-    'honey': <IconHoney />,
-    'oils': <IconOils />,
-    'flour': <IconFlour />,
-    'beauty': <IconBeauty />,
+    'honey':           <IconHoney />,
+    'oils':            <IconOils />,
+    'flour':           <IconFlour />,
+    'beauty':          <IconBeauty />,
+    'clothing':        <IconClothing />,   // ← جديد
   };
   return icons[categoryId] || <IconSpices />;
 };
 
 // ─── Category Card ────────────────────────────────────────────
 const CategoryCard: React.FC<{ category: Category; language: string }> = ({ category, language }) => {
-  const name = typeof category.name === 'string' ? category.name : (language === 'ar' ? category.name.ar : category.name.en);
+  const name = typeof category.name === 'string'
+    ? category.name
+    : (language === 'ar' ? category.name.ar : category.name.en);
   const icon = getCategoryIcon(category.id);
 
   return (
@@ -194,14 +210,16 @@ const CategoriesSection: React.FC = () => {
     );
   }
 
-  const title = sectionContent?.title_en 
+  const title = sectionContent?.title_en
     ? (isRtl ? sectionContent.title_ar : sectionContent.title_en)
     : tr('تصفح حسب الفئة', 'Browse by Category');
 
   const description = sectionContent?.subtitle_en
     ? (isRtl ? sectionContent.subtitle_ar : sectionContent.subtitle_en)
-    : tr('اكتشف منتجاتنا المحلية الأصيلة المعتمدة من تعاونيات كلميم-واد نون', 
-         'Discover authentic certified local products from Guelmim-Oued Noun cooperatives');
+    : tr(
+        'اكتشف منتجاتنا المحلية الأصيلة المعتمدة من تعاونيات كلميم-واد نون',
+        'Discover authentic certified local products from Guelmim-Oued Noun cooperatives'
+      );
 
   const buttonText = sectionContent?.button_text_en
     ? (isRtl ? sectionContent.button_text_ar : sectionContent.button_text_en)
@@ -280,7 +298,9 @@ const CategoriesSection: React.FC = () => {
                 border: showAll ? '1.5px solid #CC8F57' : 'none',
               }}
             >
-              {showAll ? (isRtl ? 'عرض أقل ↑' : 'Show less ↑') : (isRtl ? 'عرض المزيد ↓' : 'Show more ↓')}
+              {showAll
+                ? (isRtl ? 'عرض أقل ↑' : 'Show less ↑')
+                : (isRtl ? 'عرض المزيد ↓' : 'Show more ↓')}
             </button>
           </div>
         </div>

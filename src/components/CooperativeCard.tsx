@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, ArrowRight, ArrowLeft, Users, Award } from 'lucide-react';
 import { Cooperative } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -42,7 +41,7 @@ const CooperativeCard: React.FC<CooperativeCardProps> = ({ cooperative }) => {
                 className="text-xs font-bold px-2 py-0.5 rounded-full"
                 style={{ background: '#9FA93D', color: '#fff' }}
               >
-                {cert}
+                🌿 {cert}
               </span>
             ))}
           </div>
@@ -60,7 +59,7 @@ const CooperativeCard: React.FC<CooperativeCardProps> = ({ cooperative }) => {
         {/* location */}
         <div className="flex items-center gap-1.5 text-sm font-medium mb-2"
           style={{ color: '#CC8F57' }}>
-          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+          <span style={{ fontSize: '14px' }}></span>
           <span>{city}</span>
           <span style={{ color: '#F8D197' }}>·</span>
           <span className="text-xs truncate" style={{ color: '#BA8944' }}>{province}</span>
@@ -71,13 +70,13 @@ const CooperativeCard: React.FC<CooperativeCardProps> = ({ cooperative }) => {
           <div className="flex items-center gap-3 mb-3">
             {cooperative.memberCount && (
               <div className="flex items-center gap-1 text-xs" style={{ color: '#9FA93D' }}>
-                <Users className="w-3 h-3" />
+                <span style={{ fontSize: '13px' }}></span>
                 <span>{cooperative.memberCount} {t('عضو', 'members')}</span>
               </div>
             )}
             {cooperative.foundedYear && (
               <div className="flex items-center gap-1 text-xs" style={{ color: '#9FA93D' }}>
-                <Award className="w-3 h-3" />
+                <span style={{ fontSize: '13px' }}></span>
                 <span>{t('منذ', 'est.')} {cooperative.foundedYear}</span>
               </div>
             )}
@@ -102,9 +101,12 @@ const CooperativeCard: React.FC<CooperativeCardProps> = ({ cooperative }) => {
           onMouseLeave={(e) => (e.currentTarget.style.color = '#455324')}
         >
           {t('اكتشف التعاونية', 'Explore Cooperative')}
-          {isRtl
-            ? <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            : <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
+          <span
+            className="transition-transform group-hover:translate-x-1"
+            style={{ fontSize: '14px', display: 'inline-block' }}
+          >
+            {isRtl ? '→' : '→'}
+          </span>
         </Link>
       </div>
     </div>

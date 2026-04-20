@@ -12,7 +12,8 @@ export type CategoryId =
   | 'spices'
   | 'dried-fruits'
   | 'distilled-water'
-  | 'beauty';
+  | 'beauty'
+  | 'clothing';   // ← جديد
 
 // ─── Bilingual Text ───────────────────────────────────────────────
 export interface BilingualText {
