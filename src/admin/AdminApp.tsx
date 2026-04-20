@@ -16,6 +16,7 @@ import OrdersPage from './pages/OrdersPage'
 import PacksPage from './pages/PacksPage'
 import MessagesPage from './pages/MessagesPage'
 import SettingsPage from './pages/SettingsPage'
+import AboutPage from './pages/AboutPage'
 
 export default function AdminApp() {
   return (
@@ -36,6 +37,7 @@ export default function AdminApp() {
         <Route path="media" element={<MediaPage />} />
         <Route path="partners" element={<PartnersPage />} />
         <Route path="content" element={<ContentPage />} />
+        <Route path="about" element={<AboutPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="packs" element={<PacksPage />} />
         <Route path="messages" element={<MessagesPage />} />

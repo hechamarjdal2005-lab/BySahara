@@ -48,6 +48,11 @@ const About: React.FC = () => {
   const rootsTitle = getPageSection('roots_title');
   const rootsDesc = getPageSection('roots_description');
 
+  // ✅ الصور من database
+  const heroImage = getPageSection('hero_image');
+  const missionImage = getPageSection('mission_image');
+  const missionImageSmall = getPageSection('mission_image_small');
+
   return (
     <div className="min-h-screen" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
@@ -82,7 +87,12 @@ const About: React.FC = () => {
           <div className="relative hidden md:block">
             <div className="absolute -inset-3 rounded-3xl" style={{ background: 'rgba(248,209,151,0.08)', border: '1px solid rgba(248,209,151,0.15)' }} />
             <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '4/3' }}>
-              <img src="https://images.unsplash.com/photo-1509233725247-49e657319b85?auto=format&fit=crop&q=80&w=900" alt="Sahara desert Morocco" className="w-full h-full object-cover" />
+              {/* ✅ الصورة من database */}
+              <img
+                src={heroImage?.image_url || "https://images.unsplash.com/photo-1509233725247-49e657319b85?auto=format&fit=crop&q=80&w=900"}
+                alt="Sahara desert Morocco"
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(45,58,20,0.55) 0%, transparent 60%)' }} />
               <p className="absolute bottom-4 start-4 text-xs font-semibold" style={{ color: 'rgba(248,209,151,0.9)' }}>
                 📍 {tr('كلميم-واد نون، المغرب', 'Guelmim-Oued Noun, Morocco')}
@@ -111,10 +121,20 @@ const About: React.FC = () => {
           {/* Image */}
           <div className="relative hidden md:block">
             <div className="relative rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: '4/5' }}>
-              <img src="https://images.unsplash.com/photo-1590412613626-4444634710f3?auto=format&fit=crop&q=80&w=800" alt="Moroccan women cooperative" className="w-full h-full object-cover" />
+              {/* ✅ الصورة من database */}
+              <img
+                src={missionImage?.image_url || "https://images.unsplash.com/photo-1590412613626-4444634710f3?auto=format&fit=crop&q=80&w=800"}
+                alt="Moroccan women cooperative"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="absolute -bottom-6 -end-4 w-28 h-28 rounded-2xl overflow-hidden shadow-2xl" style={{ border: '3px solid #fff' }}>
-              <img src="https://images.unsplash.com/photo-1575808142341-e39853744dbd?auto=format&fit=crop&q=80&w=300" alt="Medjool dates" className="w-full h-full object-cover" />
+              {/* ✅ الصورة الصغيرة من database */}
+              <img
+                src={missionImageSmall?.image_url || "https://images.unsplash.com/photo-1575808142341-e39853744dbd?auto=format&fit=crop&q=80&w=300"}
+                alt="Medjool dates"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 

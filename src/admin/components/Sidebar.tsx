@@ -5,16 +5,17 @@ import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../../lib/supabase'
 
 const NAV = [
-  { label: 'Tableau de bord', emoji: '▦', path: '/admin', end: true },
-  { label: 'Commandes',       emoji: '🛍️', path: '/admin/orders',       badge: 'orders' },
+  { label: 'Tableau de bord', emoji: '▦',  path: '/admin',             end: true },
+  { label: 'Commandes',       emoji: '🛍️', path: '/admin/orders',      badge: 'orders' },
   { label: 'Produits',        emoji: '📦', path: '/admin/products' },
   { label: 'Catégories',      emoji: '🏷️', path: '/admin/categories' },
   { label: 'Coopératives',    emoji: '🤝', path: '/admin/cooperatives' },
   { label: 'Packs & Offres',  emoji: '🎁', path: '/admin/packs' },
   { label: 'Médias',          emoji: '🖼️', path: '/admin/media' },
   { label: 'Partenaires',     emoji: '🌟', path: '/admin/partners' },
-  { label: 'Messages',        emoji: '✉️', path: '/admin/messages',      badge: 'messages' },
+  { label: 'Messages',        emoji: '✉️', path: '/admin/messages',    badge: 'messages' },
   { label: 'Contenu',         emoji: '📄', path: '/admin/content' },
+  { label: 'À propos',        emoji: '📖', path: '/admin/about' },
   { label: 'Pied de page',    emoji: '🔗', path: '/admin/footer' },
   { label: 'Paramètres',      emoji: '⚙️', path: '/admin/settings' },
 ]
