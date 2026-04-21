@@ -71,9 +71,7 @@ const CooperativeDetails = () => {
           coopErr = idError;
         }
 
-        if (slugError && !coopData) {
-          coopErr = slugError;
-        }
+        if (slugError && !coopData) coopErr = slugError;
 
         if (coopErr && !coopData) {
           console.error('Error loading cooperative:', coopErr);
@@ -105,9 +103,7 @@ const CooperativeDetails = () => {
           .select('*')
           .eq('cooperative_id', coopData.id);
 
-        if (productsError) {
-          console.error('Error loading products:', productsError);
-        }
+        if (productsError) console.error('Error loading products:', productsError);
 
         const transformedProducts = (prodsData || []).map((p) => ({
           ...p,
@@ -133,6 +129,7 @@ const CooperativeDetails = () => {
     loadData();
   }, [slug]);
 
+  // ─── Loading ─────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#FDFAF5' }}>
@@ -146,6 +143,7 @@ const CooperativeDetails = () => {
     );
   }
 
+  // ─── Error ───────────────────────────────────────────────────
   if (error || !cooperative) {
     return (
       <div
@@ -158,11 +156,9 @@ const CooperativeDetails = () => {
         >
           <MapPin className="w-7 h-7" style={{ color: '#455324' }} />
         </div>
-
         <h2 className="font-serif text-xl font-bold mb-3" style={{ color: '#455324' }}>
           {t('التعاونية غير موجودة', 'Cooperative not found')}
         </h2>
-
         <Link
           to="/cooperatives"
           className="inline-flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white text-sm"
@@ -175,9 +171,9 @@ const CooperativeDetails = () => {
     );
   }
 
-  const name = lang(cooperative.name);
-  const city = lang(cooperative.city);
-  const province = lang(cooperative.province);
+  const name        = lang(cooperative.name);
+  const city        = lang(cooperative.city);
+  const province    = lang(cooperative.province);
   const description = lang(cooperative.description);
 
   const impactItems = [
@@ -200,6 +196,8 @@ const CooperativeDetails = () => {
 
   return (
     <div className="min-h-screen pb-16" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
+
+      {/* ── Back ──────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4">
         <Link
           to="/cooperatives"
@@ -213,11 +211,29 @@ const CooperativeDetails = () => {
         </Link>
       </div>
 
+      {/* ── Hero: Cover + Logo + Name INSIDE cover ────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-3">
-        <div className="relative rounded-2xl overflow-hidden shadow-md" style={{ height: '200px' }}>
-          <img src={cooperative.image} alt={name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+        <div
+          className="relative rounded-2xl overflow-hidden shadow-md"
+          style={{ height: '260px' }}
+        >
+          {/* Cover image */}
+          <img
+            src={cooperative.image}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
 
+          {/* Gradient — heavy bottom for text readability */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(to top, rgba(20,12,2,0.88) 0%, rgba(15,9,2,0.50) 35%, transparent 65%)',
+            }}
+          />
+
+          {/* Certifications — top start */}
           {cooperative.certifications && cooperative.certifications.length > 0 && (
             <div className="absolute top-3 start-3 flex gap-1.5">
               {cooperative.certifications.map((cert) => (
@@ -232,19 +248,62 @@ const CooperativeDetails = () => {
             </div>
           )}
 
-          <div className="absolute bottom-0 start-0 end-0 px-4 py-3">
-            <h1 className="font-serif text-xl font-bold text-white leading-tight mb-1">{name}</h1>
-            <div className="flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
-              <MapPin className="w-3 h-3 flex-shrink-0" style={{ color: '#F8D197' }} />
-              <span className="text-xs font-medium">{city}</span>
-              <span style={{ color: '#F8D197' }}>·</span>
-              <span className="text-xs opacity-80">{province}</span>
+          {/* Logo + Name + City — pinned bottom, INSIDE cover */}
+          <div className="absolute bottom-0 start-0 end-0 px-5 pb-5 flex items-end gap-4">
+
+            {/* Logo circle */}
+            <div
+              className="flex-shrink-0 rounded-full overflow-hidden"
+              style={{
+                width: '76px',
+                height: '76px',
+                border: '3px solid rgba(255,255,255,0.22)',
+                background: '#F8D197',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.40)',
+              }}
+            >
+              {cooperative.logo ? (
+                <img
+                  src={cooperative.logo}
+                  alt={`${name} logo`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center font-bold"
+                  style={{ fontSize: '1.9rem', color: '#455324', background: '#F8D197' }}
+                >
+                  {name.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+
+            {/* Name + location */}
+            <div className="min-w-0 pb-1">
+              <h1
+                className="font-serif font-bold text-white leading-tight"
+                style={{
+                  fontSize: '1.25rem',
+                  textShadow: '0 1px 8px rgba(0,0,0,0.6)',
+                }}
+              >
+                {name}
+              </h1>
+              <div className="flex items-center gap-1.5 mt-1">
+                <MapPin className="w-3 h-3 flex-shrink-0" style={{ color: '#F8D197' }} />
+                <span className="text-xs font-semibold" style={{ color: '#F8D197' }}>{city}</span>
+                <span style={{ color: 'rgba(255,255,255,0.40)' }}>·</span>
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.70)' }}>{province}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* ── Main Content ─────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-4">
+
+        {/* Info strip */}
         <div className="flex flex-wrap gap-2 mb-4">
           {cooperative.memberCount && (
             <div
@@ -255,7 +314,6 @@ const CooperativeDetails = () => {
               {cooperative.memberCount} {t('عضو', 'members')}
             </div>
           )}
-
           {cooperative.foundedYear && (
             <div
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
@@ -265,7 +323,6 @@ const CooperativeDetails = () => {
               {t('منذ', 'Since')} {cooperative.foundedYear}
             </div>
           )}
-
           {cooperative.phone && (
             <div
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
@@ -275,7 +332,6 @@ const CooperativeDetails = () => {
               {cooperative.phone}
             </div>
           )}
-
           <div
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
             style={{ background: '#F8D197', color: '#455324' }}
@@ -283,7 +339,6 @@ const CooperativeDetails = () => {
             <Package className="w-3.5 h-3.5" />
             {products.length} {t('منتج', 'products')}
           </div>
-
           {cooperative.certifications?.map((cert) => (
             <span
               key={cert}
@@ -295,6 +350,7 @@ const CooperativeDetails = () => {
           ))}
         </div>
 
+        {/* About + Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           <div
             className="lg:col-span-2 rounded-2xl p-4 sm:p-6"
@@ -318,7 +374,6 @@ const CooperativeDetails = () => {
             <h3 className="font-semibold text-sm mb-3" style={{ color: '#455324' }}>
               {t('معلومات التعاونية', 'Cooperative Info')}
             </h3>
-
             <div className="space-y-3">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#CC8F57' }} />
@@ -328,7 +383,6 @@ const CooperativeDetails = () => {
                   <p className="text-xs" style={{ color: '#BA8944' }}>{lang(cooperative.region)}</p>
                 </div>
               </div>
-
               {cooperative.memberCount && (
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 flex-shrink-0" style={{ color: '#CC8F57' }} />
@@ -337,7 +391,6 @@ const CooperativeDetails = () => {
                   </p>
                 </div>
               )}
-
               {cooperative.foundedYear && (
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 flex-shrink-0" style={{ color: '#CC8F57' }} />
@@ -346,7 +399,6 @@ const CooperativeDetails = () => {
                   </p>
                 </div>
               )}
-
               {cooperative.phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 flex-shrink-0" style={{ color: '#CC8F57' }} />
@@ -357,9 +409,14 @@ const CooperativeDetails = () => {
           </div>
         </div>
 
+        {/* Impact cards */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
           {impactItems.map((item) => (
-            <div key={item.title} className="rounded-xl p-3 text-center" style={{ background: '#455324' }}>
+            <div
+              key={item.title}
+              className="rounded-xl p-3 text-center"
+              style={{ background: '#455324' }}
+            >
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1.5"
                 style={{ background: '#F8D197', color: '#455324' }}
@@ -377,6 +434,7 @@ const CooperativeDetails = () => {
         </div>
       </div>
 
+      {/* ══ PACKS ════════════════════════════════════════════ */}
       {packs.length > 0 && (
         <div className="mt-2 mb-2">
           <PacksSection
@@ -388,6 +446,7 @@ const CooperativeDetails = () => {
         </div>
       )}
 
+      {/* ══ PRODUCTS ════════════════════════════════════════ */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -396,7 +455,6 @@ const CooperativeDetails = () => {
               {t('المنتجات', 'Products')}
             </h2>
           </div>
-
           {products.length > 0 && (
             <span
               className="text-xs font-semibold px-2.5 py-1 rounded-full"
@@ -425,6 +483,7 @@ const CooperativeDetails = () => {
           </div>
         )}
       </div>
+
     </div>
   );
 };
