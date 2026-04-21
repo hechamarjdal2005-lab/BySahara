@@ -38,31 +38,36 @@ const About: React.FC = () => {
     );
   }
 
-  const heroBadge = getPageSection('hero_badge');
-  const heroTitle = getPageSection('hero_title');
-  const heroDesc = getPageSection('hero_description');
-  const heroBadgeMain = getPageSection('hero_badge_main');
-  const missionTitle = getPageSection('mission_title');
-  const missionContent = getPageSection('mission_content');
-  const rootsBadge = getPageSection('roots_badge');
-  const rootsTitle = getPageSection('roots_title');
-  const rootsDesc = getPageSection('roots_description');
+  const heroBadge       = getPageSection('hero_badge');
+  const heroTitle       = getPageSection('hero_title');
+  const heroDesc        = getPageSection('hero_description');
+  const heroBadgeMain   = getPageSection('hero_badge_main');
+  const missionTitle    = getPageSection('mission_title');
+  const missionContent  = getPageSection('mission_content');
+  const rootsBadge      = getPageSection('roots_badge');
+  const rootsTitle      = getPageSection('roots_title');
+  const rootsDesc       = getPageSection('roots_description');
 
-  // ✅ الصور من database
-  const heroImage = getPageSection('hero_image');
-  const missionImage = getPageSection('mission_image');
+  const heroImage        = getPageSection('hero_image');
+  const missionImage     = getPageSection('mission_image');
   const missionImageSmall = getPageSection('mission_image_small');
 
   return (
     <div className="min-h-screen" dir={isRtl ? 'rtl' : 'ltr'} style={{ background: '#FDFAF5' }}>
 
-      {/* Hero Section */}
+      {/* ═══════════════════════════════════════
+          HERO SECTION
+      ═══════════════════════════════════════ */}
       <section style={{ background: 'linear-gradient(135deg, #2d3a14 0%, #455324 55%, #617131 100%)' }}>
         <div className="max-w-5xl mx-auto px-5 sm:px-10 py-10 sm:py-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+
+          {/* Text */}
           <div>
             {heroBadge && (
-              <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4"
-                style={{ background: 'rgba(248,209,151,0.15)', color: '#F8D197', border: '1px solid rgba(248,209,151,0.3)' }}>
+              <span
+                className="inline-block text-xs font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4"
+                style={{ background: 'rgba(248,209,151,0.15)', color: '#F8D197', border: '1px solid rgba(248,209,151,0.3)' }}
+              >
                 {isRtl ? heroBadge.title_ar : heroBadge.title_en}
               </span>
             )}
@@ -83,23 +88,32 @@ const About: React.FC = () => {
             )}
           </div>
 
-          {/* Hero Image */}
-          <div className="relative hidden md:block">
-            <div className="absolute -inset-3 rounded-3xl" style={{ background: 'rgba(248,209,151,0.08)', border: '1px solid rgba(248,209,151,0.15)' }} />
+          {/* Hero Image — ✅ كاتبان على موبايل و desktop */}
+          <div className="relative">
+            <div
+              className="absolute -inset-3 rounded-3xl"
+              style={{ background: 'rgba(248,209,151,0.08)', border: '1px solid rgba(248,209,151,0.15)' }}
+            />
             <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '4/3' }}>
-              {/* ✅ الصورة من database */}
               <img
-                src={heroImage?.image_url || "https://images.unsplash.com/photo-1509233725247-49e657319b85?auto=format&fit=crop&q=80&w=900"}
+                src={heroImage?.image_url || 'https://images.unsplash.com/photo-1509233725247-49e657319b85?auto=format&fit=crop&q=80&w=900'}
                 alt="Sahara desert Morocco"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(45,58,20,0.55) 0%, transparent 60%)' }} />
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(to top, rgba(45,58,20,0.55) 0%, transparent 60%)' }}
+              />
               <p className="absolute bottom-4 start-4 text-xs font-semibold" style={{ color: 'rgba(248,209,151,0.9)' }}>
                 📍 {tr('كلميم-واد نون، المغرب', 'Guelmim-Oued Noun, Morocco')}
               </p>
             </div>
+
             {heroBadgeMain && (
-              <div className="absolute -bottom-5 -start-5 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl" style={{ background: '#F8D197' }}>
+              <div
+                className="absolute -bottom-5 -start-5 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl"
+                style={{ background: '#F8D197' }}
+              >
                 <span className="text-xl">🏆</span>
                 <div>
                   <p className="text-xs font-bold" style={{ color: '#455324' }}>
@@ -112,26 +126,32 @@ const About: React.FC = () => {
               </div>
             )}
           </div>
+
         </div>
       </section>
 
-      {/* Mission Section */}
+      {/* ═══════════════════════════════════════
+          MISSION SECTION
+      ═══════════════════════════════════════ */}
       <section className="max-w-5xl mx-auto px-5 sm:px-10 py-10 sm:py-20">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr] gap-10 items-center">
-          {/* Image */}
-          <div className="relative hidden md:block">
+
+          {/* Mission Image — ✅ كاتبان على موبايل و desktop */}
+          <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: '4/5' }}>
-              {/* ✅ الصورة من database */}
               <img
-                src={missionImage?.image_url || "https://images.unsplash.com/photo-1590412613626-4444634710f3?auto=format&fit=crop&q=80&w=800"}
+                src={missionImage?.image_url || 'https://images.unsplash.com/photo-1590412613626-4444634710f3?auto=format&fit=crop&q=80&w=800'}
                 alt="Moroccan women cooperative"
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-6 -end-4 w-28 h-28 rounded-2xl overflow-hidden shadow-2xl" style={{ border: '3px solid #fff' }}>
-              {/* ✅ الصورة الصغيرة من database */}
+            {/* Small floating image */}
+            <div
+              className="absolute -bottom-6 -end-4 w-28 h-28 rounded-2xl overflow-hidden shadow-2xl"
+              style={{ border: '3px solid #fff' }}
+            >
               <img
-                src={missionImageSmall?.image_url || "https://images.unsplash.com/photo-1575808142341-e39853744dbd?auto=format&fit=crop&q=80&w=300"}
+                src={missionImageSmall?.image_url || 'https://images.unsplash.com/photo-1575808142341-e39853744dbd?auto=format&fit=crop&q=80&w=300'}
                 alt="Medjool dates"
                 className="w-full h-full object-cover"
               />
@@ -139,7 +159,7 @@ const About: React.FC = () => {
           </div>
 
           {/* Text */}
-          <div>
+          <div className="mt-8 md:mt-0">
             {missionTitle && (
               <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: '#9FA93D' }}>
                 {isRtl ? missionTitle.title_ar : missionTitle.title_en}
@@ -157,19 +177,28 @@ const About: React.FC = () => {
                 tr('محلي الصنع', 'Locally Made'),
                 tr('مستدام', 'Sustainable'),
               ].map((tag) => (
-                <span key={tag} className="px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#F7F1E8', color: '#617131', border: '1px solid #EDD9AA' }}>
+                <span
+                  key={tag}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold"
+                  style={{ background: '#F7F1E8', color: '#617131', border: '1px solid #EDD9AA' }}
+                >
                   {tag}
                 </span>
               ))}
             </div>
           </div>
+
         </div>
       </section>
 
-      {/* Roots Section */}
+      {/* ═══════════════════════════════════════
+          ROOTS SECTION
+      ═══════════════════════════════════════ */}
       <section className="px-5 py-10 sm:py-16">
-        <div className="relative max-w-5xl mx-auto rounded-2xl sm:rounded-3xl overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, #CC8F57 0%, #BA8944 100%)' }}>
+        <div
+          className="relative max-w-5xl mx-auto rounded-2xl sm:rounded-3xl overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #CC8F57 0%, #BA8944 100%)' }}
+        >
           <div className="relative px-6 sm:px-10 py-10 sm:py-16 text-center">
             {rootsBadge && (
               <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>
