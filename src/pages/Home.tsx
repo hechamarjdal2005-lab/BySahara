@@ -203,6 +203,7 @@ const Home: React.FC = () => {
         const [
           slides, promos, cAds, bAds, pts, feats, sts, pbns,
           products, cooperatives,
+          packsData, // ✅ FIX: getAllActivePacks is now awaited inside Promise.all
         ] = await Promise.all([
           fetchHeroSlides(),
           fetchPromotions(),
@@ -214,6 +215,7 @@ const Home: React.FC = () => {
           fetchPromoBanners(),
           fetchFeaturedProducts(8),
           fetchCooperatives(),
+          getAllActivePacks(), // ✅ FIX: was called without await before
         ]);
 
         setHeroSlides(slides);
@@ -226,7 +228,7 @@ const Home: React.FC = () => {
         setPromoBanners(pbns);
         setFeaturedProducts(products);
         setFeaturedCooperatives(cooperatives.slice(0, 3));
-        setPacks(getAllActivePacks());
+        setPacks(packsData); // ✅ FIX: was setPacks(getAllActivePacks()) — a Promise, not an array
       } catch (err) {
         console.error('Error loading home page:', err);
       } finally {
@@ -477,7 +479,7 @@ const Home: React.FC = () => {
           </div>
         </FadeUp>
 
-        {/* Desktop grid – items-stretch → nafs l height */}
+        {/* Desktop grid */}
         <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-stretch">
           {featuredProducts.map((p, idx) => (
             <FadeUp key={p.id} delay={idx * 50}>
@@ -535,7 +537,6 @@ const Home: React.FC = () => {
                 boxShadow: '0 8px 32px rgba(69,83,36,0.25)',
               }}
             >
-              {/* Decorative circles */}
               <div className="absolute -top-8 -end-8 w-40 h-40 rounded-full opacity-10" style={{ background: '#F8D197' }} />
               <div className="absolute -bottom-6 -start-6 w-28 h-28 rounded-full opacity-8" style={{ background: '#F8D197' }} />
 

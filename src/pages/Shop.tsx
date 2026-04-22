@@ -122,15 +122,16 @@ const Shop: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [productsData, cooperativesData, categoriesData] = await Promise.all([
+        const [productsData, cooperativesData, categoriesData, packsData] = await Promise.all([
           fetchProducts(),
           fetchCooperatives(),
           fetchCategories(),
+          getAllActivePacks(), // ✅ FIX: now properly awaited inside Promise.all
         ]);
         setProducts(productsData);
         setCooperatives(cooperativesData);
         setCategories(categoriesData);
-        setPacks(getAllActivePacks());
+        setPacks(packsData); // ✅ FIX: was setPacks(getAllActivePacks()) — a Promise, not an array
         setError(null);
       } catch (err) {
         console.error('Error loading shop data:', err);
@@ -288,7 +289,7 @@ const Shop: React.FC = () => {
         </div>
       </div>
 
-      {/* ══ PROMO PACKS — itl3o lwlin qbl les produits ══════ */}
+      {/* ══ PROMO PACKS ══════════════════════════════════════ */}
       {packs.length > 0 && (
         <div className="mt-6">
           <PacksSection
