@@ -18,6 +18,9 @@ const CooperativeCard: React.FC<CooperativeCardProps> = ({ cooperative }) => {
   const province    = lang(cooperative.province);
   const description = lang(cooperative.shortDescription ?? cooperative.description);
 
+  // ✅ slug katl3 f URL — ila khawia katkhdem id
+  const coopUrl = (cooperative as any).slug?.trim() || cooperative.id;
+
   return (
     <div
       className="rounded-2xl overflow-hidden flex flex-col h-full group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -92,9 +95,9 @@ const CooperativeCard: React.FC<CooperativeCardProps> = ({ cooperative }) => {
         {/* divider */}
         <div className="border-t mb-4" style={{ borderColor: '#F8D197' }} />
 
-        {/* CTA */}
+        {/* ✅ CTA — katkhdem slug */}
         <Link
-          to={`/cooperatives/${cooperative.id}`}
+          to={`/cooperatives/${coopUrl}`}
           className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors mt-auto"
           style={{ color: '#455324' }}
           onMouseEnter={(e) => (e.currentTarget.style.color = '#CC8F57')}
