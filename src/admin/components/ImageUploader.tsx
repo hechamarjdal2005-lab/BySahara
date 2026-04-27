@@ -10,6 +10,7 @@ interface ImageUploaderProps {
   folder?: string
 }
 
+// ─── Single uploader (كما كان) ────────────────────────────────────────────────
 export default function ImageUploader({
   value, onChange, bucket = 'images', folder = 'uploads'
 }: ImageUploaderProps) {
@@ -20,23 +21,11 @@ export default function ImageUploader({
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
-    setUploading(true)
-    setError(null)
-
+    setUploading(true); setError(null)
     const ext = file.name.split('.').pop()
     const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filename, file, { upsert: true })
-
-    if (uploadError) {
-      setError('Erreur lors du téléchargement')
-      setUploading(false)
-      return
-    }
-
+    const { error: uploadError } = await supabase.storage.from(bucket).upload(filename, file, { upsert: true })
+    if (uploadError) { setError('Erreur lors du téléchargement'); setUploading(false); return }
     const { data } = supabase.storage.from(bucket).getPublicUrl(filename)
     onChange(data.publicUrl)
     setUploading(false)
@@ -44,46 +33,119 @@ export default function ImageUploader({
 
   return (
     <div className="space-y-2">
-      {/* Preview */}
       {value && (
         <div className="relative w-full h-40 rounded-xl overflow-hidden border border-white/10 bg-white/5 group">
           <img src={value} alt="preview" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-            <button
-              type="button"
-              onClick={() => onChange('')}
-              className="text-white text-xs px-3 py-1.5 rounded-lg bg-red-500/80 hover:bg-red-500"
-            >
-              Supprimer
-            </button>
+            <button type="button" onClick={() => onChange('')} className="text-white text-xs px-3 py-1.5 rounded-lg bg-red-500/80 hover:bg-red-500">Supprimer</button>
           </div>
         </div>
       )}
-
-      {/* URL input */}
       <div className="flex gap-2">
-        <input
-          type="url"
-          value={value ?? ''}
-          onChange={e => onChange(e.target.value)}
-          placeholder="URL de l'image ou télécharger..."
-          className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#e8c547]/40 text-sm transition"
-        />
+        <input type="url" value={value ?? ''} onChange={e => onChange(e.target.value)} placeholder="URL de l'image ou télécharger..." className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#e8c547]/40 text-sm transition" />
+        <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading} className="px-4 py-2.5 rounded-xl bg-[#e8c547]/10 text-[#e8c547] border border-[#e8c547]/20 hover:bg-[#e8c547]/20 transition text-sm font-medium disabled:opacity-50 whitespace-nowrap">
+          {uploading ? '⏳' : '📁 Télécharger'}
+        </button>
+      </div>
+      <input ref={inputRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+      {error && <p className="text-red-400 text-xs">{error}</p>}
+    </div>
+  )
+}
+
+// ─── Gallery uploader (جديد — متعدد الصور) ────────────────────────────────────
+interface GalleryUploaderProps {
+  value?: string[]
+  onChange: (urls: string[]) => void
+  bucket?: string
+  folder?: string
+  max?: number
+}
+
+export function GalleryUploader({
+  value = [], onChange, bucket = 'images', folder = 'uploads', max = 6
+}: GalleryUploaderProps) {
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const ext = file.name.split('.').pop()
+    const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error: uploadError } = await supabase.storage.from(bucket).upload(filename, file, { upsert: true })
+    if (uploadError) throw uploadError
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filename)
+    return data.publicUrl
+  }
+
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
+    const remaining = max - value.length
+    const toUpload = files.slice(0, remaining)
+    setUploading(true); setError(null)
+    try {
+      const urls = await Promise.all(toUpload.map(uploadFile))
+      onChange([...value, ...urls])
+    } catch {
+      setError('Erreur lors du téléchargement')
+    }
+    setUploading(false)
+    // reset input
+    if (inputRef.current) inputRef.current.value = ''
+  }
+
+  const remove = (idx: number) => {
+    onChange(value.filter((_, i) => i !== idx))
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Grid of uploaded images */}
+      {value.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {value.map((url, idx) => (
+            <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-white/5 group">
+              <img src={url} alt={`gallery-${idx}`} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => remove(idx)}
+                  className="text-white text-xs px-2 py-1 rounded-lg bg-red-500/80 hover:bg-red-500"
+                >
+                  🗑️ Supprimer
+                </button>
+              </div>
+              {/* index badge */}
+              <span className="absolute top-1 left-1 text-[10px] font-bold bg-black/60 text-white rounded-full px-1.5 py-0.5">
+                {idx + 1}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Upload button */}
+      {value.length < max && (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="px-4 py-2.5 rounded-xl bg-[#e8c547]/10 text-[#e8c547] border border-[#e8c547]/20 hover:bg-[#e8c547]/20 transition text-sm font-medium disabled:opacity-50 whitespace-nowrap"
+          className="w-full py-3 rounded-xl border-2 border-dashed border-[#e8c547]/30 text-[#e8c547]/70 hover:border-[#e8c547]/60 hover:text-[#e8c547] hover:bg-[#e8c547]/5 transition text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {uploading ? '⏳' : '📁 Télécharger'}
+          {uploading
+            ? <><span className="animate-spin">⏳</span> Téléchargement...</>
+            : <><span>🖼️</span> Ajouter des photos ({value.length}/{max})</>
+          }
         </button>
-      </div>
+      )}
 
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
-        onChange={handleUpload}
+        multiple
+        onChange={handleFiles}
         className="hidden"
       />
 

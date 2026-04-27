@@ -6,7 +6,7 @@ import AdminHeader from '../components/AdminHeader'
 import DataTable from '../components/DataTable'
 import ConfirmDialog from '../components/ConfirmDialog'
 import FormModal, { Field, Input, Textarea, Grid2 } from '../components/FormModal'
-import ImageUploader from '../components/ImageUploader'
+import ImageUploader, { GalleryUploader } from '../components/ImageUploader'
 import { useCrud } from '../hooks/useCrud'
 
 const empty = {
@@ -16,6 +16,7 @@ const empty = {
   province_en: '', province_ar: '', region_en: '', region_ar: '',
   address_en: '', address_ar: '', phone: '', email: '', website: '',
   founded_year: '', member_count: '', latitude: '', longitude: '',
+  gallery: [],
 }
 
 export default function CooperativesPage() {
@@ -29,7 +30,11 @@ export default function CooperativesPage() {
 
   const set = (k: string, v: any) => setForm((p: any) => ({ ...p, [k]: v }))
   const openCreate = () => { setEditing(null); setForm(empty); setModal(true) }
-  const openEdit = (row: any) => { setEditing(row); setForm(row); setModal(true) }
+  const openEdit = (row: any) => {
+    setEditing(row)
+    setForm({ ...row, gallery: Array.isArray(row.gallery) ? row.gallery : [] })
+    setModal(true)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,6 +45,7 @@ export default function CooperativesPage() {
       member_count: parseInt(form.member_count) || null,
       latitude: parseFloat(form.latitude) || null,
       longitude: parseFloat(form.longitude) || null,
+      gallery: Array.isArray(form.gallery) ? form.gallery : [],
     }
     if (editing) await coops.update(editing.id, payload)
     else await coops.create(payload)
@@ -75,19 +81,41 @@ export default function CooperativesPage() {
             onEdit={openEdit}
             onDelete={setDeleteTarget}
             columns={[
-              { key: 'image', label: 'Photo', render: row => row.image ? <img src={row.image} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">🤝</div> },
+              {
+                key: 'image', label: 'Photo',
+                render: row => row.image
+                  ? <img src={row.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                  : <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">🤝</div>
+              },
               { key: 'name_en', label: 'Nom (FR)' },
               { key: 'name_ar', label: 'Nom (AR)' },
               { key: 'city_en', label: 'Ville' },
               { key: 'province_en', label: 'Province' },
               { key: 'member_count', label: 'Membres' },
               { key: 'phone', label: 'Téléphone' },
+              {
+                key: 'gallery', label: 'Galerie',
+                render: row => {
+                  const count = Array.isArray(row.gallery) ? row.gallery.length : 0
+                  return (
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${count > 0 ? 'bg-[#e8c547]/20 text-[#e8c547]' : 'bg-white/5 text-gray-500'}`}>
+                      🖼️ {count}
+                    </span>
+                  )
+                }
+              },
             ]}
           />
         </div>
       </div>
 
-      <FormModal open={modal} title={editing ? 'Modifier la coopérative' : 'Nouvelle coopérative'} onClose={() => setModal(false)} onSubmit={handleSubmit} loading={saving}>
+      <FormModal
+        open={modal}
+        title={editing ? 'Modifier la coopérative' : 'Nouvelle coopérative'}
+        onClose={() => setModal(false)}
+        onSubmit={handleSubmit}
+        loading={saving}
+      >
         <Grid2>
           <Field label="Nom (Français)"><Input value={form.name_en} onChange={e => set('name_en', e.target.value)} required /></Field>
           <Field label="Nom (Arabe)"><Input value={form.name_ar} onChange={e => set('name_ar', e.target.value)} required /></Field>
@@ -124,11 +152,28 @@ export default function CooperativesPage() {
           <Field label="Latitude"><Input type="number" step="any" value={form.latitude} onChange={e => set('latitude', e.target.value)} /></Field>
           <Field label="Longitude"><Input type="number" step="any" value={form.longitude} onChange={e => set('longitude', e.target.value)} /></Field>
         </Grid2>
-        <Field label="Image principale"><ImageUploader value={form.image} onChange={url => set('image', url)} folder="cooperatives" /></Field>
-        <Field label="Logo"><ImageUploader value={form.logo} onChange={url => set('logo', url)} folder="cooperatives/logos" /></Field>
+        <Field label="Image principale">
+          <ImageUploader value={form.image} onChange={url => set('image', url)} folder="cooperatives" />
+        </Field>
+        <Field label="Logo">
+          <ImageUploader value={form.logo} onChange={url => set('logo', url)} folder="cooperatives/logos" />
+        </Field>
+        <Field label="Galerie de photos">
+          <GalleryUploader
+            value={form.gallery ?? []}
+            onChange={urls => set('gallery', urls)}
+            folder="cooperatives/gallery"
+            max={6}
+          />
+        </Field>
       </FormModal>
 
-      <ConfirmDialog open={!!deleteTarget} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={saving} />
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        loading={saving}
+      />
     </div>
   )
 }
